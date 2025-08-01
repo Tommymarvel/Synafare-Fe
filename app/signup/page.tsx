@@ -2,13 +2,10 @@
 import React, { useState } from 'react';
 import { Input } from '../components/form/Input';
 import { Button } from '../components/ui/Button';
-import Google from '@/app/assets/google-icon.png';
 import { Eye, EyeOff } from 'lucide-react';
-import Image from 'next/image';
 import {
   createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
+  
 } from 'firebase/auth';
 import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
 import * as Yup from 'yup';
@@ -39,30 +36,30 @@ export default function SignUpPage() {
 
   const router = useRouter();
 
-  async function handleGoogleSignUp() {
-    try {
-      const provider = new GoogleAuthProvider();
-      const info = await signInWithPopup(auth, provider);
-      // Google accounts come pre-verified, so you can redirect straight away:
+  // async function handleGoogleSignUp() {
+  //   try {
+  //     const provider = new GoogleAuthProvider();
+  //     const info = await signInWithPopup(auth, provider);
+  //     // Google accounts come pre-verified, so you can redirect straight away:
 
-      const email = info.user.email;
+  //     const email = info.user.email;
 
-      await axiosInstance.post('/otp/request', { email: email });
-      sessionStorage.setItem('verifyEmail', email as string);
+  //     await axiosInstance.post('/otp/request', { email: email });
+  //     sessionStorage.setItem('verifyEmail', email as string);
 
-      toast.info(
-        'Account created successfully. Redirecting to verify email address'
-      );
+  //     toast.info(
+  //       'Account created successfully. Redirecting to verify email address'
+  //     );
 
-      router.push('/signup/verify-otp');
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message || 'Something went wrong');
-      } else {
-        toast.error('An unknown error occurred');
-      }
-    }
-  }
+  //     router.push('/signup/verify-otp');
+  //   } catch (err: unknown) {
+  //     if (err instanceof Error) {
+  //       toast.error(err.message || 'Something went wrong');
+  //     } else {
+  //       toast.error('An unknown error occurred');
+  //     }
+  //   }
+  // }
 
   const handleSubmit = async (values: SignUpValues) => {
     try {
@@ -180,7 +177,7 @@ export default function SignUpPage() {
       </Formik>
 
       {/* OR / Google */}
-      <p className="text-center text-raisin">OR</p>
+      {/* <p className="text-center text-raisin">OR</p>
       <Button
         variant="outline"
         className="w-full inline-flex items-center justify-center space-x-2"
@@ -188,7 +185,7 @@ export default function SignUpPage() {
       >
         <Image src={Google} alt="Google Icon" width={20} height={20} />
         <span>Continue with Google</span>
-      </Button>
+      </Button> */}
       <footer className="text-center text-[#645D5D]  text-sm leading-[145%] mb-12">
         By clicking “Sign Up”, you agree to Synafare’s{' '}
         <a

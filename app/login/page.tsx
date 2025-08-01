@@ -18,13 +18,12 @@ import { Button } from '../components/ui/Button';
 import { Eye, EyeOff } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import {
-  GoogleAuthProvider,
   signInWithEmailAndPassword,
-  signInWithPopup,
+
 } from 'firebase/auth';
 import axiosInstance from '@/lib/axiosInstance';
-import Google from '@/app/assets/google-icon.png';
-import Image from 'next/image';
+// import Google from '@/app/assets/google-icon.png';
+// import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 
 interface LoginValues {
@@ -85,38 +84,38 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const idToken = await result.user.getIdToken();
-      const { status, data: { statusCode } } = await axiosInstance.post<{
-        statusCode?: number;
-      }>('/auth/login', { idToken });
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     const provider = new GoogleAuthProvider();
+  //     const result = await signInWithPopup(auth, provider);
+  //     const idToken = await result.user.getIdToken();
+  //     const { status, data: { statusCode } } = await axiosInstance.post<{
+  //       statusCode?: number;
+  //     }>('/auth/login', { idToken });
       
-      if (status === 204 || statusCode === 400) {
-        sessionStorage.setItem('verifyEmail', result.user.email as string);
-        router.push('/signup/verify-otp');
-        return;
-      }
-      await refreshUser();
-      const nextRoute = user?.bvn == null 
-        ? '/signup/onboarding' 
-        : user?.cacFile == null 
-        ? '/signup/business-info' 
-        : '/dashboard';
+  //     if (status === 204 || statusCode === 400) {
+  //       sessionStorage.setItem('verifyEmail', result.user.email as string);
+  //       router.push('/signup/verify-otp');
+  //       return;
+  //     }
+  //     await refreshUser();
+  //     const nextRoute = user?.bvn == null 
+  //       ? '/signup/onboarding' 
+  //       : user?.cacFile == null 
+  //       ? '/signup/business-info' 
+  //       : '/dashboard';
 
-      router.push(nextRoute);
-    } catch (error: unknown) {
-      let message = 'Google sign-in failed';
-      if ((error as AxiosError).isAxiosError) {
-        message = (error as AxiosError).message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
-      toast.error(message);
-    }
-  };
+  //     router.push(nextRoute);
+  //   } catch (error: unknown) {
+  //     let message = 'Google sign-in failed';
+  //     if ((error as AxiosError).isAxiosError) {
+  //       message = (error as AxiosError).message;
+  //     } else if (error instanceof Error) {
+  //       message = error.message;
+  //     }
+  //     toast.error(message);
+  //   }
+  // };
 
   return (
     <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
@@ -210,21 +209,21 @@ export default function LoginPage() {
           </Form>
         )}
       </Formik>
-      <div className="flex items-center">
+      {/* <div className="flex items-center">
         <hr className="flex-grow border-gray-300" />
         <span className="px-3 text-gray-500">OR</span>
         <hr className="flex-grow border-gray-300" />
-      </div>
+      </div> */}
 
       {/* Google Sign-In */}
-      <Button
+      {/* <Button
         variant="outline"
         className="w-full inline-flex items-center justify-center space-x-2"
         onClick={handleGoogleLogin}
       >
         <Image src={Google} alt="Google icon" width={20} height={20} />
         <span>Continue with Google</span>
-      </Button>
+      </Button> */}
     </div>
   );
 }
