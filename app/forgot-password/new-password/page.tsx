@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
 import * as Yup from 'yup';
-import { useRouter, useSearchParams } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 // import clsx from 'clsx';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -20,33 +20,32 @@ const ResetPasswordSchema = Yup.object({
 });
 
 export default function ResetPasswordPage() {
-  const router = useRouter();
-  const params = useSearchParams();
-  const token = params.get('token') || '';
+  // const router = useRouter();
+
 
   // top‐level hook state for each field
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const handleSubmit = async (
-    values: { newPassword: string; confirmPassword: string },
-    { setSubmitting }: { setSubmitting: (b: boolean) => void }
-  ) => {
-    try {
-      const res = await fetch(`/api/auth/reset-password?token=${token}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: values.newPassword }),
-      });
-      if (!res.ok) throw new Error('Reset failed');
-      router.push('/auth/login');
-    } catch (err) {
-      console.error(err);
-      // optionally surface a form-level error
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // const handleSubmit = async (
+  //   values: { newPassword: string; confirmPassword: string },
+  //   { setSubmitting }: { setSubmitting: (b: boolean) => void }
+  // ) => {
+  //   try {
+  //     const res = await fetch(`/api/auth/reset-password?token=${token}`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ password: values.newPassword }),
+  //     });
+  //     if (!res.ok) throw new Error('Reset failed');
+  //     router.push('/login');
+  //   } catch (err) {
+  //     console.error(err);
+  //     // optionally surface a form-level error
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
 
   return (
       <main className='w-full space-y-4 lg:space-y-8 max-w-[624px] mx-5 lg:mx-[64px] mb-[32px]'>
@@ -64,7 +63,9 @@ export default function ResetPasswordPage() {
           <Formik
             initialValues={{ newPassword: '', confirmPassword: '' }}
             validationSchema={ResetPasswordSchema}
-            onSubmit={handleSubmit}
+            onSubmit={(e) => {
+              console.log(e);
+            }}
           >
             {({ isSubmitting, isValid }) => (
               <Form className="space-y-4 w-full">
