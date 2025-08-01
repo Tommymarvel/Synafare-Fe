@@ -116,7 +116,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full space-y-4 lg:space-y-8 max-w-[624px] mx-5 lg:mx-[64px] mb-[32px]">
+    <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
       <div>
         <h1 className="text-2xl lg:text-[34px] font-medium text-raisin text-center">
           Welcome Back
@@ -131,7 +131,7 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
       >
         {({ isSubmitting, isValid }) => (
-          <Form className="space-y-4">
+          <Form className="space-y-4 ">
             {/* Email */}
             <div>
               <Field name="email">

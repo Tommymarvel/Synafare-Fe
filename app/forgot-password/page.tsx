@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
     try {
       // Send the reset email with a link back to your “new-password” page
       await sendPasswordResetEmail(auth, values.email, {
-        url: `${window.location.origin}/forgot-password/new-password`,
+        url: `$${process.env.NEXT_PUBLIC_APP_ORIGIN}/forgot-password/new-password`,
         handleCodeInApp: true,
       });
 
@@ -49,73 +49,71 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="bg-white flex flex-col">
-      <main className="flex-grow flex items-center justify-center px-4">
-        <div className="w-full max-w-[624px] space-y-6">
-          <h1 className="text-2xl md:text-[34px] font-medium text-raisin text-center">
-            Forgot Password
-          </h1>
-          <p className="text-sm text-[#645D5D] text-center">
-            Enter your registered email address to reset your password
-          </p>
+    <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
+      <div className="w-full  space-y-6">
+        <h1 className="text-2xl md:text-[34px] font-medium text-raisin text-center">
+          Forgot Password
+        </h1>
+        <p className="text-sm text-[#645D5D] text-center">
+          Enter your registered email address to reset your password
+        </p>
 
-          <Formik
-            initialValues={{ email: '' }}
-            validationSchema={ForgotPasswordSchema}
-            onSubmit={handleSubmit}
+        <Formik
+          initialValues={{ email: '' }}
+          validationSchema={ForgotPasswordSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting, isValid }) => (
+            <Form className="space-y-4">
+              <Field name="email">
+                {({
+                  field,
+                  meta,
+                }: {
+                  field: React.InputHTMLAttributes<HTMLInputElement>;
+                  meta: { touched: boolean; error?: string };
+                }) => (
+                  <>
+                    <Input
+                      label="Email Address"
+                      variant="outline"
+                      type="email"
+                      placeholder="you@email.com"
+                      {...field}
+                      hasError={meta.touched && !!meta.error}
+                      size="lg"
+                    />
+                    <ErrorMessage
+                      name="email"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                      aria-live="polite"
+                    />
+                  </>
+                )}
+              </Field>
+
+              <Button
+                type="submit"
+                variant="default"
+                className="w-full"
+                disabled={!isValid || isSubmitting}
+              >
+                {isSubmitting ? 'Submitting...' : 'Reset Password'}
+              </Button>
+            </Form>
+          )}
+        </Formik>
+
+        <div className="text-center">
+          <Link
+            href="/login"
+            className="text-sm underline font-semibold text-raisin"
           >
-            {({ isSubmitting, isValid }) => (
-              <Form className="space-y-4">
-                <Field name="email">
-                  {({
-                    field,
-                    meta,
-                  }: {
-                    field: React.InputHTMLAttributes<HTMLInputElement>;
-                    meta: { touched: boolean; error?: string };
-                  }) => (
-                    <>
-                      <Input
-                        label="Email Address"
-                        variant="outline"
-                        type="email"
-                        placeholder="you@email.com"
-                        {...field}
-                        hasError={meta.touched && !!meta.error}
-                        size="lg"
-                      />
-                      <ErrorMessage
-                        name="email"
-                        component="div"
-                        className="text-red-500 text-sm mt-1"
-                        aria-live="polite"
-                      />
-                    </>
-                  )}
-                </Field>
-
-                <Button
-                  type="submit"
-                  variant="default"
-                  className="w-full"
-                  disabled={!isValid || isSubmitting}
-                >
-                  {isSubmitting ? 'Submitting...' : 'Reset Password'}
-                </Button>
-              </Form>
-            )}
-          </Formik>
-
-          <div className="text-center">
-            <Link
-              href="/login"
-              className="text-sm underline font-semibold text-raisin"
-            >
-              Back to Login
-            </Link>
-          </div>
+            Back to Login
+          </Link>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
