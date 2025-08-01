@@ -8,6 +8,7 @@ import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import { CustomSelect, Option } from '@/app/components/form/CustomSelect';
+import { useRouter } from 'next/navigation';
 
 interface AccountSetupValues {
   first_name: string;
@@ -60,10 +61,13 @@ export default function Onboarding() {
     bvn: '',
   };
 
+  const router = useRouter()
+
   const onSubmit = async (values: AccountSetupValues) => {
     try {
       const response = await axiosInstance.post('/auth/setup', values);
       toast.success(response.data.message || 'Account created successfully');
+      router.push('/signup/bussiness-info');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       toast.error(

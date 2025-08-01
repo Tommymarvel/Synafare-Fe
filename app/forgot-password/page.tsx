@@ -3,13 +3,10 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-
-
 import { Button } from '@/app/components/ui/Button';
 import { Input } from '@/app/components/form/Input';
 import { toast } from 'react-toastify';
@@ -25,7 +22,7 @@ const ForgotPasswordSchema = Yup.object<ForgotValues>({
 });
 
 export default function ForgotPasswordPage() {
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleSubmit = async (
     values: ForgotValues,
@@ -41,7 +38,6 @@ export default function ForgotPasswordPage() {
 
       toast.success('Password reset email sent! Check your inbox.');
       // Optionally clear the form or redirect:
-      router.push('/login');
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : 'Failed to send reset email';
