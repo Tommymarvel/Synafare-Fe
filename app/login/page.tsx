@@ -102,7 +102,11 @@ export default function LoginPage() {
         return;
       }
       await refreshUser();
-      const nextRoute = user?.bvn == null ? '/signup/onboarding' : '/dashboard';
+      const nextRoute = user?.bvn == null 
+        ? '/signup/onboarding' 
+        : user?.cacFile == null 
+        ? '/signup/business-info' 
+        : '/dashboard';
 
       router.push(nextRoute);
     } catch (error: unknown) {

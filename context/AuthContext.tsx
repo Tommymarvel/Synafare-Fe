@@ -15,6 +15,7 @@ interface User {
   id: string;
   email: string;
   bvn: string;
+  cacFile: string
 }
 
 interface WhoAmIResponse {
