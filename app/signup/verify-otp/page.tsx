@@ -153,7 +153,7 @@ export default function VerifyOtpPage() {
   if (email === null) return null;
 
   return (
-    <div className="w-full max-w-[624px] px-4">
+    <div className="w-full max-w-[500px] mx-4">
       <h1 className="text-[24px] md:text-[34px] font-inter-bold text-center text-raisin mb-2">
         You’ve got mail
       </h1>

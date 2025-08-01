@@ -92,11 +92,12 @@ export default function LoginPage() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
-      const { status, data } = await axiosInstance.post<{
+      const { status, data: { statusCode } } = await axiosInstance.post<{
         statusCode?: number;
       }>('/auth/login', { idToken });
-      sessionStorage.setItem('verifyEmail', result.user.email as string);
-      if (status === 204 || data.statusCode === 400) {
+      
+      if (status === 204 || statusCode === 400) {
+        sessionStorage.setItem('verifyEmail', result.user.email as string);
         router.push('/signup/verify-otp');
         return;
       }
@@ -153,27 +154,30 @@ export default function LoginPage() {
             </div>
 
             {/* Password */}
-            <div className="relative">
-              <Field name="password">
-                {({ field }: FieldProps) => (
-                  <Input
-                    {...field}
-                    label="Password"
-                    variant="outline"
-                    type={show ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    className="pr-12"
-                  />
-                )}
-              </Field>
-              <button
-                type="button"
-                onClick={() => setShow((s) => !s)}
-                className="absolute right-4 top-[68%] transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                aria-label={show ? 'Hide password' : 'Show password'}
-              >
-                {show ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+            <div>
+              <div className="relative">
+                <Field name="password">
+                  {({ field }: FieldProps) => (
+                    <Input
+                      {...field}
+                      label="Password"
+                      variant="outline"
+                      type={show ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      className="pr-12"
+                    />
+                  )}
+                </Field>
+                <button
+                  type="button"
+                  onClick={() => setShow((s) => !s)}
+                  className="absolute right-4 top-[68%] transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label={show ? 'Hide password' : 'Show password'}
+                >
+                  {show ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
               <ErrorMessage
                 name="password"
                 component="div"

@@ -38,7 +38,7 @@ const validationSchema = Yup.object({
 
 const idOptions: Option[] = [
   { value: '', label: 'Select ID Type' },
-  { value: 'vin', label: "Voter's" },
+  { value: 'vin', label: "Voter's ID" },
   { value: 'dl', label: 'Driver License' },
   { value: 'nin', label: 'National ID' },
 ];
@@ -67,7 +67,7 @@ export default function Onboarding() {
     try {
       const response = await axiosInstance.post('/auth/setup', values);
       toast.success(response.data.message || 'Account created successfully');
-      router.push('/signup/bussiness-info');
+      router.push('/signup/business-info');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       toast.error(

@@ -10,7 +10,7 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* 1. Header */}
-      <div className="w-full  mx-auto px-6 py-2 flex justify-between items-center border border-b-[#F0F2F5]">
+      <div className="w-full  mx-auto px-[22px] py-4 flex justify-between items-center border border-b-[#F0F2F5]">
         <AuthNav />
         <div className="flex">
           <a
