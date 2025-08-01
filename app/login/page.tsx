@@ -61,7 +61,7 @@ export default function LoginPage() {
 
       sessionStorage.setItem('verifyEmail', email);
 
-      if (res.data.status === 204 || res.data.status.statusCode === 400) {
+      if (res.data.status === 204 || res.data.statusCode === 400) {
         router.push('/signup/verify-otp');
         return;
       }
