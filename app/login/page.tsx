@@ -57,13 +57,11 @@ export default function LoginPage() {
 
       const idToken = await cred.user.getIdToken();
 
-      const { status, data } = await axiosInstance.post<{
-        statusCode?: number;
-      }>('/auth/login', { idToken });
+      const res = await axiosInstance.post('/auth/login', { idToken });
 
       sessionStorage.setItem('verifyEmail', email);
 
-      if (status === 204 || data.statusCode === 400) {
+      if (res.data.status === 204 || res.data.status.statusCode === 400) {
         router.push('/signup/verify-otp');
         return;
       }
