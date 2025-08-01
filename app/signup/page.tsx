@@ -1,0 +1,209 @@
+'use client';
+import React, { useState } from 'react';
+import { Input } from '../components/form/Input';
+import { Button } from '../components/ui/Button';
+import Google from '@/app/assets/google-icon.png';
+import { Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image';
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from 'firebase/auth';
+import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
+import * as Yup from 'yup';
+import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
+import axiosInstance from '@/lib/axiosInstance';
+
+interface SignUpValues {
+  email: string;
+  password: string;
+}
+
+const SignUpSchema = Yup.object({
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('Password is required'),
+});
+
+const initialValues: SignUpValues = { email: '', password: '' };
+
+export default function SignUpPage() {
+  const [show, setShow] = useState(false);
+  const [submitting, isSubmitting] = useState(false);
+
+  const router = useRouter();
+
+  async function handleGoogleSignUp() {
+    try {
+      const provider = new GoogleAuthProvider();
+      const info = await signInWithPopup(auth, provider);
+      // Google accounts come pre-verified, so you can redirect straight away:
+
+      const email = info.user.email;
+
+      await axiosInstance.post('/otp/request', { email: email });
+      sessionStorage.setItem('verifyEmail', email as string);
+
+      toast.info(
+        'Account created successfully. Redirecting to verify email address'
+      );
+
+      router.push('/signup/verify-otp');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message || 'Something went wrong');
+      } else {
+        toast.error('An unknown error occurred');
+      }
+    }
+  }
+
+  const handleSubmit = async (values: SignUpValues) => {
+    try {
+      isSubmitting(true);
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+
+      await auth.signOut();
+
+      await axiosInstance.post('/otp/request', { email: values.email });
+      sessionStorage.setItem('verifyEmail', values.email);
+
+      toast.info(
+        'Account created successfully. Redirecting to verify email address'
+      );
+      router.push('/signup/verify-otp');
+
+      isSubmitting(false);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message || 'Something went wrong');
+      } else {
+        toast.error('An unknown error occurred');
+      }
+    } finally {
+      isSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="w-full space-y-4 lg:space-y-8 max-w-[624px] mx-5 lg:mx-[64px] mb-[32px]">
+      <div>
+        <h1 className="text-2xl lg:text-[34px] font-medium text-raisin text-center">
+          Welcome to Synafare
+        </h1>
+        <p className="text-sm text-[#645D5D] mt-2 text-center">
+          Provide your information to get started
+        </p>
+      </div>
+
+      <Formik
+        initialValues={initialValues}
+        validationSchema={SignUpSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isValid, isSubmitting }) => (
+          <Form className="space-y-4">
+            {/* Email */}
+            <Field name="email">
+              {({ field, meta }: FieldProps) => (
+                <>
+                  <Input
+                    {...field}
+                    label="Email Address"
+                    variant="outline"
+                    type="email"
+                    placeholder="you@email.com"
+                    size="lg"
+                    hasError={meta.touched && !!meta.error}
+                  />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </>
+              )}
+            </Field>
+
+            {/* Password */}
+            <Field name="password">
+              {({ field, meta }: FieldProps) => (
+                <div>
+                  <span className="relative w-full">
+                    <Input
+                      {...field}
+                      label="Password"
+                      variant="outline"
+                      type={show ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      size="lg"
+                      hasError={meta.touched && !!meta.error}
+                      className="pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShow((s) => !s)}
+                      className="absolute right-4 top-[68%] transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      aria-label={show ? 'Hide password' : 'Show password'}
+                    >
+                      {show ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </span>
+
+                  <ErrorMessage
+                    name="password"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+              )}
+            </Field>
+
+            {/* Submit */}
+            <Button
+              type="submit"
+              variant="default"
+              className="w-full"
+              disabled={!isValid || isSubmitting}
+            >
+              {submitting ? 'Creating Account...' : ' Continue with this email'}
+            </Button>
+          </Form>
+        )}
+      </Formik>
+
+      {/* OR / Google */}
+      <p className="text-center text-raisin">OR</p>
+      <Button
+        variant="outline"
+        className="w-full inline-flex items-center justify-center space-x-2"
+        onClick={handleGoogleSignUp}
+      >
+        <Image src={Google} alt="Google Icon" width={20} height={20} />
+        <span>Continue with Google</span>
+      </Button>
+      <footer className="text-center text-[#645D5D]  text-sm leading-[145%] mb-12">
+        By clicking “Sign Up”, you agree to Synafare’s{' '}
+        <a
+          href="/privacy"
+          className="underline decoration-solid decoration-skip-ink-none decoration-auto underline-offset-auto underline-from-font text-raisin"
+        >
+          Privacy Policy
+        </a>{' '}
+        and{' '}
+        <a
+          href="/terms"
+          className="underline decoration-solid decoration-skip-ink-none decoration-auto underline-offset-auto underline-from-font text-raisin"
+        >
+          Terms of Use{' '}
+        </a>
+      </footer>
+    </div>
+  );
+}
