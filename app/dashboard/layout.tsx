@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Left nav */}
-      <aside className="w-64   border-r bg-white">
+      <aside className="w-64 hidden md:block  border-r bg-white">
         <Sidebar />
       </aside>
 

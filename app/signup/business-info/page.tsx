@@ -1,4 +1,6 @@
+// app/auth/business-setup/page.tsx
 'use client';
+
 import React from 'react';
 import {
   Formik,
@@ -13,6 +15,11 @@ import { useDropzone } from 'react-dropzone';
 import { UploadCloud, CheckCircle, Trash2 } from 'lucide-react';
 import { Input } from '@/app/components/form/Input';
 import { Button } from '@/app/components/ui/Button';
+import axiosInstance from '@/lib/axiosInstance';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
+import { CustomSelect, Option } from '@/app/components/form/CustomSelect';
+import { useRouter } from 'next/navigation';
 
 // Form values interface
 interface BusinessInfoValues {
@@ -38,7 +45,29 @@ const validationSchema = Yup.object({
   country: Yup.string().required('Country is required'),
 });
 
-// Dropzone for CAC Certificate (must be a standalone component)
+
+const cityOptions: Option[] = [
+  { value: '', label: 'Select city' },
+  { value: 'Lagos', label: 'Lagos' },
+  { value: 'Abuja', label: 'Abuja' },
+  { value: 'Port Harcourt', label: 'Port Harcourt' },
+];
+
+const stateOptions: Option[] = [
+  { value: '', label: 'Select state' },
+  { value: 'Lagos', label: 'Lagos State' },
+  { value: 'FCT', label: 'Abuja FCT' },
+  { value: 'Rivers', label: 'Rivers State' },
+];
+
+const countryOptions: Option[] = [
+  { value: '', label: 'Select country' },
+  { value: 'Nigeria', label: 'Nigeria' },
+  { value: 'Ghana', label: 'Ghana' },
+  { value: 'Kenya', label: 'Kenya' },
+];
+
+// Dropzone for CAC Certificate
 function CacDropzone() {
   const { values, setFieldValue } = useFormikContext<BusinessInfoValues>();
   const { getRootProps, getInputProps } = useDropzone({
@@ -181,14 +210,44 @@ export default function BusinessInfoForm() {
     country: 'Nigeria',
   };
 
-  const onSubmit = (values: BusinessInfoValues) => {
-    console.log('Submitted values:', values);
+  const router = useRouter();
+
+  const onSubmit = async (values: BusinessInfoValues) => {
+    const formData = new FormData();
+    formData.append('business_name', values.businessName);
+    formData.append('reg_number', values.registrationNumber);
+    formData.append('business_address', values.address);
+    formData.append('city', values.city);
+    formData.append('state', values.state);
+    formData.append('country', values.country);
+    if (values.cacFile) {
+      formData.append('cac_certificate', values.cacFile);
+    }
+    if (values.bankStatement) {
+      formData.append('bank_statement', values.bankStatement);
+    }
+
+    try {
+      const resp = await axiosInstance.post('/auth/business-setup', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success(resp.data.message || 'Business info submitted');
+      router.push('/dashboard');
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
+    }
   };
 
   return (
-    <div className=" mt-12 flex items-center justify-center p-4">
+    <div className="mt-12 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg w-full max-w-[624px] ">
-        <h1 className="text-2xl m md:text-[34px] font-semibold text-raisin text-center">
+        <h1 className="text-2xl md:text-[34px] font-semibold text-raisin text-center">
           Business Information
         </h1>
         <p className="text-sm text-gray-600 mt-2 text-center">
@@ -203,7 +262,7 @@ export default function BusinessInfoForm() {
           <Form className="mt-6 space-y-6">
             {/* Business Name & Registration */}
             <div className="grid grid-cols-2 gap-4">
-              <Field name="businessName">
+              <div>  <Field name="businessName">
                 {({ field, meta }: FieldProps) => (
                   <>
                     <Input
@@ -221,8 +280,8 @@ export default function BusinessInfoForm() {
                     />
                   </>
                 )}
-              </Field>
-              <Field name="registrationNumber">
+              </Field></div>
+              <div>   <Field name="registrationNumber">
                 {({ field, meta }: FieldProps) => (
                   <>
                     <Input
@@ -241,7 +300,9 @@ export default function BusinessInfoForm() {
                   </>
                 )}
               </Field>
-            </div>
+            </div></div>
+            
+           
 
             {/* CAC Certificate Upload */}
             <CacDropzone />
@@ -259,7 +320,7 @@ export default function BusinessInfoForm() {
                     {...field}
                     placeholder="Enter address"
                     hasError={meta.touched && !!meta.error}
-                    size='lg'
+                    size="lg"
                   />
                   <ErrorMessage
                     name="address"
@@ -273,63 +334,31 @@ export default function BusinessInfoForm() {
             {/* City, State, Country */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label
-                  htmlFor="city"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  City <span className="text-red-500">*</span>
-                </label>
-                <Field
-                  as="select"
+                <CustomSelect
                   name="city"
-                  className="mt-1 w-full border border-[#DCDCDC] rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-mikado text-raisin"
-                >
-                  <option value="">Select city</option>
-                </Field>
-                <ErrorMessage
-                  name="city"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
+                  label="City *"
+                  options={cityOptions}
+                  className="mt-1"
                 />
               </div>
+
+              {/* State */}
               <div>
-                <label
-                  htmlFor="state"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  State <span className="text-red-500">*</span>
-                </label>
-                <Field
-                  as="select"
+                <CustomSelect
                   name="state"
-                  className="mt-1 w-full border border-[#DCDCDC] rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-mikado text-raisin"
-                >
-                  <option value="">Select state</option>
-                </Field>
-                <ErrorMessage
-                  name="state"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
+                  label="State *"
+                  options={stateOptions}
+                  className="mt-1"
                 />
               </div>
+
+              {/* Country */}
               <div>
-                <label
-                  htmlFor="country"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Country <span className="text-red-500">*</span>
-                </label>
-                <Field
-                  as="select"
+                <CustomSelect
                   name="country"
-                  className="mt-1 w-full border border-[#DCDCDC] rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-mikado text-raisin"
-                >
-                  <option value="Nigeria">Nigeria</option>
-                </Field>
-                <ErrorMessage
-                  name="country"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
+                  label="Country *"
+                  options={countryOptions}
+                  className="mt-1"
                 />
               </div>
             </div>
