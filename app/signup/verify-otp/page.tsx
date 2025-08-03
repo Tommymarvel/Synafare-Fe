@@ -16,6 +16,7 @@ const OTP_LENGTH = 5;
 
 export default function VerifyOtpPage() {
   const router = useRouter();
+  const [submitting, isSubmitting ] = useState(false)
 
   // State
   const [email, setEmail] = useState<string | null>(null);
@@ -102,6 +103,7 @@ export default function VerifyOtpPage() {
 
   // Verify handler
   const handleVerify = async () => {
+    isSubmitting(true)
     if (!email) return;
     const otp = verificationCode.join('');
     if (otp.length < OTP_LENGTH) {
@@ -114,6 +116,7 @@ export default function VerifyOtpPage() {
       sessionStorage.removeItem('verifyEmail');
       toast.success('Email verified! Redirecting…');
       router.push('/login');
+      isSubmitting(false)
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message?: string }>;
       toast.error(
@@ -195,7 +198,7 @@ export default function VerifyOtpPage() {
         )}
       </div>
       <div className={isShaking ? 'shake' : ''}>
-        <Button className="w-full rounded mb-4 " onClick={handleVerify}>
+        <Button className="w-full rounded mb-4 " disabled={submitting} onClick={handleVerify}>
           Verify
         </Button>
       </div>

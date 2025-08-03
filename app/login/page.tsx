@@ -10,12 +10,17 @@ import { Input } from '../components/form/Input';
 import { Button } from '../components/ui/Button';
 import { Eye, EyeOff } from 'lucide-react';
 import { auth } from '@/lib/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  AuthErrorCodes,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
 import axiosInstance from '@/lib/axiosInstance';
 import Google from '@/app/assets/google-icon.png';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useLoginFlow } from '@/hooks/useAuthFlows';
+import { FirebaseError } from 'firebase/app';
 
 interface LoginValues {
   email: string;
@@ -34,37 +39,77 @@ const LoginSchema = Yup.object<LoginValues>({
 export default function LoginPage() {
   const [show, setShow] = useState(false);
   const router = useRouter();
-  const { user, refreshUser } = useAuth();
+  const { refreshUser } = useAuth();
   const { login } = useLoginFlow();
 
   const handleGoogleLogin = async () => {
+    let sessionEmail = '';
     try {
+      sessionStorage.removeItem('verifyEmail');
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
+      sessionEmail = result.user.email || '';
+      sessionStorage.setItem('verifyEmail', sessionEmail);
+
       const res = await axiosInstance.post('/auth/login', { idToken });
 
-      if (res.data.status === 204 || res.data.statusCode === 400) {
+      if (res.data.status === 204 ) {
         router.push('/signup/verify-otp');
         return;
       }
-      await refreshUser();
-      const nextRoute =
-        user?.bvn == null
-          ? '/signup/onboarding'
-          : user?.business_document !== 'submitted'
-          ? '/signup/business-info'
-          : '/dashboard';
 
-      router.push(nextRoute);
-    } catch (error: unknown) {
-      let message = 'Google sign-in failed';
-      if ((error as AxiosError).isAxiosError) {
-        message = (error as AxiosError).message;
-      } else if (error instanceof Error) {
-        message = error.message;
+      const backendUser = res.data.user;
+      if (backendUser.bvn == null) {
+        router.push('/signup/onboarding');
+      } else if (backendUser.business_document !== 'submitted') {
+        router.push('/signup/business-info');
+      } else {
+        router.push('/dashboard');
       }
-      toast.error(message);
+
+      await refreshUser();
+    } catch (error) {
+      if (sessionEmail) {
+        sessionStorage.setItem('verifyEmail', sessionEmail);
+      }
+
+      if (error instanceof FirebaseError) {
+        let msg: string;
+        switch (error.code) {
+          case AuthErrorCodes.POPUP_CLOSED_BY_USER:
+            msg = 'Authentication popup was closed before completing sign-in.';
+            break;
+          case AuthErrorCodes.NETWORK_REQUEST_FAILED:
+            msg = 'Network error — please check your connection and try again.';
+            break;
+          case AuthErrorCodes.INVALID_OAUTH_CLIENT_ID:
+            msg = 'Configuration error — please contact support.';
+            break;
+          default:
+            msg = error.message;
+        }
+        toast.error(msg);
+
+        const axiosError = error as AxiosError<{ message?: string }>;
+        if (
+          axiosError.response?.data.message ===
+          'Looks like we sent you one recently, kindly check for that and input in the fields'
+        ) {
+          toast.error(
+            'Looks like we sent you one recently, kindly check for that and input in the fields'
+          );
+
+          router.push('/signup/verify-otp');
+        } else {
+          toast.error(
+            (axiosError.response && axiosError.response.data
+              ? axiosError.response.data.message || axiosError.response.data
+              : axiosError.message || 'An error occurred'
+            ).toString()
+          );
+        }
+      }
     }
   };
 

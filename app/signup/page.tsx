@@ -3,10 +3,7 @@ import React, { useState } from 'react';
 import { Input } from '../components/form/Input';
 import { Button } from '../components/ui/Button';
 import { Eye, EyeOff } from 'lucide-react';
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-} from 'firebase/auth';
+import { AuthErrorCodes, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
 import * as Yup from 'yup';
 import { auth } from '@/lib/firebase';
@@ -16,6 +13,8 @@ import axiosInstance from '@/lib/axiosInstance';
 import Image from 'next/image';
 import Google from '@/app/assets/google-icon.png';
 import { useSignupFlow } from '@/hooks/useAuthFlows';
+import { AxiosError } from 'axios';
+import { FirebaseError } from 'firebase/app';
 
 interface SignUpValues {
   email: string;
@@ -38,33 +37,75 @@ export default function SignUpPage() {
   const { signup, submitting } = useSignupFlow();
   const router = useRouter();
 
-  async function handleGoogleSignUp() {
-    try {
-      const provider = new GoogleAuthProvider();
-      const info = await signInWithPopup(auth, provider);
+ const handleGoogleLogin = async () => {
+   let sessionEmail = '';
+   try {
+     sessionStorage.removeItem('verifyEmail');
+     const provider = new GoogleAuthProvider();
+     const result = await signInWithPopup(auth, provider);
+     const idToken = await result.user.getIdToken();
+     sessionEmail = result.user.email || '';
+     sessionStorage.setItem('verifyEmail', sessionEmail);
 
-      // Google accounts come pre-verified, so you can redirect straight away:
-      const idToken = await info.user.getIdToken();
+     const res = await axiosInstance.post('/auth/login', { idToken });
 
-      console.log('Google Sign Up Info:', info);
-      console.log('Google ID Token:', idToken);
+     if (res.data.status === 204 ) {
+       router.push('/signup/verify-otp');
+       return;
+     }
 
-      await axiosInstance.post('/auth/login', { idToken });
-      sessionStorage.setItem('verifyEmail', info.user.email as string);
+     const backendUser = res.data.user;
+     if (backendUser.bvn == null) {
+       router.push('/signup/onboarding');
+     } else if (backendUser.business_document !== 'submitted') {
+       router.push('/signup/business-info');
+     } else {
+       router.push('/dashboard');
+     }
 
-      toast.info(
-        'Account created successfully. Redirecting to verify email address'
-      );
+   } catch (error) {
+     if (sessionEmail) {
+       sessionStorage.setItem('verifyEmail', sessionEmail);
+     }
 
-      router.push('/signup/verify-otp');
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message || 'Something went wrong');
-      } else {
-        toast.error('An unknown error occurred');
-      }
-    }
-  }
+     if (error instanceof FirebaseError) {
+       let msg: string;
+       switch (error.code) {
+         case AuthErrorCodes.POPUP_CLOSED_BY_USER:
+           msg = 'Authentication popup was closed before completing sign-in.';
+           break;
+         case AuthErrorCodes.NETWORK_REQUEST_FAILED:
+           msg = 'Network error — please check your connection and try again.';
+           break;
+         case AuthErrorCodes.INVALID_OAUTH_CLIENT_ID:
+           msg = 'Configuration error — please contact support.';
+           break;
+         default:
+           msg = error.message;
+       }
+       toast.error(msg);
+
+       const axiosError = error as AxiosError<{ message?: string }>;
+       if (
+         axiosError.response?.data.message ===
+         'Looks like we sent you one recently, kindly check for that and input in the fields'
+       ) {
+         toast.error(
+           'Looks like we sent you one recently, kindly check for that and input in the fields'
+         );
+
+         router.push('/signup/verify-otp');
+       } else {
+         toast.error(
+           (axiosError.response && axiosError.response.data
+             ? axiosError.response.data.message || axiosError.response.data
+             : axiosError.message || 'An error occurred'
+           ).toString()
+         );
+       }
+     }
+   }
+ };
 
   return (
     <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
@@ -157,7 +198,7 @@ export default function SignUpPage() {
       <Button
         variant="outline"
         className="w-full inline-flex items-center justify-center space-x-2"
-        onClick={handleGoogleSignUp}
+        onClick={handleGoogleLogin}
       >
         <Image src={Google} alt="Google Icon" width={20} height={20} />
         <span>Continue with Google</span>
