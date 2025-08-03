@@ -25,10 +25,7 @@ export function useSignupFlow() {
       const idToken = await cred.user.getIdToken();
 
       // 3) tell your backend
-      await axiosInstance.post('/auth/login', { idToken });
-
-      // 4) sign out locally (so user goes through your OTP-verification step)
-      await auth.signOut();
+      await axiosInstance.post('/auth/login', { idToken });    
 
       // 5) stash email and navigate
       sessionStorage.setItem('verifyEmail', email);
