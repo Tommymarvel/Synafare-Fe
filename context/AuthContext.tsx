@@ -15,7 +15,8 @@ interface User {
   id: string;
   email: string;
   bvn: string;
-  cacFile: string
+  cacFile: string;
+  business_document: string;
 }
 
 interface WhoAmIResponse {

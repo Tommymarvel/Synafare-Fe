@@ -1,8 +1,14 @@
-// components/form/CustomSelect.tsx
+// components/form/CustomSelectReliable.tsx
 'use client';
 
-import React, { useState, useRef, useEffect, KeyboardEvent } from 'react';
-import { useField, useFormikContext, FormikContextType } from 'formik';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  KeyboardEvent,
+  useId,
+} from 'react';
+import { useField } from 'formik';
 import clsx from 'clsx';
 
 export interface Option {
@@ -10,12 +16,13 @@ export interface Option {
   label: string;
 }
 
-interface CustomSelectProps {
+interface CustomSelectReliableProps {
   name: string;
   label: string;
   options: Option[];
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function CustomSelect({
@@ -24,125 +31,240 @@ export function CustomSelect({
   options,
   placeholder = 'Select…',
   className,
-}: CustomSelectProps) {
-  // field.value is string
+  disabled = false,
+}: CustomSelectReliableProps) {
   const [field, meta, helpers] = useField<string>(name);
-  // Form values are string → Record<fieldName, string>
-  const { setTouched } = useFormikContext<
-    Record<string, string>
-  >() as FormikContextType<Record<string, string>>;
+  const { value } = field;
+  const { error, touched } = meta;
+  const { setValue, setTouched } = helpers;
 
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const buttonId = useId();
+  const listboxId = useId();
 
-  // Close dropdown on outside click/touch
+  // Close on outside click/touch
   useEffect(() => {
-    const handleClickOutside: EventListener = (event) => {
+    const handleMouseDown = (e: MouseEvent) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(e.target as Node)
       ) {
         setIsOpen(false);
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
+    const handleTouchStart = (e: TouchEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('touchstart', handleTouchStart);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('touchstart', handleTouchStart);
     };
   }, []);
 
-  // Keyboard navigation
-  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+  // Sync highlighted when opening or value changes
+  useEffect(() => {
+    if (isOpen) {
+      const currentIndex = options.findIndex((o) => o.value === value);
+      setHighlightedIndex(currentIndex >= 0 ? currentIndex : 0);
+    }
+  }, [isOpen, value, options]);
+
+  // Defensive: if selected value is no longer in options, reset highlight
+  useEffect(() => {
+    if (options.every((o) => o.value !== value)) {
+      setHighlightedIndex(0);
+    }
+  }, [options, value]);
+
+  const selectOption = (opt: Option) => {
+    setValue(opt.value, true); // immediate validation
+    setTouched(true, true);
+    setIsOpen(false);
+  };
+
+  const onButtonKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setIsOpen(true);
-        setHighlightedIndex((hi) => (hi < options.length - 1 ? hi + 1 : hi));
+        if (!isOpen) {
+          setIsOpen(true);
+          return;
+        }
+        setHighlightedIndex((hi) => Math.min(hi + 1, options.length - 1));
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setHighlightedIndex((hi) => (hi > 0 ? hi - 1 : hi));
+        if (!isOpen) {
+          setIsOpen(true);
+          return;
+        }
+        setHighlightedIndex((hi) => Math.max(hi - 1, 0));
         break;
       case 'Enter':
+      case ' ':
         e.preventDefault();
+        if (!isOpen) {
+          setIsOpen(true);
+          return;
+        }
         const opt = options[highlightedIndex];
-        helpers.setValue(opt.value);
-        setIsOpen(false);
+        if (opt) selectOption(opt);
         break;
       case 'Escape':
+        e.preventDefault();
         setIsOpen(false);
+        break;
+      default:
         break;
     }
   };
 
-  // Mouse click selection
-  const handleOptionClick = (opt: Option) => {
-    helpers.setValue(opt.value);
-    setIsOpen(false);
-    setTouched({ [name]: true });
+  const handleBlur = () => {
+    // allow internal interactions; defer closing slightly
+    setTimeout(() => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(document.activeElement)
+      ) {
+        setIsOpen(false);
+        setTouched(true, true);
+      }
+    }, 100);
   };
 
   return (
-    <div className={clsx('relative', className)} ref={containerRef}>
-      <label htmlFor={name} className="block text-sm font-medium text-raisin">
+    <div
+      className={clsx('relative', className)}
+      ref={(el) => {
+        containerRef.current = el;
+      }}
+      onBlur={handleBlur}
+    >
+      <label
+        htmlFor={buttonId}
+        className="block text-sm font-medium text-raisin"
+      >
         {label}
-        {meta.error && meta.touched && <span className="text-red-500"> *</span>}
+        {error && touched && <span className="text-red-500"> *</span>}
       </label>
 
-      {/* Trigger */}
+      {/* Hidden native select for Formik + fallback */}
+      <select
+        {...field}
+        aria-label={label}
+        value={value || ''}
+        onChange={(e) => {
+          setValue(e.target.value, true);
+          setTouched(true, true);
+        }}
+        onBlur={() => setTouched(true, true)}
+        className="absolute inset-0 w-full h-full text-raisin opacity-0 pointer-events-none"
+        tabIndex={-1}
+        aria-hidden="true"
+        disabled={disabled}
+      />
+
+      {/* Custom trigger */}
       <button
         type="button"
-        id={name}
+        id={buttonId}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        aria-controls={listboxId}
         onClick={() => {
-          setIsOpen((open) => !open);
-          setTouched({ [name]: true });
+          if (disabled) return;
+          setIsOpen((o) => !o);
         }}
-        onKeyDown={onKeyDown}
+        onKeyDown={onButtonKeyDown}
         className={clsx(
-          'w-full cursor-pointer border rounded-md py-3 px-4 mt-1 text-sm md:text-base lg:text-lg text-left text-raisin',
-          meta.touched && meta.error ? 'border-red-500' : 'border-gray-300',
-          'focus:outline-none focus:ring-2 focus:ring-mikado'
+          'w-full cursor-pointer border rounded-md py-3 px-4 mt-1 text-sm md:text-base lg:text-lg text-left',
+          'text-raisin',
+          touched && error ? 'border-red-500' : 'border-gray-300',
+          disabled
+            ? 'opacity-60 cursor-not-allowed'
+            : 'focus:outline-none focus:ring-2 focus:ring-mikado',
+          'relative flex justify-between items-center bg-white'
         )}
+        disabled={disabled}
       >
-        {options.find((o) => o.value === field.value)?.label || placeholder}
+        <span>
+          {options.find((o) => o.value === value)?.label || placeholder}
+        </span>
+        <svg
+          aria-hidden="true"
+          width={16}
+          height={16}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-4 h-4 ml-2"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
       </button>
 
-      {/* Options List */}
+      {/* Dropdown list */}
       {isOpen && (
         <ul
           role="listbox"
-          aria-labelledby={name}
+          id={listboxId}
+          aria-labelledby={buttonId}
           tabIndex={-1}
-          className="absolute z-10 mt-1 max-h-60 text-lg w-full overflow-auto border-mikado rounded-md border bg-white text-raisin p-0 shadow-lg focus:outline-none"
+          className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-white p-0 shadow-lg text-raisin"
+          aria-activedescendant={
+            options[highlightedIndex]
+              ? `option-${options[highlightedIndex].value}`
+              : undefined
+          }
         >
-          {options.map((opt, idx) => (
-            <li
-              key={opt.value}
-              role="option"
-              aria-selected={field.value === opt.value}
-              onClick={() => handleOptionClick(opt)}
-              onMouseEnter={() => setHighlightedIndex(idx)}
-              className={clsx(
-                'cursor-pointer px-4 py-2 text-lg',
-                highlightedIndex === idx ? 'bg-peach' : 'bg-white',
-                field.value === opt.value && 'font-semibold'
-              )}
-            >
-              {opt.label}
-            </li>
-          ))}
+          {options.map((opt, idx) => {
+            const isSelected = value === opt.value;
+            const isHighlighted = highlightedIndex === idx;
+            return (
+              <li
+                key={opt.value}
+                id={`option-${opt.value}`}
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => selectOption(opt)}
+                onMouseEnter={() => setHighlightedIndex(idx)}
+                className={clsx(
+                  'cursor-pointer px-4 py-2 text-lg flex justify-between items-center',
+                  'text-raisin',
+                  isHighlighted ? 'bg-peach' : 'bg-white',
+                  isSelected && 'font-semibold'
+                )}
+              >
+                <span>{opt.label}</span>
+                {isSelected && (
+                  <span aria-hidden="true" className="ml-2">
+                    ✓
+                  </span>
+                )}
+              </li>
+            );
+          })}
+          {options.length === 0 && (
+            <li className="px-4 py-2 text-sm text-raisin">No options</li>
+          )}
         </ul>
       )}
 
-      {/* Error message */}
-      {meta.touched && meta.error && (
-        <div className="text-red-500 text-sm mt-1">{meta.error}</div>
+      {/* Error */}
+      {touched && error && (
+        <div className="text-red-500 text-sm mt-1">{error}</div>
       )}
     </div>
   );

@@ -44,7 +44,7 @@ export default function VerifyOtpPage() {
     const expiryTime =
       savedExpiry && savedExpiry > now
         ? savedExpiry
-        : now + 600 * 1000; /* 10m */
+        : now + 600 * 500; /* 5m */
 
     localStorage.setItem('otpExpiry', expiryTime.toString());
 

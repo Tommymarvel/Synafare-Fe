@@ -9,10 +9,31 @@ import Avatar from '@/app/assets/Avatar.png';
 import ArrowDown from '@/app/assets/arrow-down.svg';
 import { Settings, Headset, LogOut, Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
+import axiosInstance from '@/lib/axiosInstance';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async () => {
+    try {
+      await axiosInstance.post('/auth/logout');
+
+      router.push('/');
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
+    }
+  };
 
   return (
     <div className="relative flex items-center justify-between w-full px-4 py-2 bg-white">
@@ -99,13 +120,13 @@ export default function Header() {
                   <Headset className="h-4 w-4 mr-2" />
                   Contact Support
                 </Link>
-                <Link
-                  href="/logout"
+                <span
+                  onClick={handleSubmit}
                   className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
-                </Link>
+                </span>
               </div>
             </div>
           )}

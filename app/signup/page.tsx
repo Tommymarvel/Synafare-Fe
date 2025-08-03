@@ -4,8 +4,8 @@ import { Input } from '../components/form/Input';
 import { Button } from '../components/ui/Button';
 import { Eye, EyeOff } from 'lucide-react';
 import {
-  createUserWithEmailAndPassword,
-  
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
 import * as Yup from 'yup';
@@ -13,6 +13,9 @@ import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import axiosInstance from '@/lib/axiosInstance';
+import Image from 'next/image';
+import Google from '@/app/assets/google-icon.png';
+import { useSignupFlow } from '@/hooks/useAuthFlows';
 
 interface SignUpValues {
   email: string;
@@ -32,64 +35,38 @@ const initialValues: SignUpValues = { email: '', password: '' };
 
 export default function SignUpPage() {
   const [show, setShow] = useState(false);
-  const [submitting, isSubmitting] = useState(false);
-
+  const { signup, submitting } = useSignupFlow();
   const router = useRouter();
 
-  // async function handleGoogleSignUp() {
-  //   try {
-  //     const provider = new GoogleAuthProvider();
-  //     const info = await signInWithPopup(auth, provider);
-  //     // Google accounts come pre-verified, so you can redirect straight away:
-
-  //     const email = info.user.email;
-
-  //     await axiosInstance.post('/otp/request', { email: email });
-  //     sessionStorage.setItem('verifyEmail', email as string);
-
-  //     toast.info(
-  //       'Account created successfully. Redirecting to verify email address'
-  //     );
-
-  //     router.push('/signup/verify-otp');
-  //   } catch (err: unknown) {
-  //     if (err instanceof Error) {
-  //       toast.error(err.message || 'Something went wrong');
-  //     } else {
-  //       toast.error('An unknown error occurred');
-  //     }
-  //   }
-  // }
-
-  const handleSubmit = async (values: SignUpValues) => {
+  async function handleGoogleSignUp() {
     try {
-      isSubmitting(true);
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const provider = new GoogleAuthProvider();
+      const info = await signInWithPopup(auth, provider);
 
-      await auth.signOut();
+      // Google accounts come pre-verified, so you can redirect straight away:
+      const idToken = await info.user.getIdToken();
 
-      await axiosInstance.post('/otp/request', { email: values.email });
-      sessionStorage.setItem('verifyEmail', values.email);
+      console.log('Google Sign Up Info:', info);
+      console.log('Google ID Token:', idToken);
+
+      await axiosInstance.post('/auth/login', { idToken });
+      sessionStorage.setItem('verifyEmail', info.user.email as string);
 
       toast.info(
         'Account created successfully. Redirecting to verify email address'
       );
-      router.push('/signup/verify-otp');
 
-      isSubmitting(false);
+      router.push('/signup/verify-otp');
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(err.message || 'Something went wrong');
       } else {
         toast.error('An unknown error occurred');
       }
-    } finally {
-      isSubmitting(false);
     }
-  };
+  }
 
   return (
-    
     <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
       <div>
         <h1 className="text-2xl lg:text-[34px] font-medium text-raisin text-center">
@@ -103,7 +80,7 @@ export default function SignUpPage() {
       <Formik
         initialValues={initialValues}
         validationSchema={SignUpSchema}
-        onSubmit={handleSubmit}
+        onSubmit={({ email, password }) => signup(email, password)}
       >
         {({ isValid, isSubmitting }) => (
           <Form className="space-y-4">
@@ -176,8 +153,7 @@ export default function SignUpPage() {
         )}
       </Formik>
 
-      {/* OR / Google */}
-      {/* <p className="text-center text-raisin">OR</p>
+      <p className="text-center text-raisin">OR</p>
       <Button
         variant="outline"
         className="w-full inline-flex items-center justify-center space-x-2"
@@ -185,7 +161,7 @@ export default function SignUpPage() {
       >
         <Image src={Google} alt="Google Icon" width={20} height={20} />
         <span>Continue with Google</span>
-      </Button> */}
+      </Button>
       <footer className="text-center text-[#645D5D]  text-sm leading-[145%] mb-12">
         By clicking “Sign Up”, you agree to Synafare’s{' '}
         <a

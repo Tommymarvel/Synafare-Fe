@@ -44,7 +44,7 @@ const idOptions: Option[] = [
 ];
 
 const businessOptions: Option[] = [
-  { value: '', label: 'Select Nature' },
+  { value: '', label: 'Select nature of business' },
   { value: 'installer', label: 'Installer' },
   { value: 'distributor', label: 'Distributor' },
   { value: 'retailer', label: 'Retailer' },
@@ -206,7 +206,7 @@ export default function Onboarding() {
                   name="nature_of_solar_business"
                   label=" What is the primary nature of your solar business?"
                   options={businessOptions}
-                  className="mb-4"
+                  className="mb-4 text-raisin"
                 />
               </div>
 
@@ -215,7 +215,7 @@ export default function Onboarding() {
                   name="id_type"
                   label="ID Type"
                   options={idOptions}
-                  className="mb-4"
+                  className="mb-4 text-raisin"
                 />
                 <div>
                   <Field name="id_number">
