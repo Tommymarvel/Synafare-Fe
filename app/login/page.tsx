@@ -53,17 +53,19 @@ export default function LoginPage() {
       sessionStorage.setItem('verifyEmail', sessionEmail);
 
       const res = await axiosInstance.post('/auth/login', { idToken });
-         const token = res.data.token;
 
-         localStorage.setItem('authToken', token || '');
+      const token = res.data.token;
 
+      if (token) {
+        localStorage.setItem('authToken', token);
+      }
 
-      if (res.data.status === 204 ) {
+      if (res.data.status === 204) {
         router.push('/signup/verify-otp');
         return;
       }
 
-      const backendUser = res.data.user; 
+      const backendUser = res.data.user;
       if (backendUser.bvn == null) {
         router.push('/signup/onboarding');
       } else if (backendUser.business_document !== 'submitted') {

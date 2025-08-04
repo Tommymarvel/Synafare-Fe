@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import { Input } from '../components/form/Input';
 import { Button } from '../components/ui/Button';
 import { Eye, EyeOff } from 'lucide-react';
-import { AuthErrorCodes, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  AuthErrorCodes,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
 import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
 import * as Yup from 'yup';
 import { auth } from '@/lib/firebase';
@@ -37,75 +41,79 @@ export default function SignUpPage() {
   const { signup, submitting } = useSignupFlow();
   const router = useRouter();
 
- const handleGoogleLogin = async () => {
-   let sessionEmail = '';
-   try {
-     sessionStorage.removeItem('verifyEmail');
-     const provider = new GoogleAuthProvider();
-     const result = await signInWithPopup(auth, provider);
-     const idToken = await result.user.getIdToken();
-     sessionEmail = result.user.email || '';
-     sessionStorage.setItem('verifyEmail', sessionEmail);
+  const handleGoogleLogin = async () => {
+    let sessionEmail = '';
+    try {
+      sessionStorage.removeItem('verifyEmail');
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+      sessionEmail = result.user.email || '';
+      sessionStorage.setItem('verifyEmail', sessionEmail);
 
-     const res = await axiosInstance.post('/auth/login', { idToken });
+      const res = await axiosInstance.post('/auth/login', { idToken });
+      const token = res.data.token;
 
-     if (res.data.status === 204 ) {
-       router.push('/signup/verify-otp');
-       return;
-     }
+      if (token) {
+        localStorage.setItem('authToken', token);
+      }
 
-     const backendUser = res.data.user;
-     if (backendUser.bvn == null) {
-       router.push('/signup/onboarding');
-     } else if (backendUser.business_document !== 'submitted') {
-       router.push('/signup/business-info');
-     } else {
-       router.push('/dashboard');
-     }
+      if (res.data.status === 204) {
+        router.push('/signup/verify-otp');
+        return;
+      }
 
-   } catch (error) {
-     if (sessionEmail) {
-       sessionStorage.setItem('verifyEmail', sessionEmail);
-     }
+      const backendUser = res.data.user;
+      if (backendUser.bvn == null) {
+        router.push('/signup/onboarding');
+      } else if (backendUser.business_document !== 'submitted') {
+        router.push('/signup/business-info');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      if (sessionEmail) {
+        sessionStorage.setItem('verifyEmail', sessionEmail);
+      }
 
-     if (error instanceof FirebaseError) {
-       let msg: string;
-       switch (error.code) {
-         case AuthErrorCodes.POPUP_CLOSED_BY_USER:
-           msg = 'Authentication popup was closed before completing sign-in.';
-           break;
-         case AuthErrorCodes.NETWORK_REQUEST_FAILED:
-           msg = 'Network error — please check your connection and try again.';
-           break;
-         case AuthErrorCodes.INVALID_OAUTH_CLIENT_ID:
-           msg = 'Configuration error — please contact support.';
-           break;
-         default:
-           msg = error.message;
-       }
-       toast.error(msg);
+      if (error instanceof FirebaseError) {
+        let msg: string;
+        switch (error.code) {
+          case AuthErrorCodes.POPUP_CLOSED_BY_USER:
+            msg = 'Authentication popup was closed before completing sign-in.';
+            break;
+          case AuthErrorCodes.NETWORK_REQUEST_FAILED:
+            msg = 'Network error — please check your connection and try again.';
+            break;
+          case AuthErrorCodes.INVALID_OAUTH_CLIENT_ID:
+            msg = 'Configuration error — please contact support.';
+            break;
+          default:
+            msg = error.message;
+        }
+        toast.error(msg);
 
-       const axiosError = error as AxiosError<{ message?: string }>;
-       if (
-         axiosError.response?.data.message ===
-         'Looks like we sent you one recently, kindly check for that and input in the fields'
-       ) {
-         toast.error(
-           'Looks like we sent you one recently, kindly check for that and input in the fields'
-         );
+        const axiosError = error as AxiosError<{ message?: string }>;
+        if (
+          axiosError.response?.data.message ===
+          'Looks like we sent you one recently, kindly check for that and input in the fields'
+        ) {
+          toast.error(
+            'Looks like we sent you one recently, kindly check for that and input in the fields'
+          );
 
-         router.push('/signup/verify-otp');
-       } else {
-         toast.error(
-           (axiosError.response && axiosError.response.data
-             ? axiosError.response.data.message || axiosError.response.data
-             : axiosError.message || 'An error occurred'
-           ).toString()
-         );
-       }
-     }
-   }
- };
+          router.push('/signup/verify-otp');
+        } else {
+          toast.error(
+            (axiosError.response && axiosError.response.data
+              ? axiosError.response.data.message || axiosError.response.data
+              : axiosError.message || 'An error occurred'
+            ).toString()
+          );
+        }
+      }
+    }
+  };
 
   return (
     <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
