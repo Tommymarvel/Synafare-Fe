@@ -89,7 +89,7 @@ export function useLoginFlow() {
       );
 
       const token = res.data.token;
-      console.log(token);
+     
 
       localStorage.setItem('authToken', token || '');
 
