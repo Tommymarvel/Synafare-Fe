@@ -63,6 +63,7 @@ interface BackendLoginResponse {
     business_document: string;
     // add any other fields your backend returns
   };
+  token?: string; // optional, if your backend returns a token
 }
 
 export function useLoginFlow() {
@@ -86,6 +87,11 @@ export function useLoginFlow() {
         '/auth/login',
         { idToken }
       );
+
+      const token = res.data.token;
+      console.log(token);
+
+      localStorage.setItem('authToken', token || '');
 
       // 3️⃣ Store email for OTP flow
       sessionStorage.setItem('verifyEmail', values.email);

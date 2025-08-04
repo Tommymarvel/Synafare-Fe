@@ -59,7 +59,7 @@ export default function LoginPage() {
         return;
       }
 
-      const backendUser = res.data.user;
+      const backendUser = res.data.user; 
       if (backendUser.bvn == null) {
         router.push('/signup/onboarding');
       } else if (backendUser.business_document !== 'submitted') {
