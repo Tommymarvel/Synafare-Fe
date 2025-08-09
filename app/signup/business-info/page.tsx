@@ -45,7 +45,6 @@ const validationSchema = Yup.object({
   country: Yup.string().required('Country is required'),
 });
 
-
 const cityOptions: Option[] = [
   { value: '', label: 'Select city' },
   { value: 'Lagos', label: 'Lagos' },
@@ -232,7 +231,7 @@ export default function BusinessInfoForm() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success(resp.data.message || 'Business info submitted');
-      router.push('/dashboard');
+      router.push('/signup/verification');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       toast.error(
@@ -262,47 +261,51 @@ export default function BusinessInfoForm() {
           <Form className="mt-6 space-y-6">
             {/* Business Name & Registration */}
             <div className="grid grid-cols-2 gap-4">
-              <div>  <Field name="businessName">
-                {({ field, meta }: FieldProps) => (
-                  <>
-                    <Input
-                      size="lg"
-                      label="Business Name *"
-                      variant="outline"
-                      {...field}
-                      placeholder="e.g AB distributor"
-                      hasError={meta.touched && !!meta.error}
-                    />
-                    <ErrorMessage
-                      name="businessName"
-                      component="div"
-                      className="text-red-500 text-sm mt-1"
-                    />
-                  </>
-                )}
-              </Field></div>
-              <div>   <Field name="registrationNumber">
-                {({ field, meta }: FieldProps) => (
-                  <>
-                    <Input
-                      label="Registration Number *"
-                      variant="outline"
-                      {...field}
-                      placeholder="Enter number"
-                      hasError={meta.touched && !!meta.error}
-                      size="lg"
-                    />
-                    <ErrorMessage
-                      name="registrationNumber"
-                      component="div"
-                      className="text-red-500 text-sm mt-1"
-                    />
-                  </>
-                )}
-              </Field>
-            </div></div>
-            
-           
+              <div>
+                {' '}
+                <Field name="businessName">
+                  {({ field, meta }: FieldProps) => (
+                    <>
+                      <Input
+                        size="lg"
+                        label="Business Name *"
+                        variant="outline"
+                        {...field}
+                        placeholder="e.g AB distributor"
+                        hasError={meta.touched && !!meta.error}
+                      />
+                      <ErrorMessage
+                        name="businessName"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                    </>
+                  )}
+                </Field>
+              </div>
+              <div>
+                {' '}
+                <Field name="registrationNumber">
+                  {({ field, meta }: FieldProps) => (
+                    <>
+                      <Input
+                        label="Registration Number *"
+                        variant="outline"
+                        {...field}
+                        placeholder="Enter number"
+                        hasError={meta.touched && !!meta.error}
+                        size="lg"
+                      />
+                      <ErrorMessage
+                        name="registrationNumber"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                    </>
+                  )}
+                </Field>
+              </div>
+            </div>
 
             {/* CAC Certificate Upload */}
             <CacDropzone />

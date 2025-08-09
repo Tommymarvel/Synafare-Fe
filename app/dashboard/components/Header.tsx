@@ -13,11 +13,13 @@ import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import axiosInstance from '@/lib/axiosInstance';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleSubmit = async () => {
     try {
@@ -36,7 +38,7 @@ export default function Header() {
   };
 
   return (
-    <div className="relative flex items-center justify-between w-full px-4 py-2 bg-white">
+    <div className="relative flex items-center justify-between w-full py-2 bg-white">
       {/* Hamburger button (mobile) */}
       <button
         className="md:hidden p-2 rounded-md hover:bg-gray-100"
@@ -77,7 +79,7 @@ export default function Header() {
               className="rounded-full"
             />
             <span className="text-sm text-gray-800 font-medium">
-              David Smith
+              {user?.first_name || 'User'}
             </span>
             <Image
               src={ArrowDown}
@@ -100,9 +102,9 @@ export default function Header() {
                 />
                 <div>
                   <p className="text-sm font-semibold text-gray-800">
-                    David Smith
+                    {user?.first_name || 'User'}{' '}{user?.last_name || ''}
                   </p>
-                  <p className="text-xs text-gray-500">johnsm12445@gmail.com</p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
               </div>
               <div className="border-t">
@@ -143,7 +145,10 @@ export default function Header() {
               transition: 'width 6s ease',
             }}
           >
-            <Sidebar />
+            <Sidebar
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
           </aside>
           <div
             className="fixed top-0 left-[80vw] h-full w-[20vw] z-30 backdrop-blur-md"

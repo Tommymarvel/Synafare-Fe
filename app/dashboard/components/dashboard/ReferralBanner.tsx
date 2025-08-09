@@ -1,25 +1,37 @@
+// app/dashboard/components/ReferralBanner.tsx
+'use client';
+
 import React from 'react';
-import { Users } from 'lucide-react';
+import Image from 'next/image';
+import Megaphone from '@/app/assets/megaphone.svg';
 import Link from 'next/link';
 
 export default function ReferralBanner() {
   return (
-    <div className="bg-indigo-50 rounded-2xl p-6 flex items-center justify-between">
-      <div className="flex items-center space-x-4">
-        <Users className="h-8 w-8 text-indigo-600" />
-        <div>
-          <p className="text-lg font-semibold text-gray-800">Refer a Friend</p>
-          <p className="text-sm text-gray-600">
-            Earn rewards when a friend signs up and completes a transaction.
-          </p>
-        </div>
+    <Link
+      href="/dashboard/referrals"
+      className="group block relative overflow-hidden rounded-2xl bg-teal p-6 sm:p-6 h-[101px]"
+    >
+      {/* Megaphone Icon */}
+      <div className="absolute -left-2  top-1/2 -translate-y-1/2">
+        <Image
+          src={Megaphone}
+          alt="Megaphone"
+          width={106}
+          height={106}
+          className="opacity-90 transition-transform duration-300 group-hover:scale-110"
+        />
       </div>
-      <Link
-        href="/dashboard/referrals"
-        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-      >
-        Get Referral Link
-      </Link>
-    </div>
+
+      {/* Text */}
+      <p className="ml-16 text-center items-center sm:text-left text-white font-medium text-sm sm:text-base">
+        Stand a chance to earn rewards
+     
+        when you refer an installer
+      </p>
+
+      {/* Hover Overlay */}
+      <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 group-hover:opacity-10" />
+    </Link>
   );
 }

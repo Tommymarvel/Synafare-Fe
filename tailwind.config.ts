@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        mikado: '#FEC601',
+        mikado: '#FEBE04',
         raisin: '#201E1F',
         peach: '#FFDD95',
         teal: '#407068',

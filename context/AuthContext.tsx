@@ -12,11 +12,23 @@ import axios, { AxiosError } from 'axios';
 import axiosInstance from '@/lib/axiosInstance';
 
 interface User {
-  id: string;
+  _id: string;
+  __v: number;
+  account_status: string; // e.g. "inactive"
+  business_document: string; // e.g. "submitted"
+  bvn: string; // e.g. "22222222222"
+  createdAt: string; // ISO date
   email: string;
-  bvn: string;
-  cacFile: string;
-  business_document: string;
+  email_confirmed: boolean;
+  firebaseUid: string;
+  first_name: string;
+  id_number: string; // e.g. "70123456789"
+  id_type: string; // e.g. "nin"
+  last_name: string;
+  loan_agreement: string; // e.g. "not_signed"
+  nature_of_solar_business: string; // e.g. "distributor"
+  phn_no: string; // e.g. "+2349028990916"
+  updatedAt: string;
 }
 
 interface WhoAmIResponse {

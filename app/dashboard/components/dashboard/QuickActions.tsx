@@ -1,52 +1,56 @@
 'use client';
 
 import React from 'react';
-import { Banknote, FileText, Users, Clipboard } from 'lucide-react';
 import Link from 'next/link';
-
-const actions = [
-  {
-    label: 'Request Loan',
-    href: '/dashboard/loans/new',
-    icon: Banknote,
-    color: 'bg-yellow-100 text-yellow-600',
-  },
-  {
-    label: 'Create Invoice',
-    href: '/dashboard/invoices/new',
-    icon: FileText,
-    color: 'bg-green-100 text-green-600',
-  },
-  {
-    label: 'Add Customer',
-    href: '/dashboard/customers/new',
-    icon: Users,
-    color: 'bg-blue-100 text-blue-600',
-  },
-  {
-    label: 'New Quote',
-    href: '/dashboard/quote-requests/new',
-    icon: Clipboard,
-    color: 'bg-purple-100 text-purple-600',
-  },
-];
+import MoneyBag from '@/app/assets/MoneyBag.svg';
+import SolarPanel from '@/app/assets/SolarPanel.svg';
+import FileText from '@/app/assets/FileText.svg';
+import HandCoins from '@/app/assets/HandCoins.svg';
+import Users from '@/app/assets/Users.svg';
+import Image from 'next/image';
 
 export default function QuickActions() {
+  const actions = [
+    { label: 'Request Loan', href: '/dashboard/loans/', Icon: MoneyBag },
+    {
+      label: 'Create Invoice',
+      href: '/dashboard/invoices/new',
+      Icon: FileText,
+    },
+    { label: 'Repay Loan', href: '/dashboard/loans/repay', Icon: HandCoins },
+    {
+      label: 'Add Product',
+      href: '/dashboard/inventory/new',
+      Icon: SolarPanel,
+    },
+    { label: 'Add Customer', href: '/dashboard/customers/', Icon: Users },
+  ];
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      {actions.map(({ label, href, icon: Icon, color }) => (
-        <Link
-          key={href}
-          href={href}
-          className={`flex items-center space-x-2 p-4 rounded-xl bg-white shadow hover:shadow-md transition ${color}`}
-        >
-          <div className={`p-2 rounded-full ${color}`}>
-            {' '}
-            <Icon className="h-5 w-5" />{' '}
-          </div>
-          <span className="text-sm font-medium text-gray-700">{label}</span>
-        </Link>
-      ))}
-    </div>
+    <section className="bg-white rounded-2xl border border-gray-200 p-6">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        Quick Actions
+      </h3>
+      <div className="flex w-full justify-between items-center gap-2 ">
+        {actions.map(({ label, href, Icon }) => (
+          <Link
+            key={label}
+            href={href}
+            className="flex flex-col items-center space-y-2"
+          >
+            <div className="bg-gray-100 p-3 rounded-full">
+             <Image
+                src={Icon}
+                alt={label}
+                width={50}
+                height={50}
+             
+              />
+            </div>
+            <span className="text-xs lg:text-sm text-center text-gray-800">{label}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }

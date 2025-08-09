@@ -1,18 +1,36 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { Banknote } from 'lucide-react'
+import React from 'react';
+import { Banknote } from 'lucide-react';
 
 export default function LoanBalanceCard() {
   return (
-    <div className="bg-white rounded-2xl shadow p-5 flex items-center space-x-4">
-      <div className="p-3 bg-red-100 rounded-full">
-        <Banknote className="h-6 w-6 text-red-600" />
+    <div className="relative bg-white rounded-2xl border border-gray-200 p-4">
+      {/* Top-right icon badge */}
+      <div className="absolute top-4 right-4 bg-[#FFF8E2] p-2 rounded-full text-mikado">
+        <Banknote className="h-6 w-6" />
       </div>
-      <div>
-        <p className="text-sm text-gray-500">Outstanding Loan</p>
-        <p className="text-xl font-semibold text-gray-900">₦80,000</p>
+
+      <div className="">
+        {/* Title */}
+        <p className="text-sm text-[#797979]">Loan Balance</p>
+
+        <div className="mt-[25px]">
+          {/* Balance amount */}
+          <div className="mt-1 text-raisin text-[32px] font-medium">
+            ₦0<span className="text-sm">.00</span>
+          </div>
+          {/* Available credit */}
+          <p className="text-xs text-[#797979]">
+            Available Credit: ₦ 5,000,000.00
+          </p>
+        </div>
+
+        {/* Action button */}
+        <button className="mt-4 w-fit inline-flex justify-center px-4 py-2 bg-[#FFF8E2] text-mikado font-medium rounded-lg hover:bg-[#FFE5B4] transition">
+          Pay Loan
+        </button>
       </div>
     </div>
-  )
+  );
 }

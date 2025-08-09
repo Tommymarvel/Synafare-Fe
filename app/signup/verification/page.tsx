@@ -40,9 +40,9 @@ export default function PendingVerificationPage() {
           <Button
             variant="default"
             className="w-full"
-            onClick={() => window.location.assign('/login')}
+            onClick={() => window.location.assign('/dashboard')}
           >
-            Proceed Login
+            Proceed Dashboard
           </Button>
         </div>
       </main>

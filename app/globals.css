@@ -5,11 +5,39 @@
 /* now your custom CSS… */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #201E1F;
   /* etc… */
 }
 
-@media (prefers-color-scheme: dark) {
+
+@layer utilities {
+    .scrollbar-mikado {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.mikado') transparent;
+  }
+
+  /* WebKit (Chrome, Edge, Safari) */
+  .scrollbar-mikado::-webkit-scrollbar {
+    height: 10px; /* horizontal */
+    width: 10px;  /* vertical */
+  }
+  .scrollbar-mikado::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-mikado::-webkit-scrollbar-thumb {
+    background-color: theme('colors.mikado');
+    border-radius: 9999px;
+    border: 2px solid transparent; /* creates pill look */
+    background-clip: content-box;
+  }
+  .scrollbar-mikado::-webkit-scrollbar-thumb:hover {
+    /* darken slightly on hover if you have a shade; otherwise same color */
+    background-color: theme('colors.mikado');
+  }
+}
+
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
