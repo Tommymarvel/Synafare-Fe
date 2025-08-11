@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+body {
+  font-family: var(--font-be-vietnam-pro), sans-serif;
+}
+
+@theme {
+  --color-mikado-yellow: #febe04;
+  --color-resin-black: #1d1c1d;
+  --color-brown-700: #645d5d;
+  --color-deep-green: #00110a;
+  --color-success: #027a48;
+  --color-success-50: #ecfdf3;
+  --color-gray-200: #eaecf0;
+  --color-gray-300: #d0d5dd;
+  --color-gray-400: #98a2b3;
+}
+
+@layer utilities {
+  .shadow-custom {
+    box-shadow: 0px 3px 15px 0px #00000003;
+  }
+}
