@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import CardWrapper from "./cardWrapper";
+import CardWrapper from "../../../../components/cardWrapper";
 
 // Type definitions
 interface LoanDataPoint {

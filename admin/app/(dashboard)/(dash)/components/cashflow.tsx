@@ -10,7 +10,7 @@ import {
   TooltipProps,
   CartesianGrid,
 } from "recharts";
-import CardWrapper from "./cardWrapper";
+import CardWrapper from "../../../../components/cardWrapper";
 import CashFlowButton from "./cashflow-buttons";
 
 // Type definitions
