@@ -69,7 +69,7 @@ const LoanOfferSent = ({
             </svg>
 
             <div className="space-y-2 text-center">
-              <h4 className="font-semibold text-lg">Loan Offer Sent</h4>
+              <h4 className="font-medium text-lg">Loan Offer Sent</h4>
               <p className="text-gray-3">
                 You sent a loan offer of{" "}
                 <span className="text-resin-black">₦875,000</span> to David

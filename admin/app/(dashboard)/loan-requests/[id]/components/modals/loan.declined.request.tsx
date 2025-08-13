@@ -69,7 +69,7 @@ const DeclinedRequestMessage = ({
             </svg>
 
             <div className="space-y-2 text-center">
-              <h4 className="font-semibold text-lg">Request Declined</h4>
+              <h4 className="font-medium text-lg">Request Declined</h4>
               <p className="text-gray-3">
                 You Loan request declined successfully.
               </p>

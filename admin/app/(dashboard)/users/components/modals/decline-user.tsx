@@ -1,4 +1,3 @@
-"use client";
 import {
   Dialog,
   DialogContent,
@@ -7,34 +6,35 @@ import {
 } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useState } from "react";
-import ConfirmDecline from "./confirm-decline";
 import Button from "@/components/button";
+import ConfirmDeclineUser from "./confirm-decline-user";
 
-const DeclineRequestModel = ({
+const DeclineUserModal = ({
   open,
   onOpenChange,
 }: {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (x: boolean) => void;
 }) => {
-  const [showConfirmAccept, setShowConfirmAccept] = useState(false);
+  const [confirmDeclineModal, setConfirmDeclineModal] = useState(false);
 
-  const handleConfirmDecline = function () {
+  const handleDeclineUser = function () {
     onOpenChange(false);
-    setShowConfirmAccept(true);
+
+    setConfirmDeclineModal(true);
   };
   return (
     <>
-      <ConfirmDecline
-        open={showConfirmAccept}
-        onOpenChange={setShowConfirmAccept}
+      <ConfirmDeclineUser
+        onOpenChange={setConfirmDeclineModal}
+        open={confirmDeclineModal}
       />
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="px-[27px] bg-white no-x py-0 max-w-[555px] pb-[17px] border-0 rounded-xl">
           <DialogHeader className="hidden">
-            <DialogTitle>Accept Request</DialogTitle>
+            <DialogTitle>Decline Request</DialogTitle>
           </DialogHeader>
-          <div className="border-b border-b-gray-4 pt-[33px] pb-4 flex justify-between itesm-center">
+          <div className="border-b-2 border-b-gray-4 pt-[33px] pb-4 flex justify-between itesm-center">
             <h1 className="text-xl font-medium">Decline Request</h1>
             <DialogClose asChild>
               <span className="block cursor-pointer">
@@ -48,7 +48,7 @@ const DeclineRequestModel = ({
             </DialogClose>
           </div>
           <div className="space-y-4">
-            <div>
+            <div className="space-y-1">
               <label className="font-medium block">Reason for Decline</label>
 
               <textarea
@@ -66,7 +66,7 @@ const DeclineRequestModel = ({
                 </Button>
               </DialogClose>
 
-              <Button className="px-[64px] py-4" onClick={handleConfirmDecline}>
+              <Button onClick={handleDeclineUser} className="px-[64px] py-4">
                 Submit
               </Button>
             </div>
@@ -77,4 +77,4 @@ const DeclineRequestModel = ({
   );
 };
 
-export default DeclineRequestModel;
+export default DeclineUserModal;

@@ -10,7 +10,10 @@ const Status = ({
   status: StatusType;
   className?: string;
 }) => {
-  if (status === STATUSCONST.PENDING) {
+  if (
+    status === STATUSCONST.PENDING ||
+    status === STATUSCONST.PENDINGVERIFICATION
+  ) {
     return (
       <span
         className={cn(
@@ -26,7 +29,8 @@ const Status = ({
     status === STATUSCONST.SUCCESS ||
     status === STATUSCONST.PAID ||
     status == STATUSCONST.ACTIVE ||
-    status == STATUSCONST.COMPLETED
+    status == STATUSCONST.COMPLETED ||
+    status == STATUSCONST.VERIFIED
   ) {
     return (
       <span

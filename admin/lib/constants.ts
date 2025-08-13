@@ -6,4 +6,6 @@ export const STATUSCONST = {
   PENDING: "Pending",
   REJECTED: "Rejected",
   SUCCESS: "Successful",
+  PENDINGVERIFICATION: "Pending Verification",
+  VERIFIED: "Verified",
 } as const;

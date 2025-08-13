@@ -1,6 +1,6 @@
 import Notification from "@/components/notification";
 import SideNav from "@/components/sidenav";
-
+import { Toaster } from "@/components/ui/sonner";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -13,6 +13,7 @@ export default function RootLayout({
         <div className="grow">
           <Notification />
           <div className="content-container pt-[37px]">{children}</div>
+          <Toaster />
         </div>
       </div>
     </div>
