@@ -4,8 +4,10 @@ import React from 'react';
 import Image from 'next/image';
 import { EyeOff, Plus, Minus, Wallet } from 'lucide-react';
 import Spiral from '@/app/assets/spiral.png';
+import { useAuth } from '@/context/AuthContext';
 
 export default function WalletBalanceCard() {
+  const { user } = useAuth();
   return (
     <div className="relative bg-raisin text-white rounded-2xl overflow-hidden">
       {/* Decorative background shape */}
@@ -28,7 +30,10 @@ export default function WalletBalanceCard() {
           </div>
         </div>{' '}
         <div className="mt-1 text-[32px] font-medium">
-          ₦0<span className="text-[#98A2B3] text-sm ">.00</span>
+          ₦
+          {new Intl.NumberFormat('en-NG').format(
+            (user?.wallet_balance ?? 0) / 100
+          )}
         </div>
         {/* Middle: Action buttons */}
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">

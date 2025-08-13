@@ -3,21 +3,20 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { Search, ChevronRight, ChevronLeft, MoreVertical } from 'lucide-react';
-import type { Loan, LoanStatus } from '../types';
+import type { Loan } from '../types';
+import FinancingOfferModal from './FinancingOfferModal';
 import { createPortal } from 'react-dom';
 
 type DateRange = '' | '7' | '30' | '90';
 
 const PAGE_SIZE = 10;
 
-type RowAction =
-  | 'viewLoan'
-  | 'cancelRequest'
-  | 'viewOffer'
-  | 'acceptRequest'
-  | 'rejectRequest'
-  | 'liquidateLoan';
-
+type RowAction = 'viewOffer' | 'acceptOffer' | 'rejectOffer';
+const ACTIONS: { key: RowAction; label: string; tone?: 'danger' }[] = [
+  { key: 'viewOffer', label: 'View Offer' },
+  { key: 'acceptOffer', label: 'Accept Offer' },
+  { key: 'rejectOffer', label: 'Reject Offer', tone: 'danger' },
+];
 
 export function RowActions({
   loan,
@@ -96,7 +95,7 @@ export function RowActions({
             style={{ top: coords.top, left: coords.left }}
           >
             <div className="space-y-1">
-              {buildMenuForStatus(loan.loanStatus).map(({ key, label, tone }) => (
+              {ACTIONS.map(({ key, label, tone }) => (
                 <button
                   key={key}
                   role="menuitem"
@@ -123,43 +122,14 @@ export function RowActions({
   );
 }
 
-
-
-function buildMenuForStatus(
-  status: LoanStatus
-): { key: RowAction; label: string; tone?: 'danger' }[] {
-  switch (status) {
-    case 'PENDING':
-      return [
-        { key: 'viewLoan', label: 'View Loan' },
-        { key: 'cancelRequest', label: 'Cancel Request', tone: 'danger' },
-      ];
-    case 'OFFER_RECEIVED':
-      return [
-        { key: 'viewOffer', label: 'View Offer' },
-        { key: 'acceptRequest', label: 'Accept Request' },
-        { key: 'rejectRequest', label: 'Reject Request', tone: 'danger' },
-      ];
-    case 'ACTIVE':
-      return [
-        { key: 'viewLoan', label: 'View Loan' },
-        { key: 'liquidateLoan', label: 'Liquidate Loan', tone: 'danger' },
-      ];
-    case 'COMPLETED':
-    case 'REJECTED':
-      // read-only: just view
-      return [{ key: 'viewLoan', label: 'View Loan' }];
-    default:
-      return [{ key: 'viewLoan', label: 'View Loan' }];
-  }
-}
-
-export default function LoansTable({ loans }: { loans: Loan[] }) {
+export function LoansOffers({ loans }: { loans: Loan[] }) {
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<LoanStatus | ''>('');
+ 
   const [dateRange, setDateRange] = useState<DateRange>('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+    const [activeLoan, setActiveLoan] = useState<Loan | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
   // Compute filtered results
   const filtered = useMemo(() => {
@@ -168,7 +138,7 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
 
     return loans.filter((l) => {
       if (q && !l.customerName.toLowerCase().includes(q)) return false;
-      if (statusFilter && l.loanStatus !== statusFilter) return false;
+     
 
       if (dateRange) {
         const days = Number(dateRange);
@@ -180,13 +150,13 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
 
       return true;
     });
-  }, [loans, search, statusFilter, dateRange]);
+  }, [loans, search,  dateRange]);
 
   // Reset page & selection when filters change
   React.useEffect(() => {
     setPage(1);
     setSelected(new Set());
-  }, [search, statusFilter, dateRange]);
+  }, [search, dateRange]);
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -199,17 +169,17 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
   const allSelectedOnPage =
     pageIds.every((id) => selected.has(id)) && pageIds.length > 0;
 
-  const toggleRow = (id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
+ const toggleRow = (id: string) => {
+   setSelected((prev) => {
+     const next = new Set(prev);
+     if (next.has(id)) {
+       next.delete(id);
+     } else {
+       next.add(id);
+     }
+     return next;
+   });
+ };
 
   const toggleAllOnPage = () => {
     setSelected((prev) => {
@@ -250,19 +220,6 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
 
         <div className="flex max-w-full gap-2">
           <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as LoanStatus | '')}
-            className="px-3 py-2 w-1/2 border text-sm rounded-md bg-white"
-          >
-            <option value="">Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="OFFER_RECEIVED">Offer Received</option>
-            <option value="ACTIVE">Active</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
-
-          <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as DateRange)}
             className="px-3 py-2 w-1/2  flex-1 text-sm border rounded-md bg-white"
@@ -297,13 +254,16 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
                 <th className={thStyles}>Transaction Cost</th>
                 <th className={thStyles}>Loan Amount</th>
                 <th className={`${thStyles} hidden md:table-cell`}>
+                  Offer Amount
+                </th>
+                <th className={`${thStyles} hidden lg:table-cell`}>
+                  {' '}
+                  Equity Amount
+                </th>
+                <th className={`${thStyles} hidden lg:table-cell`}>
                   Date Requested
                 </th>
                 <th className={`${thStyles} hidden lg:table-cell`}>Duration</th>
-                <th className={`${thStyles} hidden lg:table-cell`}>
-                  Next Payment
-                </th>
-                <th className={`${thStyles} hidden lg:table-cell`}>Status</th>
                 <th className={thStyles}>Action</th>
               </tr>
             </thead>
@@ -345,10 +305,17 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
                     </td>
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
                       -----
-                      {/* ₦{loan.loanAmount.toLocaleString()} */}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
+                      ----
+                    </td>
+
+                    <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
+                      -----
+                    </td>
+
+                    <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
                       {format(new Date(loan.dateRequested), 'MMM d, yyyy')}
                     </td>
 
@@ -356,31 +323,20 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
                       {loan.loanDurationInMonths} months
                     </td>
 
-                    <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
-                      {loan.nextPaymentDate
-                        ? format(new Date(loan.nextPaymentDate), 'MMM d, yyyy')
-                        : '— — —'}
-                    </td>
-
-                    <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
-                      <StatusChip status={loan.loanStatus} />
-                    </td>
-
                     <td className="px-6 py-3 text-center text-neutral-400 hover:text-neutral-600 whitespace-nowrap">
                       <RowActions
                         loan={loan}
                         onAction={(action) => {
-                          // TODO: wire these to real handlers
-                          // action is one of:
-                          // 'viewLoan' | 'cancelRequest' | 'viewOffer' | 'acceptRequest' | 'rejectRequest' | 'liquidateLoan'
-                          if (action === 'viewLoan') {
-                            // Navigate to loan details page
-                            window.location.href = `/dashboard/loans/${loan.id}`;
-                          } else if (action === 'liquidateLoan') {
-                            // Handle liquidate loan action
-                            console.log('Liquidate Loan:', loan.id);
+                          if (action === 'viewOffer') {
+                            console.log('Viewing offer for loan:', loan);
+                            setActiveLoan(loan);
+                            setModalOpen(true);
+                          } else if (action === 'acceptOffer') {
+                            window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+                          } else if (action === 'rejectOffer') {
+                            // TODO: call reject API
+                            alert('Offer rejected (stub)');
                           }
-                          console.log(action, loan.id);
                         }}
                       />
                     </td>
@@ -419,25 +375,21 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
           Next <ChevronRight className="w-4 h-4 ml-1" />
         </button>
       </div>
+      <FinancingOfferModal
+        open={modalOpen}
+        loan={activeLoan}
+        onClose={() => setModalOpen(false)}
+        onReject={() => {
+          setModalOpen(false);
+          // TODO: call reject API
+          alert('Offer rejected (stub)');
+        }}
+        onAccept={(loan) => {
+          setModalOpen(false);
+          window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+        }}
+      />
     </div>
   );
 }
 
-const STATUS_MAP: Record<LoanStatus, readonly [string, string]> = {
-  PENDING: ['Pending', 'bg-yellow-50 text-yellow-600'],
-  OFFER_RECEIVED: ['Offer Received', 'bg-blue-50 text-blue-600'],
-  ACTIVE: ['Active', 'bg-green-50 text-green-600'],
-  COMPLETED: ['Completed', 'bg-emerald-50 text-emerald-600'],
-  REJECTED: ['Rejected', 'bg-red-50 text-red-600'],
-};
-
-function StatusChip({ status }: { status: LoanStatus }) {
-  const [label, classes] = STATUS_MAP[status];
-  return (
-    <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${classes}`}
-    >
-      {label}
-    </span>
-  );
-}

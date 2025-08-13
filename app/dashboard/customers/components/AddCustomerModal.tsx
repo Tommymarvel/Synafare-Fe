@@ -6,6 +6,8 @@ import { Formik, Form, Field, ErrorMessage, type FieldProps } from 'formik';
 import * as Yup from 'yup';
 import { Input } from '@/app/components/form/Input';
 import axiosInstance from '@/lib/axiosInstance';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
 
 type Props = {
   open: boolean;
@@ -91,17 +93,26 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
             onSubmit={async (values, { setSubmitting }) => {
               setSubmitting(true);
               try {
-                // If your API wants first/last, split here:
-                // const [firstName, ...rest] = values.customer_name.trim().split(' ');
-                // const lastName = rest.join(' ');
-                await axiosInstance.post('/customer/add', {
+              
+                const res = await axiosInstance.post('/customer/add', {
                   customer_name: values.customer_name,
                   customer_email: values.customer_email,
                   customer_phn: values.customer_phn,
                 });
+
+
+                toast.success(res.data.message || 'Customer added successfully');
                 onCreated?.();
                 onClose();
-              } finally {
+              } catch (error) {
+                    const axiosError = error as AxiosError<{ message?: string }>;
+                    toast.error(
+                      (axiosError.response && axiosError.response.data
+                        ? axiosError.response.data.message || axiosError.response.data
+                        : axiosError.message || 'An error occurred'
+                      ).toString()
+                    );
+                  } finally {
                 setSubmitting(false);
               }
             }}

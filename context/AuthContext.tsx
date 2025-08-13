@@ -29,6 +29,7 @@ interface User {
   nature_of_solar_business: string; // e.g. "distributor"
   phn_no: string; // e.g. "+2349028990916"
   updatedAt: string;
+  wallet_balance: number; // e.g. 10000
 }
 
 interface WhoAmIResponse {

@@ -6,74 +6,83 @@ export type LoanStatus =
   | 'COMPLETED'
   | 'REJECTED';
 
+// This matches what we actually use in UI
 export interface Loan {
   id: string;
   customerName: string;
   customerEmail: string;
   transactionCost: number;
-  loanAmount: number;
-  dateRequested: string; // ISO
-  duration: string; // "3 months"
-  nextPaymentDate?: string;
-  status: LoanStatus;
+  loanDurationInMonths: number;
+  downpaymentInPercent: number;
+  downpaymentInNaira: number;
+  interest: number;
+  totalRepayment: number;
+  bankStatement: string;
+  trxInvoice: string;
+  loanStatus: LoanStatus;
+  dateRequested: string;
+  customerPhone: string; // Optional, not always present
+  nextPaymentDate: string; // Optional, not always present
+  outstandingBalance: number; // Optional, not always present
+  elapsedMonths: number; // Optional, not always present
+  repayments: Repay[]; // Optional, not always present
+  loanAmount: number; // Optional, not always present
 }
 
-// API (accept both camelCase & snake_case without `any`)
+
+interface Repay {
+  amount: number;
+  date: string;
+}
+// API format exactly as it comes
 export interface LoanAPI {
-  _id?: string;
-  id?: string;
-  customer_name?: string;
-  customerName?: string;
-  customer_email?: string;
-  customerEmail?: string;
-  transaction_cost?: number;
-  transactionCost?: number;
-  loan_amount?: number;
-  loanAmount?: number;
-  date_requested?: string;
-  dateRequested?: string;
-  duration?: string;
-  next_payment_date?: string;
-  nextPaymentDate?: string;
-  status: LoanStatus | string;
+  _id: string;
+  customer: {
+    _id: string;
+    customer_name: string;
+
+    customer_email: string;
+    customer_phn?: string;
+    date_joined?: string;
+  };
+  transaction_cost: number;
+  loan_duration_in_months: number;
+  downpayment_in_percent: number;
+  downpayment_in_naira: number;
+  elapsedMonths?: number; // Optional, not always present
+  outstandingBalance?: number; // Optional, not always present
+  nextPaymentDate?: string; // Optional, not always present
+  interest: number;
+  total_repayment: number;
+  bank_statement: string;
+  trx_invoice: string;
+  loan_status: string;
+  createdAt: string;
+  repayments: Repay[];
+  loanAmount?: number; // Optional, not always present
 }
 
-export interface LoansResponse {
-  data: LoanAPI[];
-  meta?: { total?: number; page?: number; limit?: number; totalPages?: number };
-}
-
-// Map API → UI
+// Mapper with no calculations — just rename fields for UI
 export function toLoan(api: LoanAPI): Loan {
-  const id = api.id ?? api._id ?? crypto.randomUUID();
-  const customerName = api.customerName ?? api.customer_name ?? '—';
-  const customerEmail = api.customerEmail ?? api.customer_email ?? '—';
-  const transactionCost = api.transactionCost ?? api.transaction_cost ?? 0;
-  const loanAmount = api.loanAmount ?? api.loan_amount ?? 0;
-  const dateRequested =
-    api.dateRequested ?? api.date_requested ?? new Date().toISOString();
-  const duration = api.duration ?? '—';
-  const nextPaymentDate = api.nextPaymentDate ?? api.next_payment_date;
-  // coerce status to allowed set
-  const raw = (api.status ?? '').toUpperCase();
-  const status: LoanStatus =
-    raw === 'PENDING' ||
-    raw === 'OFFER_RECEIVED' ||
-    raw === 'ACTIVE' ||
-    raw === 'COMPLETED' ||
-    raw === 'REJECTED'
-      ? (raw as LoanStatus)
-      : 'PENDING';
-
   return {
-    id,
-    customerName,
-    customerEmail,
-    transactionCost,
-    loanAmount,
-    dateRequested,
-    duration,
-    nextPaymentDate,
-    status,
+    id: api._id,
+    customerName: api.customer.customer_name,
+    customerEmail: api.customer.customer_email,
+    customerPhone: api.customer.customer_phn ?? '',
+    transactionCost: api.transaction_cost,
+    loanDurationInMonths: api.loan_duration_in_months,
+    downpaymentInPercent: api.downpayment_in_percent,
+    downpaymentInNaira: api.downpayment_in_naira,
+    interest: api.interest,
+    totalRepayment: api.total_repayment,
+    bankStatement: api.bank_statement,
+    trxInvoice: api.trx_invoice,
+    loanStatus: api.loan_status.toUpperCase() as LoanStatus,
+    dateRequested: api.createdAt,
+    nextPaymentDate: api.nextPaymentDate ?? '',
+    outstandingBalance: api.outstandingBalance ?? 0,
+    elapsedMonths: api.elapsedMonths ?? 0,
+    repayments: api.repayments,
+    loanAmount: api.loanAmount ?? 0,
   };
 }

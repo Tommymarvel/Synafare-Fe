@@ -60,6 +60,8 @@ export default function LoginPage() {
       }
 
       if (res.data.status === 204) {
+        toast.info('Please verify your email.');
+
         router.push('/signup/verify-otp');
         return;
       }

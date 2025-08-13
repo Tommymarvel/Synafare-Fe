@@ -7,6 +7,8 @@ import React, {
   useEffect,
   KeyboardEvent,
   useId,
+  FocusEvent,
+  MouseEvent as ReactMouseEvent,
 } from 'react';
 import { useField } from 'formik';
 import clsx from 'clsx';
@@ -128,7 +130,7 @@ export function CustomSelect({
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (e: FocusEvent<HTMLDivElement>) => {
     // allow internal interactions; defer closing slightly
     setTimeout(() => {
       if (

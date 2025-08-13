@@ -18,6 +18,8 @@ import LoanAgreementModal from '../components/LoanAgreeementModal';
 import SubmissionSuccess from '../components/SubmissionSucess';
 import { Input } from '@/app/components/form/Input';
 import { useDropzone } from 'react-dropzone';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
 
 /* ----------------------------- Types & helpers ----------------------------- */
 
@@ -197,13 +199,22 @@ export default function RequestLoanPage() {
             if (values.invoice instanceof File)
               fd.append('trx_invoice', values.invoice, values.invoice.name);
             if (values.bankStatement instanceof File)
-              fd.append('bank_statement', values.bankStatement, values.bankStatement.name);
+              fd.append(
+                'bank_statement',
+                values.bankStatement,
+                values.bankStatement.name
+              );
 
             await axiosInstance.post('/loan/apply', fd); // Content-Type auto-set for FormData
             setIsSuccess(true);
-          } catch (err) {
-            console.error(err);
-            // optional: toast error here
+          } catch (error) {
+            const axiosError = error as AxiosError<{ message?: string }>;
+            toast.error(
+              (axiosError.response && axiosError.response.data
+                ? axiosError.response.data.message || axiosError.response.data
+                : axiosError.message || 'An error occurred'
+              ).toString()
+            );
           } finally {
             setSubmitting(false);
           }
