@@ -48,7 +48,7 @@ const RepaymentHistory = () => {
                 x2="0.499998"
                 y2="46"
                 stroke="#797979"
-                stroke-dasharray="3 3"
+                strokeDasharray="3 3"
               />
             </svg>
           </div>
@@ -81,7 +81,7 @@ const RepaymentHistory = () => {
                 x2="0.499998"
                 y2="46"
                 stroke="#797979"
-                stroke-dasharray="3 3"
+                strokeDasharray="3 3"
               />
             </svg>
           </div>
@@ -113,7 +113,7 @@ const RepaymentHistory = () => {
                 x2="0.499998"
                 y2="46"
                 stroke="#797979"
-                stroke-dasharray="3 3"
+                strokeDasharray="3 3"
               />
             </svg>
           </div>

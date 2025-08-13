@@ -1,3 +1,4 @@
+"use client";
 import PageIntro from "@/components/page-intro";
 import GoBack from "./components/goback";
 import CardWrapper from "@/components/cardWrapper";
@@ -6,18 +7,38 @@ import Status from "@/components/status";
 import Document from "./components/document";
 import Image from "next/image";
 import RepaymentHistory from "./components/repayment-history";
+import AcceptRequestModal from "./components/modals/accept-request";
+import { useState } from "react";
+import DeclineRequestModel from "./components/modals/decline-request";
 
 const LoanRequestDetail = () => {
+  const [showAcceptRequest, setShowAcceptRequest] = useState(false);
+  const [showDeclineRequest, setshowDeclineRequest] = useState(false);
   return (
     <div>
+      <AcceptRequestModal
+        open={showAcceptRequest}
+        onOpenChange={setShowAcceptRequest}
+      />
+
+      <DeclineRequestModel
+        open={showDeclineRequest}
+        onOpenChange={setshowDeclineRequest}
+      />
       <GoBack href="/loan-requests" className="mt-5 mb-3" />
       <div className="flex items-center mb-5">
         <PageIntro>David Smith</PageIntro>
         <div className="flex items-center gap-x-3 ms-auto text-resin-black font-medium">
-          <button className="bg-mikado-yellow hover:bg-mikado-yellow/70  px-[30px] py-2 rounded-lg">
+          <button
+            onClick={() => setShowAcceptRequest(true)}
+            className="bg-mikado-yellow hover:bg-mikado-yellow/70  px-[30px] py-2 rounded-lg"
+          >
             Accept Request
           </button>
-          <button className="border border-resin-black hover:bg-resin-black hover:text-gray-4   px-[30px] py-2 rounded-lg">
+          <button
+            onClick={() => setshowDeclineRequest(true)}
+            className="border border-resin-black hover:bg-resin-black hover:text-gray-4   px-[30px] py-2 rounded-lg"
+          >
             Decline Request
           </button>
           <button className="border border-resin-black hover:bg-resin-black fill-resin-black hover:text-gray-4 hover:fill-gray-4   px-[30px] py-2 rounded-lg flex gap-x-2">
