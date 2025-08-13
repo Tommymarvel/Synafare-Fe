@@ -1,4 +1,9 @@
-import { DeclineLoanType, LoanRecord } from "@/types/loantypes";
+import {
+  AllLoansType,
+  DeclineLoanType,
+  LoanRecord,
+  LoanReqType,
+} from "@/types/loantypes";
 
 export const loanOffersData: LoanRecord[] = [
   {
@@ -75,7 +80,7 @@ export const loanOffersData: LoanRecord[] = [
   },
 ];
 
-export const loanRequestsData = [
+export const loanRequestsData: LoanReqType[] = [
   {
     name: "David Smith",
     id: "ID43267902",
@@ -222,5 +227,88 @@ export const declinedRequestsData: DeclineLoanType[] = [
     dateRequested: "Jan 6, 2025",
     duration: "3 months",
     status: "Rejected",
+  },
+];
+
+export const allLoansData: AllLoansType[] = [
+  {
+    name: "David Smith",
+    id: "#ID43267902",
+    loanAmount: "₦1,181,675",
+    amountDue: "₦827,172",
+    dateDisbursed: "Jan 6, 2025",
+    duration: "3 months",
+    nextPayment: "Sep 12, 2025",
+    status: "Active",
+  },
+  {
+    name: "Adeyemi Johnson",
+    id: "#ID43267901",
+    loanAmount: "₦1,181,675",
+    amountDue: "₦827,172",
+    dateDisbursed: "Jan 6, 2025",
+    duration: "4 months",
+    nextPayment: "Sep 12, 2025",
+    status: "Active",
+  },
+  {
+    name: "Chima Musa",
+    id: "#ID43267903",
+    loanAmount: "₦1,181,675",
+    amountDue: "₦827,172",
+    dateDisbursed: "Jan 6, 2025",
+    duration: "5 months",
+    nextPayment: "Sep 12, 2025",
+    status: "Active",
+  },
+  {
+    name: "Adeyemi Johnson",
+    id: "#ID43267904",
+    loanAmount: "₦1,181,675",
+    amountDue: "₦827,172",
+    dateDisbursed: "Jan 6, 2025",
+    duration: "3 months",
+    nextPayment: "Sep 12, 2025",
+    status: "Active",
+  },
+  {
+    name: "David Smith",
+    id: "#ID43267905",
+    loanAmount: "₦1,181,675",
+    amountDue: "₦827,172",
+    dateDisbursed: "Jan 6, 2025",
+    duration: "4 months",
+    nextPayment: null,
+    status: "Completed",
+  },
+  {
+    name: "Chima Musa",
+    id: "#ID43267906",
+    loanAmount: "₦1,181,675",
+    amountDue: "₦827,172",
+    dateDisbursed: "Jan 6, 2025",
+    duration: "3 months",
+    nextPayment: null,
+    status: "Completed",
+  },
+  {
+    name: "Adeyemi Johnson",
+    id: "#ID43267907",
+    loanAmount: "₦1,181,675",
+    amountDue: "₦827,172",
+    dateDisbursed: "Jan 6, 2025",
+    duration: "6 months",
+    nextPayment: null,
+    status: "Completed",
+  },
+  {
+    name: "Chima Musa",
+    id: "#ID43267908",
+    loanAmount: "₦1,181,675",
+    amountDue: "₦827,172",
+    dateDisbursed: "Jan 6, 2025",
+    duration: "3 months",
+    nextPayment: "Sep 12, 2025",
+    status: "Overdue",
   },
 ];

@@ -1,3 +1,4 @@
+import { STATUSCONST } from "@/lib/constants";
 export type LoanReqType = {
   name: string;
   id: string;
@@ -8,7 +9,10 @@ export type LoanReqType = {
   duration: string;
 };
 
-type LoanStatus = "Pending" | "Paid" | "Rejected";
+type LoanStatus =
+  | typeof STATUSCONST.PENDING
+  | typeof STATUSCONST.PAID
+  | typeof STATUSCONST.REJECTED;
 
 export type LoanRecord = {
   name: string;
@@ -28,4 +32,18 @@ export type DeclineLoanType = {
   dateRequested: string;
   duration: string;
   status: LoanStatus;
+};
+
+export type AllLoansType = {
+  name: string;
+  id: string;
+  loanAmount: string;
+  amountDue: string;
+  dateDisbursed: string;
+  duration: string;
+  nextPayment: string | null;
+  status:
+    | typeof STATUSCONST.ACTIVE
+    | typeof STATUSCONST.COMPLETED
+    | typeof STATUSCONST.OVERDUE;
 };

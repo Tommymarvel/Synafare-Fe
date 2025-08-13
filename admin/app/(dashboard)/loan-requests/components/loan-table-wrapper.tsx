@@ -8,7 +8,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const LoanTableWrapper = ({ children }: { children: React.ReactNode }) => {
+const LoanTableWrapper = ({
+  children,
+  hideStatus = false,
+}: {
+  children: React.ReactNode;
+  hideStatus?: boolean;
+}) => {
   return (
     <CardWrapper className="px-0 py-0">
       <div className="flex justify-between px-6 py-3">
@@ -30,15 +36,17 @@ const LoanTableWrapper = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         <div className="gap-x-[10px] flex">
-          <Select>
-            <SelectTrigger className="border p-3 border-border-gray rounded-md ">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="dark">Pending</SelectItem>
-              <SelectItem value="system">Successful</SelectItem>
-            </SelectContent>
-          </Select>
+          {!hideStatus && (
+            <Select>
+              <SelectTrigger className="border p-3 border-border-gray rounded-md ">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="dark">Pending</SelectItem>
+                <SelectItem value="system">Successful</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
 
           <Select>
             <SelectTrigger className="border p-3 border-border-gray rounded-md ">

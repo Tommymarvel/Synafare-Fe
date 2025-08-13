@@ -4,6 +4,7 @@
 body {
   font-family: var(--font-be-vietnam-pro), sans-serif;
   font-size: 14px;
+  color: #1d1c1d;
 }
 button {
   cursor: pointer;
@@ -11,6 +12,7 @@ button {
 
 @theme {
   --color-mikado-yellow: #febe04;
+  --color-tertiary-1: #e2a109;
   --color-resin-black: #1d1c1d;
   --color-brown-700: #645d5d;
   --color-deep-green: #00110a;
@@ -20,6 +22,7 @@ button {
   --color-gray-300: #d0d5dd;
   --color-gray-400: #98a2b3;
   --color-gray-500: #667085;
+  --color-gray-600: #5d6679;
   --color-gray-900: #101828;
   --color-gray-4: #f0f2f5;
   --color-gray-3: #797979;
@@ -36,4 +39,9 @@ button {
 .content-container {
   padding-inline: 50px;
   max-width: 1148px;
+}
+
+.repaymentlist {
+  list-style-type: disc;
+  list-style: disc;
 }

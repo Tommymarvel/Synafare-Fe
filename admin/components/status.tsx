@@ -1,6 +1,7 @@
+import { STATUSCONST } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-type StatusType = "Successful" | "Pending" | "Rejected" | "Paid";
+type StatusType = (typeof STATUSCONST)[keyof typeof STATUSCONST];
 
 const Status = ({
   status,
@@ -9,7 +10,7 @@ const Status = ({
   status: StatusType;
   className?: string;
 }) => {
-  if (status === "Pending") {
+  if (status === STATUSCONST.PENDING) {
     return (
       <span
         className={cn(
@@ -17,11 +18,16 @@ const Status = ({
           className
         )}
       >
-        Pending
+        {status}
       </span>
     );
   }
-  if (status === "Successful" || status === "Paid") {
+  if (
+    status === STATUSCONST.SUCCESS ||
+    status === STATUSCONST.PAID ||
+    status == STATUSCONST.ACTIVE ||
+    status == STATUSCONST.COMPLETED
+  ) {
     return (
       <span
         className={cn(
@@ -33,7 +39,7 @@ const Status = ({
       </span>
     );
   }
-  if (status === "Rejected") {
+  if (status === STATUSCONST.REJECTED || status === STATUSCONST.OVERDUE) {
     return (
       <span
         className={cn(
@@ -41,7 +47,7 @@ const Status = ({
           className
         )}
       >
-        Rejected
+        {status}
       </span>
     );
   }
