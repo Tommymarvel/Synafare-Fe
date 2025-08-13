@@ -7,12 +7,12 @@ import type { Loan } from '../types';
 const N = (v: number) => `₦${v.toLocaleString('en-NG')}`;
 
 function compute(loan: Loan) {
-  const downPct = loan.downPercent ?? 30;
-  const interest = loan.interestMonthlyPercent ?? 6;
+  const downPct = loan.downpaymentInNaira ?? 30;
+  const interest = loan.interest ?? 6;
   const totalRepayment =
     loan.totalRepayment ??
-    Math.round(Number(loan.loanAmount) * (1 + (interest / 100) * Number(loan.duration)));
-  const monthly = Math.round(totalRepayment / Math.max(1, Number(loan.duration)));
+    Math.round(Number(loan.loanAmount) * (1 + (interest / 100) * Number(loan.loanDurationInMonths)));
+  const monthly = Math.round(totalRepayment / Math.max(1, Number(loan.loanDurationInMonths)));
   const downAmount = Math.round((Number(loan.transactionCost) * downPct) / 100);
 
   return { downPct, interest, totalRepayment, monthly, downAmount };
@@ -39,7 +39,7 @@ export default function FinancingOfferModal({
     { label: 'Transaction Cost', value: N(loan.transactionCost) },
     { label: 'Amount Requested', value: N(loan.loanAmount) },
     { label: 'Amount Offered', value: N(loan.loanAmount) },
-    { label: 'Loan Duration', value: `${loan.duration} months` },
+    { label: 'Loan Duration', value: `${loan.loanDurationInMonths} months` },
     { label: 'Interest (per month)', value: `${interest}%` },
     { label: `Downpayment (${downPct}%)`, value: N(downAmount) },
     { label: 'Total Repayment', value: N(totalRepayment) },
