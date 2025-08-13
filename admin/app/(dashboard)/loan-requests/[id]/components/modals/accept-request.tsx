@@ -8,6 +8,7 @@ import {
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useState } from "react";
 import ConfirmAccept from "./confirm-accept";
+import Button from "@/components/button";
 
 const AcceptRequestModal = ({
   open,
@@ -110,16 +111,14 @@ const AcceptRequestModal = ({
 
             <div className="flex gap-x-4 justify-center mt-5 font-medium">
               <DialogClose asChild>
-                <button className="border border-resin-black hover:bg-resin-black hover:text-gray-4   px-[64px] py-4 rounded-lg">
+                <Button variant="Colored" className="px-[64px] py-4">
                   Cancel
-                </button>
+                </Button>
               </DialogClose>
-              <button
-                onClick={handleConfirmAccept}
-                className="bg-mikado-yellow text-resin-black hover:bg-mikado-yellow/70  px-[64px] py-4 rounded-lg"
-              >
+
+              <Button className="px-[64px] py-4" onClick={handleConfirmAccept}>
                 Send Offer
-              </button>
+              </Button>
             </div>
           </div>
         </DialogContent>

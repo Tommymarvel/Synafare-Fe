@@ -8,6 +8,7 @@ import {
 import { DialogTitle } from "@radix-ui/react-dialog";
 import LoanOfferSent from "./loan.offer.sent";
 import { useState } from "react";
+import Button from "@/components/button";
 const ConfirmAccept = ({
   open,
   onOpenChange,
@@ -64,16 +65,16 @@ const ConfirmAccept = ({
             </div>
             <div className="flex justify-center gap-x-3 font-medium">
               <DialogClose asChild>
-                <button className="border border-resin-black hover:bg-resin-black hover:text-gray-4   px-[64px] py-4 rounded-lg">
+                <Button variant="Colored" className="px-[64px] py-4 rounded-lg">
                   Cancel
-                </button>
+                </Button>
               </DialogClose>
-              <button
+              <Button
                 onClick={handleShowSent}
-                className="bg-mikado-yellow text-resin-black hover:bg-mikado-yellow/70  px-[64px] py-4 rounded-lg"
+                className="px-[64px] py-4 rounded-lg"
               >
                 Confirm
-              </button>
+              </Button>
             </div>
           </div>
         </DialogContent>

@@ -8,6 +8,7 @@ import {
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useState } from "react";
 import DeclinedRequestMessage from "./loan.declined.request";
+import Button from "@/components/button";
 const ConfirmDecline = ({
   open,
   onOpenChange,
@@ -68,16 +69,21 @@ const ConfirmDecline = ({
             </div>
             <div className="flex justify-center gap-x-3 font-medium">
               <DialogClose asChild>
-                <button className="border border-resin-black hover:bg-resin-black hover:text-gray-4   px-[64px] py-4 rounded-lg">
+                <Button
+                  variant="Colored"
+                  className="px-[64px] py-4"
+                  onClick={handleShowRequestDelined}
+                >
                   Cancel
-                </button>
+                </Button>
               </DialogClose>
-              <button
+
+              <Button
+                className="px-[64px] py-4"
                 onClick={handleShowRequestDelined}
-                className="bg-mikado-yellow text-resin-black hover:bg-mikado-yellow/70  px-[64px] py-4 rounded-lg"
               >
                 Confirm
-              </button>
+              </Button>
             </div>
           </div>
         </DialogContent>

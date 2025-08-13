@@ -10,6 +10,7 @@ import RepaymentHistory from "./components/repayment-history";
 import AcceptRequestModal from "./components/modals/accept-request";
 import { useState } from "react";
 import DeclineRequestModel from "./components/modals/decline-request";
+import Button from "@/components/button";
 
 const LoanRequestDetail = () => {
   const [showAcceptRequest, setShowAcceptRequest] = useState(false);
@@ -29,19 +30,18 @@ const LoanRequestDetail = () => {
       <div className="flex items-center mb-5">
         <PageIntro>David Smith</PageIntro>
         <div className="flex items-center gap-x-3 ms-auto text-resin-black font-medium">
-          <button
-            onClick={() => setShowAcceptRequest(true)}
-            className="bg-mikado-yellow hover:bg-mikado-yellow/70  px-[30px] py-2 rounded-lg"
-          >
+          <Button variant="Colored" onClick={() => setShowAcceptRequest(true)}>
             Accept Request
-          </button>
-          <button
-            onClick={() => setshowDeclineRequest(true)}
-            className="border border-resin-black hover:bg-resin-black hover:text-gray-4   px-[30px] py-2 rounded-lg"
-          >
+          </Button>
+          <Button onClick={() => setshowDeclineRequest(true)}>
             Decline Request
-          </button>
-          <button className="border border-resin-black hover:bg-resin-black fill-resin-black hover:text-gray-4 hover:fill-gray-4   px-[30px] py-2 rounded-lg flex gap-x-2">
+          </Button>
+
+          <Button
+            variant="Colored"
+            className="flex gap-x-2"
+            onClick={() => setShowAcceptRequest(true)}
+          >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="inherit">
               <path
                 d="M14.166 17.7083H5.83268C2.79102 17.7083 1.04102 15.9583 1.04102 12.9166V7.08329C1.04102 4.04163 2.79102 2.29163 5.83268 2.29163H14.166C17.2077 2.29163 18.9577 4.04163 18.9577 7.08329V12.9166C18.9577 15.9583 17.2077 17.7083 14.166 17.7083ZM5.83268 3.54163C3.44935 3.54163 2.29102 4.69996 2.29102 7.08329V12.9166C2.29102 15.3 3.44935 16.4583 5.83268 16.4583H14.166C16.5493 16.4583 17.7077 15.3 17.7077 12.9166V7.08329C17.7077 4.69996 16.5493 3.54163 14.166 3.54163H5.83268Z"
@@ -53,7 +53,7 @@ const LoanRequestDetail = () => {
               />
             </svg>
             Send Reminder
-          </button>
+          </Button>
         </div>
       </div>
 
