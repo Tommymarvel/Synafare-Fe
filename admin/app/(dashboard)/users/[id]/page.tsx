@@ -10,6 +10,7 @@ import UserInventory from "./components/user.inventory";
 import UserCustomer from "./components/user.customer";
 import UserQuote from "./components/user.quote";
 import ChooseAction from "./components/choose.action";
+import { UserLoanRecordsData } from "@/data/users.table";
 
 const UserDetail = () => {
   return (
@@ -68,7 +69,7 @@ const UserDetail = () => {
         </TabsContent>
         <TabsContent value="requests">
           <UserTableWrapper>
-            <UserLoanRequests data={[]} />
+            <UserLoanRequests data={UserLoanRecordsData} />
           </UserTableWrapper>
         </TabsContent>
         <TabsContent value="inventory">

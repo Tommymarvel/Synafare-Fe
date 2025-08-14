@@ -18,7 +18,7 @@ const ConfirmVerifyUserModal = ({
     onOpenChange(false);
 
     toast(
-      <div className="flex rounded-[10px] gap-x-4 items-center bg-white p-4 w-full max-w-[544px] shadow-[0px_0px_24px_0px_#0000001F]">
+      <div className="flex rounded-[10px] gap-x-4 items-center bg-white p-4 w-[500px] shadow-[0px_0px_24px_0px_#0000001F]">
         <svg
           width="32"
           height="32"

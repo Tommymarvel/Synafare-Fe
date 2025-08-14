@@ -55,6 +55,18 @@ const Status = ({
       </span>
     );
   }
+  if (status === STATUSCONST.OFFERRECEIVED) {
+    return (
+      <span
+        className={cn(
+          "bg-[#EFF8FF] text-[#175CD3] text-xs py-[2px] px-2 rounded-full",
+          className
+        )}
+      >
+        {status}
+      </span>
+    );
+  }
   return (
     <span
       className={cn(

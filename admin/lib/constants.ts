@@ -8,4 +8,5 @@ export const STATUSCONST = {
   SUCCESS: "Successful",
   PENDINGVERIFICATION: "Pending Verification",
   VERIFIED: "Verified",
+  OFFERRECEIVED: "Offer Received",
 } as const;
