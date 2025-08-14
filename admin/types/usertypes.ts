@@ -30,3 +30,18 @@ export interface UserLoanRecord {
   nextPayment?: string | undefined;
   status: UserLoanReqStatus;
 }
+
+export type InventoryType = {
+  id: string;
+  product: string;
+  category: string;
+  dateCreated: string;
+};
+
+export type UserCustomer = {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  dateAdded: string;
+};

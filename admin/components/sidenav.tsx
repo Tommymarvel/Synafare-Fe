@@ -23,6 +23,7 @@ const navs = [
     name: "Users",
     href: "/users",
     icon: SideNavIcons.Users,
+    startsWith: true,
   },
   {
     name: "Inventory Management",
@@ -55,6 +56,7 @@ const loadSubNav = [
   {
     name: "Loan Requests",
     href: "/loan-requests",
+    startsWith: true,
   },
   {
     name: "All Loans",

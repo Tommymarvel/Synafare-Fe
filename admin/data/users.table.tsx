@@ -1,4 +1,9 @@
-import { AllUsers, UserLoanRecord } from "@/types/usertypes";
+import {
+  AllUsers,
+  InventoryType,
+  UserCustomer,
+  UserLoanRecord,
+} from "@/types/usertypes";
 
 export const allUsersData: AllUsers[] = [
   {
@@ -152,5 +157,115 @@ export const UserLoanRecordsData: UserLoanRecord[] = [
     dateRequested: "Jan 6, 2025",
     duration: "3 months",
     status: "Rejected",
+  },
+];
+
+export const InventoryData: InventoryType[] = [
+  {
+    id: "1a2b3c4d5e",
+    product: "1.5kVa 2.4kWh LT",
+    category: "Inverter",
+    dateCreated: "Jan 6, 2025",
+  },
+  {
+    id: "2f3g4h5i6j",
+    product: "1.5kVa 2.4kWh LT",
+    category: "Battery",
+    dateCreated: "Jan 6, 2025",
+  },
+  {
+    id: "3k4l5m6n7o",
+    product: "1.5kVa 2.4kWh LT",
+    category: "Inverter",
+    dateCreated: "Jan 6, 2025",
+  },
+  {
+    id: "4p5q6r7s8t",
+    product: "1.5kVa 2.4kWh LT",
+    category: "Panel",
+    dateCreated: "Jan 6, 2025",
+  },
+  {
+    id: "5u6v7w8x9y",
+    product: "1.5kVa 2.4kWh LT",
+    category: "Battery",
+    dateCreated: "Jan 6, 2025",
+  },
+  {
+    id: "6z7a8b9c0d",
+    product: "1.5kVa 2.4kWh LT",
+    category: "Inverter",
+    dateCreated: "Jan 6, 2025",
+  },
+  {
+    id: "7e8f9g0h1i",
+    product: "1.5kVa 2.4kWh LT",
+    category: "Accessory",
+    dateCreated: "Jan 6, 2025",
+  },
+  {
+    id: "8j9k0l1m2n",
+    product: "1.5kVa 2.4kWh LT",
+    category: "Inverter",
+    dateCreated: "Jan 6, 2025",
+  },
+];
+
+export const userCustomerDatas: UserCustomer[] = [
+  {
+    id: "1a2b3c4d5e",
+    name: "Emeka Nwankwo",
+    email: "robert.white@travelblog.com",
+    phoneNumber: "+2348123456789",
+    dateAdded: "Jan 6, 2025",
+  },
+  {
+    id: "2f3g4h5i6j",
+    name: "Adaobi Eze",
+    email: "david.jones@techworld.net",
+    phoneNumber: "+2348123456789",
+    dateAdded: "Jan 6, 2025",
+  },
+  {
+    id: "3k4l5m6n7o",
+    name: "Chinonso Okafor",
+    email: "julia.green@fitnesslife.com",
+    phoneNumber: "+2348123456789",
+    dateAdded: "Jan 6, 2025",
+  },
+  {
+    id: "4p5q6r7s8t",
+    name: "Kelechi Uche",
+    email: "emily.brown@cookinghub.com",
+    phoneNumber: "+2348123456789",
+    dateAdded: "Jan 6, 2025",
+  },
+  {
+    id: "5u6v7w8x9y",
+    name: "Zainab Abiola",
+    email: "michael.bay2020@film.com",
+    phoneNumber: "+2348123456789",
+    dateAdded: "Jan 6, 2025",
+  },
+  {
+    id: "6z7a8b9c0d",
+    name: "Mary Thomas",
+    email: "jon_doe2345@gmail.com",
+    phoneNumber: "+2348123456789",
+    dateAdded: "Jan 6, 2025",
+  },
+  {
+    id: "7e8f9g0h1i",
+    name: "Tolu Adebayo",
+    email: "sarah.connor1987@example.com",
+    phoneNumber: "+2348123456789",
+    dateAdded: "Jan 6, 2025",
+  },
+  {
+    id: "8j9k0l1m2n",
+    name: "Ngozi Ibe",
+    email: "lisa.smith@artgallery.org",
+    phoneNumber: "+2348123456789",
+    dateAdded: "Jan 6, 2025",
   },
 ];
