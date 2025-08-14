@@ -1,6 +1,6 @@
 export const allUsersData: AllUsers[] = [
   {
-    id: "#ID43267902",
+    id: "ID43267902",
     name: "Emeka Nwankwo",
     email: "robert.white@travelblog.com",
     userType: "Installer",
@@ -8,7 +8,7 @@ export const allUsersData: AllUsers[] = [
     status: "Pending Verification",
   },
   {
-    id: "#ID87561934",
+    id: "ID87561934",
     name: "Adobei Eze",
     email: "david.jones@freshworld.net",
     userType: "Distributor",
@@ -16,7 +16,7 @@ export const allUsersData: AllUsers[] = [
     status: "Pending Verification",
   },
   {
-    id: "#ID19823647",
+    id: "ID19823647",
     name: "Chinonso Okafor",
     email: "julia.green@fitnesslife.com",
     userType: "Installer",
@@ -24,7 +24,7 @@ export const allUsersData: AllUsers[] = [
     status: "Pending Verification",
   },
   {
-    id: "#ID37482961",
+    id: "ID37482961",
     name: "Kelechi Uche",
     email: "emily.brown@cookinghub.com",
     userType: "Installer",
@@ -32,7 +32,7 @@ export const allUsersData: AllUsers[] = [
     status: "Pending Verification",
   },
   {
-    id: "#ID58207364",
+    id: "ID58207364",
     name: "Zinabo Abiola",
     email: "john.michael.abc2020@film.com",
     userType: "Installer",
@@ -40,7 +40,7 @@ export const allUsersData: AllUsers[] = [
     status: "Verified",
   },
   {
-    id: "#ID72938465",
+    id: "ID72938465",
     name: "Mary Thomas",
     email: "jan_doe2345@gmail.com",
     userType: "Installer",
@@ -48,7 +48,7 @@ export const allUsersData: AllUsers[] = [
     status: "Verified",
   },
   {
-    id: "#ID94837410",
+    id: "ID94837410",
     name: "Tolu Adebayo",
     email: "sarah.conner1987@example.com",
     userType: "Installer",
@@ -56,7 +56,7 @@ export const allUsersData: AllUsers[] = [
     status: "Pending Verification",
   },
   {
-    id: "#ID84710329",
+    id: "ID84710329",
     name: "Ngozi Ibe",
     email: "lisa.smith@artgallery.org",
     userType: "Distributor",

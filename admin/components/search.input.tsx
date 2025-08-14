@@ -12,7 +12,7 @@ const SearchInput = () => {
       />
       <Image
         className="absolute peer-focus:hidden transition-all left-[14px] top-1/2 -translate-y-1/2"
-        src="./search-icon.svg"
+        src="/search-icon.svg"
         alt="search icon"
         width={20}
         height={20}

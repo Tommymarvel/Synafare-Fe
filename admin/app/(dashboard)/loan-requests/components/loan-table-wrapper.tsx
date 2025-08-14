@@ -1,5 +1,4 @@
 import CardWrapper from "@/components/cardWrapper";
-import Image from "next/image";
 import {
   Select,
   SelectContent,
@@ -17,7 +16,7 @@ const LoanTableWrapper = ({
   hideStatus?: boolean;
 }) => {
   return (
-    <CardWrapper className="px-0 py-0">
+    <CardWrapper className="px-0 py-0 rounded-lg">
       <div className="flex justify-between px-6 py-3">
         <div className="max-w-[334px] w-full">
           <SearchInput />

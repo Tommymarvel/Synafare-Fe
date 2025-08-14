@@ -1,11 +1,10 @@
 "use client";
 import PageIntro from "@/components/page-intro";
-import GoBack from "./components/goback";
+import GoBack from "@/components/goback";
 import CardWrapper from "@/components/cardWrapper";
 import InfoDetail from "./components/detail";
 import Status from "@/components/status";
-import Document from "./components/document";
-import Image from "next/image";
+import Document from "@/components/document";
 import RepaymentHistory from "./components/repayment-history";
 import AcceptRequestModal from "./components/modals/accept-request";
 import { useState } from "react";

@@ -21,7 +21,7 @@ const UserTableWrapper = ({
   openDeleteModalfunc?: (x: boolean) => void;
 }) => {
   return (
-    <CardWrapper className="px-0 py-0">
+    <CardWrapper className="px-0 py-0 rounded-lg">
       <div className="flex justify-between px-6 py-3">
         <div className="flex gap-x-[10px] grow">
           {verify && (
