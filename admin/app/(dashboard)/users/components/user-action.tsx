@@ -5,17 +5,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { STATUSCONST } from "@/lib/constants";
+import { UserStatus } from "@/types/usertypes";
 
 type booleanSetFunc = (x: boolean) => void;
 const nullfunc = () => null;
 
 const UserActionButton = ({
   id,
+  status,
   openDeclineModal = nullfunc,
   openVerifyModal = nullfunc,
   openDeleteModal = nullfunc,
 }: {
   id: string;
+  status: UserStatus;
   openDeclineModal?: booleanSetFunc;
   openVerifyModal?: booleanSetFunc;
   openDeleteModal?: booleanSetFunc;
@@ -49,22 +53,40 @@ const UserActionButton = ({
           </svg>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-white py-0">
+      <DropdownMenuContent className="bg-white py-0 border-none px-0">
         <DropdownMenuItem className="border-b border-b-border-gray py-3 px-5 rounded-none">
           <a href={"/users/" + id}>View User</a>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => openVerifyModal(true)}
-          className="border-b border-b-border-gray py-3 px-5 rounded-none"
-        >
-          Verify User
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => openDeclineModal(true)}
-          className="border-b border-b-border-gray py-3 px-5 rounded-none"
-        >
-          Decline
-        </DropdownMenuItem>
+        {status == STATUSCONST.PENDINGVERIFICATION && (
+          <>
+            <DropdownMenuItem
+              onClick={() => openVerifyModal(true)}
+              className="border-b border-b-border-gray py-3 px-5 rounded-none"
+            >
+              Verify User
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => openDeclineModal(true)}
+              className="border-b border-b-border-gray py-3 px-5 rounded-none"
+            >
+              Decline
+            </DropdownMenuItem>
+          </>
+        )}
+        {status == STATUSCONST.VERIFIED && (
+          <>
+            <DropdownMenuItem className="border-b border-b-border-gray py-3 px-5 rounded-none">
+              Login as User
+            </DropdownMenuItem>
+            <DropdownMenuItem className="border-b border-b-border-gray py-3 px-5 rounded-none">
+              Account Config.
+            </DropdownMenuItem>
+            <DropdownMenuItem className="border-b border-b-border-gray py-3 px-5 rounded-none">
+              Block User
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuItem
           onClick={() => openDeleteModal(true)}
           className="border-b border-b-border-gray py-3 px-5 rounded-none"

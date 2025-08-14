@@ -1,3 +1,5 @@
+import { AllUsers } from "@/types/usertypes";
+
 export const allUsersData: AllUsers[] = [
   {
     id: "ID43267902",

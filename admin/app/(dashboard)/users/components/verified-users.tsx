@@ -20,7 +20,7 @@ import ConfirmDeleteUser from "./modals/confirm-delete-user";
 import ConfirmVerifyUserModal from "./modals/confirm-verify-user";
 import { AllUsers } from "@/types/usertypes";
 
-const VerificationRequests = ({ data }: { data: AllUsers[] }) => {
+const VerifiedUsersTable = ({ data }: { data: AllUsers[] }) => {
   if (!data || data.length < 1) {
     return (
       <EmptyList
@@ -34,9 +34,7 @@ const VerificationRequests = ({ data }: { data: AllUsers[] }) => {
   const [showDeleteModal, setshowDeleteModal] = useState(false);
   const [showVerifyModal, setshowVerifyModal] = useState(false);
 
-  const filteredData = data.filter(
-    (x) => x.status == STATUSCONST.PENDINGVERIFICATION
-  );
+  const filteredData = data.filter((x) => x.status == STATUSCONST.VERIFIED);
 
   return (
     <>
@@ -109,4 +107,4 @@ const VerificationRequests = ({ data }: { data: AllUsers[] }) => {
   );
 };
 
-export default VerificationRequests;
+export default VerifiedUsersTable;

@@ -11,7 +11,8 @@ import Pagination from "@/components/pagination";
 import EmptyList from "../../loan-requests/components/empty-list";
 import Status from "@/components/status";
 import UserActionButton from "./user-action";
-const AllUsers = ({ data }: { data: AllUsers[] }) => {
+import { AllUsers } from "@/types/usertypes";
+const AllUsersTable = ({ data }: { data: AllUsers[] }) => {
   if (!data || data.length < 1) {
     return (
       <EmptyList
@@ -50,7 +51,7 @@ const AllUsers = ({ data }: { data: AllUsers[] }) => {
               <Status status={request.status} />
             </TableCell>
             <TableCell className="p-6">
-              <UserActionButton id={request.id} />
+              <UserActionButton status={request.status} id={request.id} />
             </TableCell>
           </TableRow>
         ))}
@@ -66,4 +67,4 @@ const AllUsers = ({ data }: { data: AllUsers[] }) => {
   );
 };
 
-export default AllUsers;
+export default AllUsersTable;

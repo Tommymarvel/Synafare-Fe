@@ -9,6 +9,7 @@ import UserTableWrapper from "./components/user.table.wrapper";
 import { useState } from "react";
 import ConfirmVerifyUserModal from "./components/modals/confirm-verify-user";
 import ConfirmDeleteUser from "./components/modals/confirm-delete-user";
+import VerifiedUsersTable from "./components/verified-users";
 const money = (
   <svg
     width="21"
@@ -107,7 +108,9 @@ const UsersPage = () => {
             </UserTableWrapper>
           </TabsContent>
           <TabsContent value="verified">
-            <UserTableWrapper>Verified Users</UserTableWrapper>
+            <UserTableWrapper>
+              <VerifiedUsersTable data={allUsersData} />
+            </UserTableWrapper>
           </TabsContent>
         </Tabs>
       </div>
