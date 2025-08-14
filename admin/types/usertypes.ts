@@ -10,6 +10,10 @@ export type UserLoanReqStatus =
   | typeof STATUSCONST.COMPLETED
   | typeof STATUSCONST.REJECTED;
 
+export type InvoiceStatus =
+  | typeof STATUSCONST.PENDING
+  | typeof STATUSCONST.PAID;
+
 export type AllUsers = {
   id: string;
   name: string;
@@ -45,3 +49,13 @@ export type UserCustomer = {
   phoneNumber: string;
   dateAdded: string;
 };
+
+export interface Invoice {
+  invoiceId: string;
+  customerName: string;
+  customerEmail: string;
+  issueDate: string;
+  dueDate: string;
+  amount: number;
+  status: InvoiceStatus;
+}

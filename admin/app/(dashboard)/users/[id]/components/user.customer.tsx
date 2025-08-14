@@ -54,7 +54,9 @@ const UserCustomerTable = ({ data }: { data: UserCustomer[] }) => {
               <TableCell className="p-6">{request.email}</TableCell>
               <TableCell className="p-6">{request.phoneNumber}</TableCell>
               <TableCell className="p-6">{request.dateAdded}</TableCell>
-              <TableCell className="p-6 text-[#E2A109] ">View</TableCell>
+              <TableCell className="p-6 text-[#E2A109] ">
+                <a href={"/customer/" + request.id}>View</a>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

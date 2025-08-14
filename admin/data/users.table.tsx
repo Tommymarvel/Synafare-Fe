@@ -1,6 +1,7 @@
 import {
   AllUsers,
   InventoryType,
+  Invoice,
   UserCustomer,
   UserLoanRecord,
 } from "@/types/usertypes";
@@ -267,5 +268,35 @@ export const userCustomerDatas: UserCustomer[] = [
     email: "lisa.smith@artgallery.org",
     phoneNumber: "+2348123456789",
     dateAdded: "Jan 6, 2025",
+  },
+];
+
+export const customerInvoices: Invoice[] = [
+  {
+    invoiceId: "00001",
+    customerName: "Mary Thomas",
+    customerEmail: "mayree12@gmail.com",
+    issueDate: "2025-01-06",
+    dueDate: "2025-01-06",
+    amount: 827172,
+    status: "Pending",
+  },
+  {
+    invoiceId: "00002",
+    customerName: "Mary Thomas",
+    customerEmail: "mayree12@gmail.com",
+    issueDate: "2025-01-06",
+    dueDate: "2025-01-06",
+    amount: 827172,
+    status: "Paid",
+  },
+  {
+    invoiceId: "00003",
+    customerName: "Mary Thomas",
+    customerEmail: "mayree12@gmail.com",
+    issueDate: "2025-01-06",
+    dueDate: "2025-01-06",
+    amount: 827172,
+    status: "Paid",
   },
 ];
