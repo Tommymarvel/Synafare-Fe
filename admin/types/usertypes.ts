@@ -14,6 +14,12 @@ export type InvoiceStatus =
   | typeof STATUSCONST.PENDING
   | typeof STATUSCONST.PAID;
 
+export type DInventoryStatus =
+  | typeof STATUSCONST.DRAFT
+  | typeof STATUSCONST.UNPUBLISHED
+  | typeof STATUSCONST.PUBLISHED
+  | typeof STATUSCONST.OUTOFSTOCK;
+
 export type AllUsers = {
   id: string;
   name: string;
@@ -35,7 +41,7 @@ export interface UserLoanRecord {
   status: UserLoanReqStatus;
 }
 
-export type InventoryType = {
+export type CatelogueType = {
   id: string;
   product: string;
   category: string;
@@ -58,4 +64,34 @@ export interface Invoice {
   dueDate: string;
   amount: number;
   status: InvoiceStatus;
+}
+
+export type QuoteRequestStatus =
+  | typeof STATUSCONST.PENDING
+  | typeof STATUSCONST.QUOTESENT
+  | typeof STATUSCONST.NEGOTIATED
+  | typeof STATUSCONST.REJECTED
+  | typeof STATUSCONST.ACCEPTED
+  | typeof STATUSCONST.DELIVERED;
+
+export type QuoteRequest = {
+  id: string;
+  customer: string;
+  quantity: number;
+  quoteSent: number | null;
+  counterAmount: number | null;
+  dateRequested: string;
+  status: QuoteRequestStatus;
+};
+
+export interface DInventoryDataType {
+  id: string;
+  productName: string;
+  url: string;
+  sku: string | null;
+  category: string;
+  price: number;
+  inStock: number;
+  lastUpdated: string;
+  status: DInventoryStatus;
 }

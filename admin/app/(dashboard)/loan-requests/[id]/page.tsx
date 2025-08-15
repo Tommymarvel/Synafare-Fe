@@ -25,7 +25,7 @@ const LoanRequestDetail = () => {
         open={showDeclineRequest}
         onOpenChange={setshowDeclineRequest}
       />
-      <GoBack href="/loan-requests" className="mt-5 mb-3" />
+      <GoBack className="mt-5 mb-3" />
       <div className="flex items-center mb-5">
         <PageIntro>David Smith</PageIntro>
         <div className="flex items-center gap-x-3 ms-auto text-resin-black font-medium">

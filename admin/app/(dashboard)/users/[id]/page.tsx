@@ -6,20 +6,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OverviewComponents from "./components/overview..comp";
 import UserTableWrapper from "../components/user.table.wrapper";
 import UserLoanRequests from "./components/user.loan.requests";
-import UserInventory from "./components/user.inventory";
 import UserCustomer from "./components/user.customer";
 import UserQuote from "./components/user.quote";
 import ChooseAction from "./components/choose.action";
 import {
-  InventoryData,
+  CatlogueData,
   userCustomerDatas,
   UserLoanRecordsData,
+  QuotesData,
+  InventoryData,
 } from "@/data/users.table";
+import InstallerInventory from "./components/inventory/installer.inventory";
+import DistributorInventory from "./components/inventory/distributor.inventory";
 
 const UserDetail = () => {
   return (
     <div>
-      <GoBack href="/loans" className="mt-5 mb-3" />
+      <GoBack className="mt-5 mb-3" />
 
       <ChooseAction status="Pending Verification" />
 
@@ -77,13 +80,21 @@ const UserDetail = () => {
           </UserTableWrapper>
         </TabsContent>
         <TabsContent value="inventory">
-          <UserInventory data={InventoryData} />
+          {/* condition check if the user is an installer else render distributor (same for supplier) */}
+          {false ? (
+            <InstallerInventory data={CatlogueData} />
+          ) : (
+            <DistributorInventory
+              catalogueData={CatlogueData}
+              inventoryData={InventoryData}
+            />
+          )}
         </TabsContent>
         <TabsContent value="customers">
           <UserCustomer data={userCustomerDatas} />
         </TabsContent>
         <TabsContent value="quotes">
-          <UserQuote data={[]} />
+          <UserQuote data={QuotesData} />
         </TabsContent>
       </Tabs>
     </div>

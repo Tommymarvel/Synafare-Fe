@@ -16,7 +16,7 @@ const UserCustomerPage = () => {
   const data: Invoice[] = customerInvoices;
   return (
     <div>
-      <GoBack href="/users/" className="mt-5 mb-3" />
+      <GoBack className="mt-5 mb-3" />
       <div className="space-y-6">
         <CardWrapper className="p-[26px] flex items-center my-5">
           <div className="gap-x-4 flex items-center shrink-0">
@@ -92,7 +92,12 @@ const UserCustomerPage = () => {
                   </TableCell>
                   <TableCell className="p-6">{request.issueDate}</TableCell>
                   <TableCell className="p-6">{request.dueDate}</TableCell>
-                  <TableCell className="p-6">{request.amount}</TableCell>
+                  <TableCell className="p-6">
+                    {request.amount.toLocaleString("en-NG", {
+                      style: "currency",
+                      currency: "NGN",
+                    })}
+                  </TableCell>
                   <TableCell className="p-6">
                     <Status status={request.status} />
                   </TableCell>

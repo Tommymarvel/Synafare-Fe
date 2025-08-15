@@ -1,9 +1,14 @@
+"use client";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-const GoBack = ({ href, className }: { href: string; className?: string }) => {
+const GoBack = ({ className }: { className?: string }) => {
+  const router = useRouter();
   return (
-    <Link href={href} className={cn("flex gap-x-3 items-center ", className)}>
+    <button
+      onClick={() => router.back()}
+      className={cn("flex gap-x-3 items-center ", className)}
+    >
       <div className="border border-border-gray w-6 h-6 flex items-center justify-center rounded-sm">
         <svg
           width="12"
@@ -18,7 +23,7 @@ const GoBack = ({ href, className }: { href: string; className?: string }) => {
         </svg>
       </div>
       <p className="text-gray-3 font-medium">Go Back</p>
-    </Link>
+    </button>
   );
 };
 

@@ -19,13 +19,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InventoryType } from "@/types/usertypes";
+import { CatelogueType } from "@/types/usertypes";
 
-const UserInventory = ({ data }: { data: InventoryType[] }) => {
+const InstallerInventory = ({ data }: { data: CatelogueType[] }) => {
   if (!data || data.length < 1) {
     return (
       <CardWrapper className="px-[23px] py-3 rounded-lg">
-        <UserInventoryHeader />
+        <div className="py-3 px-6 w-full">
+          <InstallerInventoryHeader />
+        </div>
         <EmptyList
           title="No Item in Inventory"
           message="User does not have any item in their inventory"
@@ -34,10 +36,11 @@ const UserInventory = ({ data }: { data: InventoryType[] }) => {
       </CardWrapper>
     );
   }
+
   return (
     <CardWrapper className="px-0 py-0 rounded-lg">
       <div className="py-3 px-6 w-full">
-        <UserInventoryHeader />
+        <InstallerInventoryHeader />
       </div>
 
       <Table>
@@ -72,7 +75,7 @@ const UserInventory = ({ data }: { data: InventoryType[] }) => {
   );
 };
 
-const UserInventoryHeader = function () {
+const InstallerInventoryHeader = function () {
   return (
     <div className="flex justify-between">
       <Select>
@@ -90,4 +93,4 @@ const UserInventoryHeader = function () {
     </div>
   );
 };
-export default UserInventory;
+export default InstallerInventory;

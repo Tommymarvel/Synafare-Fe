@@ -12,7 +12,8 @@ const Status = ({
 }) => {
   if (
     status === STATUSCONST.PENDING ||
-    status === STATUSCONST.PENDINGVERIFICATION
+    status === STATUSCONST.PENDINGVERIFICATION ||
+    status == STATUSCONST.QUOTESENT
   ) {
     return (
       <span
@@ -30,7 +31,10 @@ const Status = ({
     status === STATUSCONST.PAID ||
     status == STATUSCONST.ACTIVE ||
     status == STATUSCONST.COMPLETED ||
-    status == STATUSCONST.VERIFIED
+    status == STATUSCONST.VERIFIED ||
+    status == STATUSCONST.PUBLISHED ||
+    status == STATUSCONST.ACCEPTED ||
+    status == STATUSCONST.DELIVERED
   ) {
     return (
       <span
@@ -43,7 +47,11 @@ const Status = ({
       </span>
     );
   }
-  if (status === STATUSCONST.REJECTED || status === STATUSCONST.OVERDUE) {
+  if (
+    status === STATUSCONST.REJECTED ||
+    status === STATUSCONST.OVERDUE ||
+    status === STATUSCONST.OUTOFSTOCK
+  ) {
     return (
       <span
         className={cn(
@@ -55,11 +63,26 @@ const Status = ({
       </span>
     );
   }
-  if (status === STATUSCONST.OFFERRECEIVED) {
+  if (
+    status === STATUSCONST.OFFERRECEIVED ||
+    status == STATUSCONST.NEGOTIATED
+  ) {
     return (
       <span
         className={cn(
           "bg-[#EFF8FF] text-[#175CD3] text-xs py-[2px] px-2 rounded-full",
+          className
+        )}
+      >
+        {status}
+      </span>
+    );
+  }
+  if (status === STATUSCONST.DRAFT || status == STATUSCONST.UNPUBLISHED) {
+    return (
+      <span
+        className={cn(
+          "bg-[#F2F4F7] text-[#344054] text-xs py-[2px] px-2 rounded-full",
           className
         )}
       >
