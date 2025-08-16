@@ -46,5 +46,4 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   );
 }
 
-// Optional: add metadata for Next.js if you want to set titles, etc.
-// export const metadata = { title: 'Dashboard – Synafare' }
+

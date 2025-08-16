@@ -124,12 +124,12 @@ export function RowActions({
 
 export function LoansOffers({ loans }: { loans: Loan[] }) {
   const [search, setSearch] = useState('');
- 
+
   const [dateRange, setDateRange] = useState<DateRange>('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [activeLoan, setActiveLoan] = useState<Loan | null>(null);
-    const [modalOpen, setModalOpen] = useState(false);
+  const [activeLoan, setActiveLoan] = useState<Loan | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Compute filtered results
   const filtered = useMemo(() => {
@@ -138,7 +138,6 @@ export function LoansOffers({ loans }: { loans: Loan[] }) {
 
     return loans.filter((l) => {
       if (q && !l.customerName.toLowerCase().includes(q)) return false;
-     
 
       if (dateRange) {
         const days = Number(dateRange);
@@ -150,7 +149,7 @@ export function LoansOffers({ loans }: { loans: Loan[] }) {
 
       return true;
     });
-  }, [loans, search,  dateRange]);
+  }, [loans, search, dateRange]);
 
   // Reset page & selection when filters change
   React.useEffect(() => {
@@ -169,17 +168,17 @@ export function LoansOffers({ loans }: { loans: Loan[] }) {
   const allSelectedOnPage =
     pageIds.every((id) => selected.has(id)) && pageIds.length > 0;
 
- const toggleRow = (id: string) => {
-   setSelected((prev) => {
-     const next = new Set(prev);
-     if (next.has(id)) {
-       next.delete(id);
-     } else {
-       next.add(id);
-     }
-     return next;
-   });
- };
+  const toggleRow = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const toggleAllOnPage = () => {
     setSelected((prev) => {
@@ -304,11 +303,11 @@ export function LoansOffers({ loans }: { loans: Loan[] }) {
                       ₦{loan.transactionCost.toLocaleString()}
                     </td>
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
-                      -----
+                      {loan.loan_amount}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
-                      ----
+                      {loan.loan_amount_offered}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
@@ -392,4 +391,3 @@ export function LoansOffers({ loans }: { loans: Loan[] }) {
     </div>
   );
 }
-

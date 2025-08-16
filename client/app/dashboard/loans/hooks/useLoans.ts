@@ -6,21 +6,38 @@ import axiosInstance from '@/lib/axiosInstance';
 import type { Loan, LoanAPI } from '../types';
 import { toLoan } from '../types';
 
-// The API sometimes returns {data: [...] | {...}, meta?}, sometimes raw [...]/{}
-type Envelope = { data: LoanAPI[] | LoanAPI; meta?: { total?: number } } | LoanAPI[] | LoanAPI;
-
-const fetcher = async (url: string): Promise<Envelope> => {
+// fetch raw envelope (don’t assume shape)
+const fetcher = async (url: string) => {
   const res = await axiosInstance.get(url);
   return res.data;
 };
 
-export function useLoan(id?: string | number) {
-  // If id is present -> /loan/myloans/:id, else list -> /loan/myloans
-  const key = id
-    ? `/loan/myloans?id=${encodeURIComponent(String(id))}`
-    : '/loan/myloans';
+// normalize helpers
+function asList(envelope: { data?: LoanAPI[] | LoanAPI }): LoanAPI[] {
+  if (Array.isArray(envelope)) return envelope as LoanAPI[];
+  if (envelope && typeof envelope === 'object') {
+    const d = envelope.data;
+    if (Array.isArray(d)) return d as LoanAPI[];
+    if (d && typeof d === 'object') return [d as LoanAPI];
+  }
+  return [];
+}
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR<Envelope>(
+function asOne(envelope: { data?: LoanAPI[] | LoanAPI | undefined }): LoanAPI | undefined {
+  if (Array.isArray(envelope)) return (envelope as LoanAPI[])[0];
+  if (envelope && typeof envelope === 'object') {
+    const d = envelope.data;
+    if (Array.isArray(d)) return (d as LoanAPI[])[0];
+    if (d && typeof d === 'object') return d as LoanAPI;
+    return envelope as LoanAPI;
+  }
+  return undefined;
+}
+
+/** LIST: /loan/myloans */
+export function useLoans() {
+  const key = '/loan/myloans';
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
     key,
     fetcher,
     {
@@ -30,27 +47,13 @@ export function useLoan(id?: string | number) {
     }
   );
 
-  // Normalize payload to an array of LoanAPI
-  const payload =
-    data && typeof data === 'object' && 'data' in data
-      ? (data as { data: LoanAPI[] | LoanAPI }).data
-      : data;
-
-  const arr: LoanAPI[] = Array.isArray(payload)
-    ? payload
-    : payload
-    ? [payload as LoanAPI]
-    : [];
-
-  const loans: Loan[] = arr.map(toLoan);
-  const loan: Loan | null = loans[0] ?? null;
+  const apis = asList(data);
+  const loans: Loan[] = apis.map(toLoan);
   const total = (data as { meta?: { total?: number } })?.meta?.total ?? loans.length;
-
   const loading = typeof isLoading === 'boolean' ? isLoading : !data && !error;
 
   return {
     loans,
-    loan,
     total,
     isLoading: loading,
     isValidating,
@@ -59,9 +62,22 @@ export function useLoan(id?: string | number) {
   };
 }
 
-// (Optional) thin convenience wrappers if you prefer explicit names:
-export const useLoansList = () => useLoan();
-export const useLoanById = (id?: string | number) => {
-  const { loan, ...rest } = useLoan(id);
-  return { loan, ...rest };
-};
+/** DETAIL: /loan/myloans/:id  (path param, not query) */
+export function useLoanById(id?: string | number) {
+  const key = id ? `/loan/myloans?id=${encodeURIComponent(String(id))}` : null;
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    key,
+    fetcher,
+    {
+      revalidateOnFocus: true,
+      dedupingInterval: 60_000,
+      keepPreviousData: true,
+    }
+  );
+
+  const api = asOne(data);
+  const loan: Loan | null = api ? toLoan(api) : null;
+  const loading = typeof isLoading === 'boolean' ? isLoading : !data && !error;
+
+  return { loan, isLoading: loading, isValidating, error, refresh: mutate };
+}

@@ -5,11 +5,11 @@ import { EmptyState } from './components/EmptyState';
 import LoanAgreementModal from './components/LoanAgreeementModal';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useLoan } from './hooks/useLoans';
 import { LoansOffers } from './components/LoanOffers';
 import ActiveLoans from './components/ActiveLoans';
 import LoansTable from './components/LoansTable';
 import PaidLoans from './components/PaidLoans';
+import { useLoans } from './hooks/useLoans';
 
 
 const TABS = [
@@ -27,11 +27,11 @@ export default function LoansPage() {
   const router = useRouter();
   const [showAgreement, setShowAgreement] = useState(false);
 
-  const { loan, isLoading, error } = useLoan();
+  const { loans, isLoading, error } = useLoans();
 
   const offersCount = useMemo(
-    () => loan?.loanStatus === 'OFFER_RECEIVED' ? 1 : 0,
-    [loan]
+    () => loans.filter((loan) => loan.loanStatus === 'OFFER_RECEIVED').length,
+    [loans]
   );
 
   const handleAccept = () => setShowAgreement(false);
@@ -45,16 +45,22 @@ export default function LoansPage() {
     if (isLoading) return <p className="p-6">Loading…</p>;
     if (error) return <p className="p-6 text-red-600">Error loading loans</p>;
 
-    switch (activeTab) {
-      case 'offers':
-        return <LoansOffers loans={loan ? [loan] : []} />;
-      case 'active':
-        return <ActiveLoans loans={loan ? [loan] : []} />;
-      case 'paid':
-        return <PaidLoans loans={loan ? [loan] : []} />;
-      default:
-        return <LoansTable loans={loan ? [loan] : []} />;
-    }
+    const list = loans ?? [];
+
+    const offers = list.filter((l) => l.loanStatus === 'OFFER_RECEIVED');
+    const active = list.filter((l) => l.loanStatus === 'ACTIVE');
+    const repaid = list.filter((l) => l.loanStatus === 'COMPLETED');
+
+  switch (activeTab) {
+    case 'offers':
+      return <LoansOffers loans={offers} />;
+    case 'active':
+      return <ActiveLoans loans={active} />;
+    case 'paid': // <- not "paid" if your tab key is 'repaid'
+      return <PaidLoans loans={repaid} />;
+    default:
+      return <LoansTable loans={list} />;
+  }
   };
 
  
@@ -120,7 +126,7 @@ export default function LoansPage() {
         })}
       </nav>
 
-      {Array.isArray(loan) && loan.length === 0 && !isLoading ? (
+      {Array.isArray(loans) && loans.length === 0 && !isLoading ? (
         <div className="mt-5">
           <EmptyState />
         </div>

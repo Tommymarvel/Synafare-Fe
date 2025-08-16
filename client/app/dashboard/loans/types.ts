@@ -6,6 +6,15 @@ export type LoanStatus =
   | 'COMPLETED'
   | 'REJECTED';
 
+  export function toLoanStatus(raw?: string): LoanStatus {
+    const v = (raw ?? '').toLowerCase();
+    if (v === 'offer' || v === 'offer_received') return 'OFFER_RECEIVED';
+    if (v === 'approved' || v === 'active') return 'ACTIVE';
+    if (v === 'completed') return 'COMPLETED';
+    if (v === 'rejected') return 'REJECTED';
+    return 'PENDING';
+  }
+
 // This matches what we actually use in UI
 export interface Loan {
   id: string;
@@ -26,7 +35,8 @@ export interface Loan {
   outstandingBalance: number; // Optional, not always present
   elapsedMonths: number; // Optional, not always present
   repayments: Repay[]; // Optional, not always present
-  loanAmount: number; // Optional, not always present
+  loan_amount: number; // Optional, not always present
+  loan_amount_offered: number
 }
 
 
@@ -37,7 +47,7 @@ interface Repay {
 // API format exactly as it comes
 export interface LoanAPI {
   _id: string;
-  customer: {
+  customer?: {
     _id: string;
     customer_name: string;
 
@@ -59,16 +69,17 @@ export interface LoanAPI {
   loan_status: string;
   createdAt: string;
   repayments: Repay[];
-  loanAmount?: number; // Optional, not always present
+  loan_amount?: number; // Optional, not always present
+  loan_amount_offered: number
 }
 
 // Mapper with no calculations — just rename fields for UI
 export function toLoan(api: LoanAPI): Loan {
   return {
     id: api._id,
-    customerName: api.customer.customer_name,
-    customerEmail: api.customer.customer_email,
-    customerPhone: api.customer.customer_phn ?? '',
+    customerName: api.customer?.customer_name ?? '',
+    customerEmail: api.customer?.customer_email ?? '',
+    customerPhone: api.customer?.customer_phn ?? '',
     transactionCost: api.transaction_cost,
     loanDurationInMonths: api.loan_duration_in_months,
     downpaymentInPercent: api.downpayment_in_percent,
@@ -77,12 +88,13 @@ export function toLoan(api: LoanAPI): Loan {
     totalRepayment: api.total_repayment,
     bankStatement: api.bank_statement,
     trxInvoice: api.trx_invoice,
-    loanStatus: api.loan_status.toUpperCase() as LoanStatus,
+    loanStatus: toLoanStatus(api.loan_status) ,
     dateRequested: api.createdAt,
     nextPaymentDate: api.nextPaymentDate ?? '',
     outstandingBalance: api.outstandingBalance ?? 0,
     elapsedMonths: api.elapsedMonths ?? 0,
     repayments: api.repayments,
-    loanAmount: api.loanAmount ?? 0,
+    loan_amount: api.loan_amount ?? 0,
+    loan_amount_offered: api.loan_amount_offered
   };
 }

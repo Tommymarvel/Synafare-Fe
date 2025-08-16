@@ -3,26 +3,28 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft, Wallet2 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 const N = (v: number) => `₦${v.toLocaleString('en-NG')}`;
 
 export default function PayDownpaymentPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const { user } = useAuth();
 
   // MOCK: replace with real fetch by params.id
   const transactionCost = 1_250_000;
   const downPct = 30;
   const downAmount = useMemo(
-    () => Math.round((transactionCost * downPct) ),
+    () => Math.round(transactionCost * downPct),
     [transactionCost]
   );
 
   const [method, setMethod] = useState<'wallet' | 'flutterwave' | ''>('');
-  const walletBalance = 140_000.56;
+  const walletBalance = user?.wallet_balance;
 
   const canPay =
-    method !== '' && (method === 'flutterwave' || walletBalance >= downAmount);
+    method !== '' && (method === 'flutterwave' || (walletBalance ?? 0) >= downAmount);
 
   return (
     <div className=" lg:px-8 py-4 max-w-2xl mx-auto">
@@ -46,8 +48,8 @@ export default function PayDownpaymentPage() {
           <div>
             <p className="text-xs text-gray-200">Wallet Balance</p>
             <p className="mt-2 text-2xl font-semibold">
-              {N(Math.floor(walletBalance))}
-              <sup className="text-sm align-super">{`${(walletBalance % 1)
+              {N(Math.floor(walletBalance ?? 0))}
+              <sup className="text-sm align-super">{`${((walletBalance ?? 0) % 1)
                 .toFixed(2)
                 .slice(2)}`}</sup>
             </p>
@@ -77,14 +79,16 @@ export default function PayDownpaymentPage() {
           </label>
           <select
             value={method}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMethod(e.target.value as 'wallet' | 'flutterwave' | '')}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setMethod(e.target.value as 'wallet' | 'flutterwave' | '')
+            }
             className="mt-1 w-full rounded-md border px-4 py-3 bg-white"
           >
             <option value="">Select payment method</option>
             <option value="wallet">Wallet</option>
             <option value="flutterwave">Flutterwave</option>
           </select>
-          {method === 'wallet' && walletBalance < downAmount && (
+          {method === 'wallet' && (walletBalance ?? 0) < downAmount && (
             <p className="mt-1 text-xs text-red-600">
               Insufficient wallet balance to complete this payment.
             </p>

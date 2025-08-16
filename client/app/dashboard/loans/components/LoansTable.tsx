@@ -5,6 +5,9 @@ import { format } from 'date-fns';
 import { Search, ChevronRight, ChevronLeft, MoreVertical } from 'lucide-react';
 import type { Loan, LoanStatus } from '../types';
 import { createPortal } from 'react-dom';
+import axiosInstance from '@/lib/axiosInstance';
+import { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
 
 type DateRange = '' | '7' | '30' | '90';
 
@@ -17,7 +20,6 @@ type RowAction =
   | 'acceptRequest'
   | 'rejectRequest'
   | 'liquidateLoan';
-
 
 export function RowActions({
   loan,
@@ -96,25 +98,27 @@ export function RowActions({
             style={{ top: coords.top, left: coords.left }}
           >
             <div className="space-y-1">
-              {buildMenuForStatus(loan.loanStatus).map(({ key, label, tone }) => (
-                <button
-                  key={key}
-                  role="menuitem"
-                  // use onMouseDown to ensure it fires even if something else
-                  // tries to close on mousedown later
-                  onMouseDown={() => {
-                    setOpen(false);
-                    onAction?.(key, loan);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm ${
-                    tone === 'danger'
-                      ? 'hover:bg-red-50 text-red-600'
-                      : 'hover:bg-gray-50 text-raisin'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+              {buildMenuForStatus(loan.loanStatus).map(
+                ({ key, label, tone }) => (
+                  <button
+                    key={key}
+                    role="menuitem"
+                    // use onMouseDown to ensure it fires even if something else
+                    // tries to close on mousedown later
+                    onMouseDown={() => {
+                      setOpen(false);
+                      onAction?.(key, loan);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-md text-sm ${
+                      tone === 'danger'
+                        ? 'hover:bg-red-50 text-red-600'
+                        : 'hover:bg-gray-50 text-raisin'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
+              )}
             </div>
           </div>,
           document.body
@@ -122,8 +126,6 @@ export function RowActions({
     </div>
   );
 }
-
-
 
 function buildMenuForStatus(
   status: LoanStatus
@@ -221,6 +223,40 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
       }
       return next;
     });
+  };
+
+  const handleCancel = async (id: string) => {
+    try {
+      await axiosInstance.post(`/loan/action/${id}`, {
+        actionType: 'cancelled',
+      });
+      toast.success('Loan cancelled successfully');
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      await axiosInstance.post(`/loan/action/${id}`, {
+        actionType: 'rejected',
+      });
+      toast.success('Loan rejected successfully');
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
+    }
   };
 
   // sticky header th
@@ -344,8 +380,7 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
                       ₦{loan.transactionCost.toLocaleString()}
                     </td>
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
-                      -----
-                      {/* ₦{loan.loanAmount.toLocaleString()} */}
+                      ₦{loan.loan_amount}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
@@ -379,7 +414,12 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
                           } else if (action === 'liquidateLoan') {
                             // Handle liquidate loan action
                             console.log('Liquidate Loan:', loan.id);
+                          } else if (action === 'rejectRequest') {
+                            handleReject(loan.id);
+                          }   else if (action === 'cancelRequest') {
+                            handleCancel(loan.id);
                           }
+
                           console.log(action, loan.id);
                         }}
                       />

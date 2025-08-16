@@ -8,7 +8,7 @@ import Image from 'next/image';
 import Empty from '@/app/assets/repayHistory-empty.png';
 import BankSlip from '@/app/assets/bankslip.svg';
 import { useParams } from 'next/navigation';
-import { useLoan } from '../hooks/useLoans';
+import { useLoanById } from '../hooks/useLoans';
 
 
 type LoanStatus =
@@ -41,7 +41,7 @@ function StatusChip({ status }: { status: LoanStatus }) {
 
 export default function LoanDetailsPage() {
   const { id } = useParams();
-  const { loan, isLoading, error } = useLoan(id as string);
+  const { loan, isLoading, error } = useLoanById(id as string);
 
   if (isLoading) {
     return <div className="p-4">Loading loan details...</div>;
