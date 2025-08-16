@@ -27,7 +27,7 @@ export default function LoansPage() {
   const router = useRouter();
   const [showAgreement, setShowAgreement] = useState(false);
 
-  const { loans, isLoading, error } = useLoans();
+  const { loans, isLoading, error,refresh } = useLoans();
 
   const offersCount = useMemo(
     () => loans.filter((loan) => loan.loanStatus === 'OFFER_RECEIVED').length,
@@ -53,13 +53,13 @@ export default function LoansPage() {
 
   switch (activeTab) {
     case 'offers':
-      return <LoansOffers loans={offers} />;
+      return <LoansOffers loans={offers} refresh={refresh} />;
     case 'active':
-      return <ActiveLoans loans={active} />;
+      return <ActiveLoans loans={active}/>;
     case 'paid': // <- not "paid" if your tab key is 'repaid'
       return <PaidLoans loans={repaid} />;
     default:
-      return <LoansTable loans={list} />;
+      return <LoansTable loans={list} refresh={refresh} />;
   }
   };
 

@@ -1,11 +1,17 @@
 'use client';
 
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Success from '@/app/assets/success.png';
+import { useLoanById } from '../../../hooks/useLoans';
 
 export default function SubmissionSuccess() {
   const router = useRouter();
+  const params = useParams<{ id: string }>()
+  
+  const {loan} = useLoanById(params.id)
+
+  console.log(loan)
 
   return (
     <div className=" py-10 min-h-[80vh] grid place-items-center">
@@ -24,7 +30,7 @@ export default function SubmissionSuccess() {
           Transaction Successful
         </h3>
         <p className="mt-2 text-sm text-[#645D5D]">
-          Your ₦375,000 downpayment was successful and your loan will be
+          Your <span>₦{loan?.downpaymentInNaira}</span> downpayment was successful and your loan will be
           disbursed shortly
         </p>
 

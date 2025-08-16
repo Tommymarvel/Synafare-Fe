@@ -8,6 +8,7 @@ import { createPortal } from 'react-dom';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
+import { KeyedMutator } from 'swr';
 
 type DateRange = '' | '7' | '30' | '90';
 
@@ -156,7 +157,7 @@ function buildMenuForStatus(
   }
 }
 
-export default function LoansTable({ loans }: { loans: Loan[] }) {
+export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : KeyedMutator<Loan[]> }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<LoanStatus | ''>('');
   const [dateRange, setDateRange] = useState<DateRange>('');
@@ -230,6 +231,7 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
       await axiosInstance.post(`/loan/action/${id}`, {
         actionType: 'cancelled',
       });
+      refresh()
       toast.success('Loan cancelled successfully');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -242,11 +244,12 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
     }
   };
 
-  const handleReject = async (id: string) => {
+   const handleReject = async (id: string) => {
     try {
-      await axiosInstance.post(`/loan/action/${id}`, {
+      await axiosInstance.patch(`/loan/action/${id}`, {
         actionType: 'rejected',
       });
+      refresh()
       toast.success('Loan rejected successfully');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -368,11 +371,11 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
                     </td>
 
                     <td className="px-6 py-3">
-                      <div className="font-medium text-sm text-raisin whitespace-nowrap md:whitespace-normal">
-                        {loan.customerName}
+                      <div className="font-medium text-sm text-raisin whitespace-nowrap md:whitespace-normal capitalize truncate w-[10ch]">
+                        {loan?.customerName || `${loan.user?.first_name} ${loan?.user?.last_name}` }
                       </div>
-                      <div className="text-xs text-[#797979] whitespace-nowrap md:whitespace-normal">
-                        {loan.customerEmail}
+                      <div className="text-xs text-[#797979] whitespace-nowrap md:whitespace-normal truncate w-[10ch]">
+                        {loan?.customerEmail || loan?.user?.email}
                       </div>
                     </td>
 
@@ -404,7 +407,7 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
                     <td className="px-6 py-3 text-center text-neutral-400 hover:text-neutral-600 whitespace-nowrap">
                       <RowActions
                         loan={loan}
-                        onAction={(action) => {
+                        onAction={async (action) => {
                           // TODO: wire these to real handlers
                           // action is one of:
                           // 'viewLoan' | 'cancelRequest' | 'viewOffer' | 'acceptRequest' | 'rejectRequest' | 'liquidateLoan'
@@ -418,6 +421,21 @@ export default function LoansTable({ loans }: { loans: Loan[] }) {
                             handleReject(loan.id);
                           }   else if (action === 'cancelRequest') {
                             handleCancel(loan.id);
+                          }else if(action === "acceptRequest"){
+                            try {
+                              await axiosInstance.patch(`/loan/${loan.id}/agreement/`,{actionType : "signed"});
+                              toast.success("Loan agreement signed successfully")
+                              window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+                            } catch (error) {
+                              const axiosError = error as AxiosError<{ message?: string }>;
+                              toast.error(
+                                (axiosError.response && axiosError.response.data
+                                  ? axiosError.response.data.message || axiosError.response.data
+                                  : axiosError.message || 'An error occurred'
+                                ).toString()
+                              );
+                            }
+                            
                           }
 
                           console.log(action, loan.id);

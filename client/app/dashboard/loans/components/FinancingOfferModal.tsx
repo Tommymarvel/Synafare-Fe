@@ -11,7 +11,7 @@ function compute(loan: Loan) {
   const interest = loan.interest ?? 6;
   const totalRepayment =
     loan.totalRepayment ??
-    Math.round(Number(loan.loanAmount) * (1 + (interest) * Number(loan.loanDurationInMonths)));
+    Math.round(Number(loan.loan_amount) * (1 + (interest) * Number(loan.loanDurationInMonths)));
   const monthly = Math.round(totalRepayment / Math.max(1, Number(loan.loanDurationInMonths)));
   const downAmount = Math.round((Number(loan.transactionCost) * downPct));
 
@@ -37,8 +37,8 @@ export default function FinancingOfferModal({
 
   const rows: { label: string; value: React.ReactNode }[] = [
     { label: 'Transaction Cost', value: N(loan.transactionCost) },
-    { label: 'Amount Requested', value: N(loan.loanAmount) },
-    { label: 'Amount Offered', value: N(loan.loanAmount) },
+    { label: 'Amount Requested', value: N(loan.loan_amount) },
+    { label: 'Amount Offered', value: N(loan.loan_amount) },
     { label: 'Loan Duration', value: `${loan.loanDurationInMonths} months` },
     { label: 'Interest (per month)', value: `${interest}%` },
     { label: `Downpayment (${downPct}%)`, value: N(downAmount) },

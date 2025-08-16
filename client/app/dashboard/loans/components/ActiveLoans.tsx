@@ -6,6 +6,7 @@ import { Search, ChevronRight, ChevronLeft, MoreVertical } from 'lucide-react';
 import type { Loan } from '../types';
 import { createPortal } from 'react-dom';
 
+
 type DateRange = '' | '7' | '30' | '90';
 
 const PAGE_SIZE = 10;
@@ -120,7 +121,7 @@ export function RowActions({
   );
 }
 
-export default function ActiveLoans({ loans }: { loans: Loan[] }) {
+export default function ActiveLoans({ loans, }: { loans: Loan[]}) {
   const [search, setSearch] = useState('');
 
   const [dateRange, setDateRange] = useState<DateRange>('');
@@ -188,6 +189,7 @@ export default function ActiveLoans({ loans }: { loans: Loan[] }) {
       return next;
     });
   };
+
 
   // sticky header th
   const thStyles =
@@ -285,11 +287,11 @@ export default function ActiveLoans({ loans }: { loans: Loan[] }) {
                     </td>
 
                     <td className="px-6 py-3">
-                      <div className="font-medium text-sm text-raisin whitespace-nowrap md:whitespace-normal">
-                        {loan.customerName}
+                      <div className="font-medium text-sm text-raisin whitespace-nowrap md:whitespace-normal capitalize truncate w-[10ch]">
+                        {loan?.customerName || `${loan.user?.first_name} ${loan?.user?.last_name}` }
                       </div>
-                      <div className="text-xs text-[#797979] whitespace-nowrap md:whitespace-normal">
-                        {loan.customerEmail}
+                       <div className="text-xs text-[#797979] whitespace-nowrap md:whitespace-normal truncate w-[10ch]">
+                        {loan?.customerEmail || loan?.user?.email}
                       </div>
                     </td>
 
@@ -325,9 +327,12 @@ export default function ActiveLoans({ loans }: { loans: Loan[] }) {
                       <RowActions
                         loan={loan}
                         onAction={(action) => {
-                          // TODO: wire these to real handlers
-                          // action is one of:
-                          // 'viewLoan' | 'cancelRequest' | 'viewLoan' | 'acceptRequest' | 'rejectRequest' | 'liquidateLoan'
+                          if (action === 'viewLoan') {
+                            console.log('Viewing offer for loan:', loan);
+                            // setActiveLoan(loan);
+                            // setModalOpen(true);
+                            window.location.href = `/dashboard/loans/${loan.id}`;
+                          } 
                           console.log(action, loan.id);
                         }}
                       />

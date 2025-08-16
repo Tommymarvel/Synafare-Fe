@@ -33,10 +33,18 @@ export interface Loan {
   customerPhone: string; // Optional, not always present
   nextPaymentDate: string; // Optional, not always present
   outstandingBalance: number; // Optional, not always present
+  monthly_repayment : number;
   elapsedMonths: number; // Optional, not always present
   repayments: Repay[]; // Optional, not always present
   loan_amount: number; // Optional, not always present
   loan_amount_offered: number
+  user ?: {
+  email: string;
+  email_confirmed: boolean;
+  first_name: string;
+  last_name: string;
+  phn_no: string;
+  }
 }
 
 
@@ -60,9 +68,10 @@ export interface LoanAPI {
   downpayment_in_percent: number;
   downpayment_in_naira: number;
   elapsedMonths?: number; // Optional, not always present
-  outstandingBalance?: number; // Optional, not always present
+  outstanding_bal?: number; // Optional, not always present
   nextPaymentDate?: string; // Optional, not always present
   interest: number;
+  monthly_repayment : number;
   total_repayment: number;
   bank_statement: string;
   trx_invoice: string;
@@ -71,6 +80,13 @@ export interface LoanAPI {
   repayments: Repay[];
   loan_amount?: number; // Optional, not always present
   loan_amount_offered: number
+  user : {
+  email: string;
+  email_confirmed: boolean;
+  first_name: string;
+  last_name: string;
+  phn_no: string;
+  }
 }
 
 // Mapper with no calculations — just rename fields for UI
@@ -84,6 +100,7 @@ export function toLoan(api: LoanAPI): Loan {
     loanDurationInMonths: api.loan_duration_in_months,
     downpaymentInPercent: api.downpayment_in_percent,
     downpaymentInNaira: api.downpayment_in_naira,
+    monthly_repayment : api.monthly_repayment,
     interest: api.interest,
     totalRepayment: api.total_repayment,
     bankStatement: api.bank_statement,
@@ -91,10 +108,11 @@ export function toLoan(api: LoanAPI): Loan {
     loanStatus: toLoanStatus(api.loan_status) ,
     dateRequested: api.createdAt,
     nextPaymentDate: api.nextPaymentDate ?? '',
-    outstandingBalance: api.outstandingBalance ?? 0,
+    outstandingBalance: api.outstanding_bal ?? 0,
     elapsedMonths: api.elapsedMonths ?? 0,
     repayments: api.repayments,
     loan_amount: api.loan_amount ?? 0,
-    loan_amount_offered: api.loan_amount_offered
-  };
+    loan_amount_offered: api.loan_amount_offered,
+    user : api.user
+  }
 }

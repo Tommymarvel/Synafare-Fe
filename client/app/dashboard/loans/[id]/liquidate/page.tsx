@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { ArrowLeft, Wallet2 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { useLoanById } from '../../../hooks/useLoans';
+import { useLoanById } from '../../hooks/useLoans';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import axiosInstance from '@/lib/axiosInstance';
@@ -20,22 +20,22 @@ export default function PayDownpaymentPage() {
 
   console.log(loan)
 
-  const downAmount = useMemo(() => {
-    if (!loan?.downpaymentInNaira) return 0;
-    return Math.round(Number(loan.downpaymentInNaira));
+  const monthlyRepayment = useMemo(() => {
+    if (!loan?.monthly_repayment) return 0;
+    return Number(loan.monthly_repayment);
   }, [loan]);
 
   const [method, setMethod] = useState<'wallet' | ''>('');
   const walletBalance = user?.wallet_balance;
 
   const canPay =
-    method !== '' && ((walletBalance ?? 0) >= downAmount);
+    method !== '' && ((walletBalance ?? 0) >= monthlyRepayment);
 
   const handleSubmit = async(id : string)=>{
     try {
-      await axiosInstance.patch(`/loan/${id}/downpayment/`);
-      router.push(`/dashboard/loans/offers/${params.id}/success`)
-      toast.success('Downpayment Successful');
+      await axiosInstance.patch(`/loan/${id}/liquidate/`);
+      router.push(`/dashboard/loans/${params.id}`)
+      toast.success('Loan Liquidated Successfully');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       toast.error(
@@ -57,10 +57,10 @@ export default function PayDownpaymentPage() {
       </button>
 
       <h1 className="mt-3 text-2xl font-semibold text-center">
-        Pay Downpayment
+        Liquidate Loan
       </h1>
       <p className="text-center text-sm text-[#645D5D]">
-        Select your payment method and proceed to accept offer
+        Select your payment method and proceed to make payment
       </p>
 
       {/* Wallet card */}
@@ -85,10 +85,10 @@ export default function PayDownpaymentPage() {
       <div className="mt-6 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Downpayment Amount <span className="text-red-500">*</span>
+            Repayment Amount <span className="text-red-500">*</span>
           </label>
           <input
-            value={N(downAmount)}
+            value={N(monthlyRepayment)}
             readOnly
             className="mt-1 w-full rounded-md border bg-gray-100 px-4 py-3"
           />
@@ -108,7 +108,7 @@ export default function PayDownpaymentPage() {
             <option value="">Select payment method</option>
             <option value="wallet">Wallet</option>
           </select>
-          {method === 'wallet' && (walletBalance ?? 0) < downAmount && (
+          {method === 'wallet' && (walletBalance ?? 0) < monthlyRepayment && (
             <p className="mt-1 text-xs text-red-600">
               Insufficient wallet balance to complete this payment.
             </p>
