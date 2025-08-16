@@ -1,15 +1,15 @@
-import PageIntro from "@/components/page-intro";
-import TopCards from "@/components/top-cards";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import NewRequests from "./components/new-requests";
-import LoanTableWrapper from "./components/loan-table-wrapper";
-import {
-  loanRequestsData,
-  loanOffersData,
-  declinedRequestsData,
-} from "@/data/loan.table";
-import LoanOffers from "./components/loan-offers";
-import DeclinedRequests from "./components/declined-requests";
+'use client';
+
+import PageIntro from '@/components/page-intro';
+import TopCards from '@/components/top-cards';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import NewRequests from './components/new-requests';
+import LoanTableWrapper from './components/loan-table-wrapper';
+
+import LoanOffers from './components/loan-offers';
+import DeclinedRequests from './components/declined-requests';
+import { useLoans } from '../loans/hooks/useLoans';
+import { STATUSCONST } from '@/lib/constants';
 
 const money = (
   <svg
@@ -46,9 +46,24 @@ const money = (
   </svg>
 );
 const LoanRequest = () => {
+  const { loans, isLoading, error } = useLoans();
+
+  if (isLoading) return <div>Loading…</div>;
+  if (error) return <div>Failed to load loans</div>;
+
+  const newRequests = loans.filter((l) => l.loanStatus === STATUSCONST.PENDING);
+
+  const loanOffers = loans.filter(
+    (l) => l.loanStatus === STATUSCONST.OFFER_RECEIVED
+  );
+
+  const declinedRequests = loans.filter(
+    (l) => l.loanStatus === STATUSCONST.REJECTED
+  );
+
   return (
     <div className="space-y-5">
-      <PageIntro>Loan Requests,</PageIntro>
+      <PageIntro>Loan Requests</PageIntro>
       <div className="flex gap-x-[13px]">
         <TopCards iconbg="bg-[#FFF8E2]" title="Total Requests" value="610">
           {money}
@@ -77,17 +92,17 @@ const LoanRequest = () => {
         </TabsList>
         <TabsContent value="requests">
           <LoanTableWrapper>
-            <NewRequests data={loanRequestsData} />
+            <NewRequests data={newRequests} />
           </LoanTableWrapper>
         </TabsContent>
         <TabsContent value="offers">
           <LoanTableWrapper>
-            <LoanOffers data={loanOffersData} />
+            <LoanOffers data={loanOffers} />
           </LoanTableWrapper>
         </TabsContent>
         <TabsContent value="declined">
           <LoanTableWrapper>
-            <DeclinedRequests data={declinedRequestsData} />
+            <DeclinedRequests data={declinedRequests} />
           </LoanTableWrapper>
         </TabsContent>
       </Tabs>

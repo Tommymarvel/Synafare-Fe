@@ -1,20 +1,20 @@
-import { STATUSCONST } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+// components/status.tsx
+import { STATUSCONST } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
-type StatusType = (typeof STATUSCONST)[keyof typeof STATUSCONST];
+export type StatusType = (typeof STATUSCONST)[keyof typeof STATUSCONST];
 
-const Status = ({
-  status,
-  className,
-}: {
+type Props = {
   status: StatusType;
   className?: string;
-}) => {
-  if (status === STATUSCONST.PENDING) {
+};
+
+export default function Status({ status, className }: Props) {
+  if (status === STATUSCONST.PENDING || status === STATUSCONST.OFFER_RECEIVED) {
     return (
       <span
         className={cn(
-          "bg-[#FFF8ED] text-[#E2A109] text-xs py-[2px] px-2 rounded-full",
+          'bg-[#FFF8ED] text-[#E2A109] text-xs py-[2px] px-2 rounded-full',
           className
         )}
       >
@@ -22,16 +22,17 @@ const Status = ({
       </span>
     );
   }
+
   if (
     status === STATUSCONST.SUCCESS ||
     status === STATUSCONST.PAID ||
-    status == STATUSCONST.ACTIVE ||
-    status == STATUSCONST.COMPLETED
+    status === STATUSCONST.ACTIVE ||
+    status === STATUSCONST.COMPLETED
   ) {
     return (
       <span
         className={cn(
-          "bg-success-50/50 text-success text-xs py-[2px] px-2 rounded-full",
+          'bg-success-50/50 text-success text-xs py-[2px] px-2 rounded-full',
           className
         )}
       >
@@ -39,11 +40,12 @@ const Status = ({
       </span>
     );
   }
+
   if (status === STATUSCONST.REJECTED || status === STATUSCONST.OVERDUE) {
     return (
       <span
         className={cn(
-          "bg-[#FEF3F2]/50 text-[#B42318] text-xs py-[2px] px-2 rounded-full",
+          'bg-[#FEF3F2]/50 text-[#B42318] text-xs py-[2px] px-2 rounded-full',
           className
         )}
       >
@@ -51,16 +53,15 @@ const Status = ({
       </span>
     );
   }
+
   return (
     <span
       className={cn(
-        "bg-success-50/50 text-success text-xs py-[2px] px-2 rounded-full",
+        'bg-neutral-100 text-neutral-600 text-xs py-[2px] px-2 rounded-full',
         className
       )}
     >
-      unknown
+      {status}
     </span>
   );
-};
-
-export default Status;
+}

@@ -1,5 +1,4 @@
 import EmptyList from "./empty-list";
-import { LoanRecord } from "@/types/loantypes";
 
 import {
   Table,
@@ -12,8 +11,9 @@ import {
 } from "@/components/ui/table";
 import Pagination from "@/components/pagination";
 import Status from "@/components/status";
+import { Loan } from "../../loans/types";
 
-const LoanOffers = ({ data }: { data: LoanRecord[] }) => {
+const LoanOffers = ({ data }: { data: Loan[] }) => {
   if (!data || data.length < 1)
     return (
       <div>
@@ -45,17 +45,17 @@ const LoanOffers = ({ data }: { data: LoanRecord[] }) => {
             key={request.id}
           >
             <TableCell className="p-6">
-              <p className="text-gray-900 font-medium">{request.name}</p>
+              <p className="text-gray-900 font-medium">{request.customerName}</p>
               <p className="text-gray-500">{request.id}</p>
             </TableCell>
-            <TableCell className="p-6">{request.loanOffer}</TableCell>
-            <TableCell className="p-6">{request.equityAmount}</TableCell>
-            <TableCell className="p-6">{request.customer}</TableCell>
+            <TableCell className="p-6">-----</TableCell>
+            <TableCell className="p-6">------</TableCell>
+            <TableCell className="p-6">-----</TableCell>
             <TableCell className="p-6">
-              {request.datePaid ?? "------------"}
+             ------
             </TableCell>
             <TableCell className="p-6">
-              <Status status={request.status} />
+              <Status status={request.loanStatus} />
             </TableCell>
             <TableCell className="p-6 text-[#E2A109]">View all</TableCell>
           </TableRow>

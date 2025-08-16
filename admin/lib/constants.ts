@@ -1,9 +1,11 @@
+// lib/constants.ts
 export const STATUSCONST = {
-  ACTIVE: "Active",
-  PAID: "Paid",
-  OVERDUE: "Overdue",
-  COMPLETED: "Completed",
-  PENDING: "Pending",
-  REJECTED: "Rejected",
-  SUCCESS: "Successful",
+  PENDING: 'Pending',
+  OFFER_RECEIVED: 'Offer Received',
+  ACTIVE: 'Active',
+  COMPLETED: 'Completed',
+  REJECTED: 'Rejected',
+  OVERDUE: 'Overdue',
+  SUCCESS: 'Success',
+  PAID: 'Paid',
 } as const;

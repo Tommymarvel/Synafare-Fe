@@ -29,7 +29,7 @@ const ConfirmAccept = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="p-6 bg-white no-x  border-0 w-fit rounded-xl">
           <DialogHeader className="hidden">
-            <DialogTitle>Accept Request</DialogTitle>
+            <DialogTitle>Accep Request</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center gap-y-5">
             <svg
