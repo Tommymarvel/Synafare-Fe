@@ -51,6 +51,7 @@ export function useLoans() {
   const apis = asList(data);
   const loans: Loan[] = apis.map(toLoan);
   const total = (data as { meta?: { total?: number } })?.meta?.total ?? loans.length;
+  // const total_accepted = data?.meta?.total_acc ?? loans.length;
   const loading = typeof isLoading === 'boolean' ? isLoading : !data && !error;
 
   return {
