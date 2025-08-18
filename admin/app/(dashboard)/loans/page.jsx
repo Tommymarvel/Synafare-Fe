@@ -1,11 +1,12 @@
-import PageIntro from "@/components/page-intro";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LoanTableWrapper from "../loan-requests/components/loan-table-wrapper";
-import AllLoansTable from "./components/all-loans";
-import ActiveLoanTable from "./components/active-loans";
-import RepaidLoanTable from "./components/repaid-loans";
-import OverdueTable from "./components/over-due";
-import { allLoansData } from "@/data/loan.table";
+'use client'
+import PageIntro from '@/components/page-intro';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import LoanTableWrapper from '../loan-requests/components/loan-table-wrapper';
+import AllLoansTable from './components/all-loans';
+import ActiveLoanTable from './components/active-loans';
+import RepaidLoanTable from './components/repaid-loans';
+import OverdueTable from './components/over-due';
+import { useLoans } from './hooks/useLoans';
 
 const money = (
   <svg
@@ -42,60 +43,22 @@ const money = (
   </svg>
 );
 const AllLoans = () => {
+  const { loans, isLoading, error } = useLoans();
+
+  if (isLoading) return <div className="p-6">Loading…</div>;
+
+  if (error) {
+    return (
+      <div className="p-6 text-red-600">
+        Couldn’t fetch loans. Please try again.
+      </div>
+    );
+  }
+
+
   return (
     <div className="space-y-5">
-      <PageIntro>Loan Requests,</PageIntro>
-      <div className="flex gap-x-[13px] items-center ">
-        <div className="border border-border-gray py-4 px-4 flex gap-x-6 items-center rounded-md min-w-[369px]">
-          <div className="space-y-3">
-            <h2 className="text-tertiary-1 text-[16px] font-semibold">
-              Loan Amount
-            </h2>
-            <div className="gap-x-5 flex">
-              <div className="space-y-3">
-                <h4 className="text-[16px] font-medium text-deep-green">
-                  ₦ 10,863,113.36
-                </h4>
-                <p className="text-gray-400">Amount Requested</p>
-              </div>
-              <div className="space-y-3">
-                <h4 className="text-[16px] font-medium text-deep-green">
-                  ₦ 10,863,113.36
-                </h4>
-                <p className="text-gray-400">Amount Requested</p>
-              </div>
-            </div>
-          </div>
-          <div className="w-10 h-10 flex items-center self-center justify-center bg-[#FFF8E2] rounded-full">
-            {money}
-          </div>
-        </div>
-
-        <div className="border border-border-gray py-4 px-4 flex gap-x-6 items-center rounded-md min-w-[369px]">
-          <div className="space-y-3 grow w-full">
-            <h2 className="text-tertiary-1 text-[16px] font-semibold">
-              Total Loans
-            </h2>
-            <div className="gap-x-5 flex w-full">
-              <div className="space-y-3 flex-1 ">
-                <h4 className="text-[16px] font-semibold text-gray-600">600</h4>
-                <p className="text-gray-400">Active</p>
-              </div>
-              <div className="space-y-3 flex-1 ">
-                <h4 className="text-[16px] font-semibold text-gray-600">400</h4>
-                <p className="text-gray-400">Repaid</p>
-              </div>
-              <div className="space-y-3 flex-1 ">
-                <h4 className="text-[16px] font-semibold text-gray-600">162</h4>
-                <p className="text-gray-400">Overdue</p>
-              </div>
-            </div>
-          </div>
-          <div className="w-10 h-10 shrink-0 flex items-center self-center justify-center bg-[#FFF8E2] rounded-full">
-            {money}
-          </div>
-        </div>
-      </div>
+      <PageIntro>Loan Requests</PageIntro>
 
       <Tabs defaultValue="all" className="w-full space-y-5 ">
         <TabsList className="border-b border-b-gray-200 w-full rounded-none">
@@ -112,24 +75,28 @@ const AllLoans = () => {
             Overdue Loans
           </TabsTrigger>
         </TabsList>
+
         <TabsContent value="all">
           <LoanTableWrapper hideStatus={false}>
-            <AllLoansTable data={allLoansData} />
+            <AllLoansTable data={loans} />
           </LoanTableWrapper>
         </TabsContent>
+
         <TabsContent value="active">
           <LoanTableWrapper hideStatus={false}>
-            <ActiveLoanTable data={allLoansData} />
+            <ActiveLoanTable data={loans} />
           </LoanTableWrapper>
         </TabsContent>
+
         <TabsContent value="repaid">
           <LoanTableWrapper hideStatus={false}>
-            <RepaidLoanTable data={allLoansData} />
+            <RepaidLoanTable data={loans} />
           </LoanTableWrapper>
         </TabsContent>
+
         <TabsContent value="overdue">
           <LoanTableWrapper hideStatus={false}>
-            <OverdueTable data={allLoansData} />
+            <OverdueTable data={loans} />
           </LoanTableWrapper>
         </TabsContent>
       </Tabs>

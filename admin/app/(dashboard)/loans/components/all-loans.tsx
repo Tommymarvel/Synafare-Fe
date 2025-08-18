@@ -1,3 +1,6 @@
+// app/(loans)/components/AllLoansTable.tsx
+'use client';
+
 import {
   Table,
   TableBody,
@@ -6,14 +9,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import EmptyList from "../../loan-requests/components/empty-list";
-import { AllLoansType } from "@/types/loantypes";
-import Pagination from "@/components/pagination";
-import Status from "@/components/status";
+} from '@/components/ui/table';
+import Pagination from '@/components/pagination';
+import Status from '@/components/status';
+import { Loan } from '../types';
+import EmptyList from '../../loan-requests/components/empty-list';
 
-const AllLoansTable = ({ data }: { data: AllLoansType[] }) => {
-  if (!data || data.length < 1) {
+const fmtNaira = (n: number) =>
+  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
+    n ?? 0
+  );
+
+const fmtDate = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString('en-NG') : '—';
+
+type Props = { data: Loan[] };
+
+export default function AllLoansTable({ data }: Props) {
+  if (!data || data.length === 0) {
     return (
       <EmptyList
         title="No Loan Request"
@@ -22,6 +35,7 @@ const AllLoansTable = ({ data }: { data: AllLoansType[] }) => {
       />
     );
   }
+
   return (
     <Table>
       <TableHeader>
@@ -29,46 +43,53 @@ const AllLoansTable = ({ data }: { data: AllLoansType[] }) => {
           <TableHead className="py-[13px] ps-6">Name</TableHead>
           <TableHead className="py-[13px] ps-6">Loan Amount</TableHead>
           <TableHead className="py-[13px] ps-6">Amount Due</TableHead>
-          <TableHead className="py-[13px] ps-6">Date Disbursed</TableHead>
+          <TableHead className="py-[13px] ps-6">Date Requested</TableHead>
           <TableHead className="py-[13px] ps-6">Duration</TableHead>
           <TableHead className="py-[13px] ps-6">Next Payment</TableHead>
           <TableHead className="py-[13px] ps-6">Status</TableHead>
           <TableHead className="py-[13px] ps-6">Action</TableHead>
         </TableRow>
       </TableHeader>
+
       <TableBody>
-        {data.map((request) => (
+        {data.map((loan) => (
           <TableRow
             className="border-b border-b-gray-200 text-resin-black"
-            key={request.id}
+            key={loan.id}
           >
             <TableCell className="p-6">
-              <p className="text-gray-900 font-medium">{request.name}</p>
-              <p className="text-gray-500">{request.id}</p>
+              <p className="text-gray-900 font-medium">{loan.customerName}</p>
+              <p className="text-gray-500">{loan.customerEmail}</p>
             </TableCell>
-            <TableCell className="p-6">{request.loanAmount}</TableCell>
-            <TableCell className="p-6">{request.amountDue}</TableCell>
-            <TableCell className="p-6">{request.dateDisbursed}</TableCell>
-            <TableCell className="p-6">{request.duration}</TableCell>
+
+            <TableCell className="p-6">{fmtNaira(loan.loanAmount)}</TableCell>
             <TableCell className="p-6">
-              {request.nextPayment ?? "N/A"}
+              {fmtNaira(loan.outstandingBalance)}
+            </TableCell>
+            <TableCell className="p-6">{fmtDate(loan.dateRequested)}</TableCell>
+            <TableCell className="p-6">
+              {loan.loanDurationInMonths} months
             </TableCell>
             <TableCell className="p-6">
-              <Status status={request.status} />
+              {loan.nextPaymentDate ? fmtDate(loan.nextPaymentDate) : 'N/A'}
             </TableCell>
-            <TableCell className="text-[#E2A109] p-6">View</TableCell>
+            <TableCell className="p-6">
+              <Status status={loan.loanStatus} />
+            </TableCell>
+            <TableCell className="text-[#E2A109] p-6 cursor-pointer">
+              View
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
+
       <TableFooter className="border-t border-t-gray-200">
         <TableRow>
-          <TableCell colSpan={7} className="px-6 py-6">
+          <TableCell colSpan={8} className="px-6 py-6">
             <Pagination />
           </TableCell>
         </TableRow>
       </TableFooter>
     </Table>
   );
-};
-
-export default AllLoansTable;
+}
