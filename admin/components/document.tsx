@@ -26,7 +26,7 @@ const Document = ({ name }: { name: string }) => {
             fill="#1D1C1D"
           />
         </svg>
-        <p>Bank Statement.pdf</p>
+        <p>{name}</p>
       </div>
 
       <button className="bg-gray-4 py-2 px-3 rounded-lg flex gap-x-2">

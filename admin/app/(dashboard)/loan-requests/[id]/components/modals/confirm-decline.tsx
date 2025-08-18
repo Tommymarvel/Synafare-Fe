@@ -62,7 +62,7 @@ const ConfirmDecline = ({
             </svg>
 
             <div className="space-y-2 text-center">
-              <h4 className="font-semibold text-lg">Decline Request</h4>
+              <h4 className="font-medium text-lg">Decline Request</h4>
               <p className="text-gray-3">
                 Are you sure you want to decline this request?
               </p>

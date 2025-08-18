@@ -157,7 +157,9 @@ const Dasboard = () => {
                 <TableCell className="p-6">Loan Repayment</TableCell>
                 <TableCell className="p-6">₦1,181,675</TableCell>
                 <TableCell className="p-6">Jan 6, 2025</TableCell>
-                <StatusComp status="Pending">Pending</StatusComp>
+                <TableCell className="p-6">
+                  <StatusComp status="Pending">Pending</StatusComp>
+                </TableCell>
                 <TableCell className="text-[#E2A109] p-6">View</TableCell>
               </TableRow>
               <TableRow className="border-b border-b-gray-200">

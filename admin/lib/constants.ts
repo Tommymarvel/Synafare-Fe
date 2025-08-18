@@ -1,5 +1,16 @@
 // lib/constants.ts
 export const STATUSCONST = {
+  OVERDUE: "Overdue",
+  PENDINGVERIFICATION: "Pending Verification",
+  VERIFIED: "Verified",
+  NEGOTIATED: "Negotiated",
+  ACCEPTED: "Accepted",
+  QUOTESENT: "Quote sent",
+  DELIVERED: "Delivered",
+  DRAFT: "Draft",
+  UNPUBLISHED: "Unpublished",
+  PUBLISHED: "Published",
+  OUTOFSTOCK: "Out of Stock",
   PENDING: 'Pending',
   OFFER_RECEIVED: 'Offer Received',
   ACTIVE: 'Active',

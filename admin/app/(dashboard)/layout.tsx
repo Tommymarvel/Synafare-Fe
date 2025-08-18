@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useEffect } from 'react';
 import Notification from '@/components/notification';
@@ -34,6 +35,7 @@ export default function RootLayout({
   if (!user || !isAdmin || !isConfirmed) return null;
 
   return (
+
     <div className="flex">
       <SideNav />
       <div className="grow">

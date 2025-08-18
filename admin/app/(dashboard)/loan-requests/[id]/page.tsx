@@ -1,3 +1,4 @@
+
 'use client';
 
 import PageIntro from '@/components/page-intro';
@@ -62,6 +63,7 @@ export default function LoanRequestDetail() {
         open={showDeclineRequest}
         onOpenChange={setShowDeclineRequest}
       />
+
 
       <GoBack href="/loan-requests" className="mt-5 mb-3" />
 

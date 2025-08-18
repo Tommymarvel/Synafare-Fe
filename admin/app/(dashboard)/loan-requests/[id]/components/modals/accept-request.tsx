@@ -131,6 +131,7 @@ export default function AcceptRequestModal({
             <DialogTitle>Accept Request</DialogTitle>
           </DialogHeader>
 
+
           <div className="border-b border-b-gray-4 pt-[33px] pb-4 flex justify-between items-center">
             <h1 className="text-xl font-semibold">Send Loan Offer</h1>
             <DialogClose asChild>

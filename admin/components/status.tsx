@@ -7,6 +7,7 @@ export type StatusType = (typeof STATUSCONST)[keyof typeof STATUSCONST];
 type Props = {
   status: StatusType;
   className?: string;
+
 };
 
 export default function Status({ status, className }: Props) {
@@ -26,6 +27,7 @@ export default function Status({ status, className }: Props) {
   if (
     status === STATUSCONST.SUCCESS ||
     status === STATUSCONST.PAID ||
+
     status === STATUSCONST.ACTIVE ||
     status === STATUSCONST.COMPLETED
   ) {
@@ -53,6 +55,7 @@ export default function Status({ status, className }: Props) {
       </span>
     );
   }
+
 
   return (
     <span

@@ -1,5 +1,4 @@
 import CardWrapper from "@/components/cardWrapper";
-import Image from "next/image";
 import {
   Select,
   SelectContent,
@@ -7,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import SearchInput from "@/components/search.input";
 
 const LoanTableWrapper = ({
   children,
@@ -16,23 +16,10 @@ const LoanTableWrapper = ({
   hideStatus?: boolean;
 }) => {
   return (
-    <CardWrapper className="px-0 py-0">
+    <CardWrapper className="px-0 py-0 rounded-lg">
       <div className="flex justify-between px-6 py-3">
-        <div className="relative max-w-[334px] w-full">
-          <input
-            type="search"
-            placeholder="Search"
-            className="w-full ps-4 peer border border-border-gray rounded-[16px] text-[16px]/[24px] placeholder:ps-[26px] py-2  focus:placeholder-transparent "
-            name=""
-            id=""
-          />
-          <Image
-            className="absolute peer-focus:hidden transition-all left-[14px] top-1/2 -translate-y-1/2"
-            src="./search-icon.svg"
-            alt="search icon"
-            width={20}
-            height={20}
-          />
+        <div className="max-w-[334px] w-full">
+          <SearchInput />
         </div>
 
         <div className="gap-x-[10px] flex">
