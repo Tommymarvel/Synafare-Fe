@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 
 import Link from "next/link";
-const Dasboard = () => {
+ const Dasboard = () => {
   return (
     <div>
       <PageIntro>Welcome Admin,</PageIntro>
