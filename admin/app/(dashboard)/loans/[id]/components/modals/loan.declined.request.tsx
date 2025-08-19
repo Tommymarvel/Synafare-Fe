@@ -1,33 +1,25 @@
-'use client';
+"use client";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogClose,
-} from '@/components/ui/dialog';
-import { DialogTitle } from '@radix-ui/react-dialog';
+} from "@/components/ui/dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
-const LoanOfferSent = ({
+const DeclinedRequestMessage = ({
   open,
   onOpenChange,
-  offerDetails,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  offerDetails: {
-    amountOffered: number;
-    offerDetails: {
-      userFirstName: string;
-      userLastName: string;
-    };
-  };
 }) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="px-20 py-[50] bg-white no-x  border-0 w-fit rounded-xl">
           <DialogHeader className="hidden">
-            <DialogTitle>Accept Request</DialogTitle>
+            <DialogTitle>Decline Request</DialogTitle>
           </DialogHeader>
           <div className="flex relative">
             <DialogClose asChild>
@@ -77,13 +69,9 @@ const LoanOfferSent = ({
             </svg>
 
             <div className="space-y-2 text-center">
-              <h4 className="font-medium text-lg">Loan Offer Sent</h4>
+              <h4 className="font-medium text-lg">Request Declined</h4>
               <p className="text-gray-3">
-                You sent a loan offer of{' '}
-                <span className="text-resin-black">
-                  {offerDetails.amountOffered}
-                </span>{' '}
-                to <b className='capitalize text-resin-black'> {offerDetails.offerDetails.userFirstName} {offerDetails.offerDetails.userLastName}.</b>
+                You Loan request declined successfully.
               </p>
             </div>
           </div>
@@ -93,4 +81,4 @@ const LoanOfferSent = ({
   );
 };
 
-export default LoanOfferSent;
+export default DeclinedRequestMessage;

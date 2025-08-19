@@ -1,6 +1,6 @@
-"use client";
-import EmptyList from "@/app/(dashboard)/loan-requests/components/empty-list";
-import { UserLoanRecord } from "@/types/usertypes";
+'use client';
+import EmptyList from '@/app/(dashboard)/loan-requests/components/empty-list';
+import { UserLoanRecord } from '@/types/usertypes';
 import {
   Table,
   TableBody,
@@ -9,14 +9,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import Status from "@/components/status";
-import Pagination from "@/components/pagination";
-import { STATUSCONST } from "@/lib/constants";
-import ViewOfferModal from "./modals/view-offer";
-import { useState } from "react";
+} from '@/components/ui/table';
+import Status from '@/components/status';
+import Pagination from '@/components/pagination';
+import { STATUSCONST } from '@/lib/constants';
+import ViewOfferModal from './modals/view-offer';
+import { useState } from 'react';
 
 const UserLoanRequests = ({ data }: { data: UserLoanRecord[] }) => {
+  const [openOffer, setOpenOffer] = useState(false);
   if (!data || data.length < 1) {
     return (
       <EmptyList
@@ -27,7 +28,6 @@ const UserLoanRequests = ({ data }: { data: UserLoanRecord[] }) => {
     );
   }
 
-  const [openOffer, setOpenOffer] = useState(false);
   return (
     <>
       <ViewOfferModal open={openOffer} onOpenChange={setOpenOffer} />
@@ -59,16 +59,16 @@ const UserLoanRequests = ({ data }: { data: UserLoanRecord[] }) => {
               <TableCell className="p-6">{request.dateRequested}</TableCell>
               <TableCell className="p-6">{request.duration}</TableCell>
               <TableCell className="p-6">
-                {request.nextPayment ?? "N/A"}
+                {request.nextPayment ?? 'N/A'}
               </TableCell>
               <TableCell className="p-6">
                 <Status status={request.status} />
               </TableCell>
               <TableCell className="text-[#E2A109] p-6">
-                {request.status == STATUSCONST.OFFERRECEIVED ? (
+                {request.status == STATUSCONST.OFFER_RECEIVED ? (
                   <button onClick={() => setOpenOffer(true)}>View</button>
                 ) : (
-                  <a href={"/loan-requests/" + request.id}>View</a>
+                  <a href={'/loan-requests/' + request.id}>View</a>
                 )}
               </TableCell>
             </TableRow>

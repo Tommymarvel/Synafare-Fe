@@ -14,14 +14,9 @@ import Pagination from '@/components/pagination';
 import Status from '@/components/status';
 import { Loan } from '../types';
 import EmptyList from '../../loan-requests/components/empty-list';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
-const fmtNaira = (n: number) =>
-  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
-    n ?? 0
-  );
 
-const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString('en-NG') : '—';
 
 type Props = { data: Loan[] };
 
@@ -77,7 +72,7 @@ export default function AllLoansTable({ data }: Props) {
               <Status status={loan.loanStatus} />
             </TableCell>
             <TableCell className="text-[#E2A109] p-6 cursor-pointer">
-              View
+              <a href={'/loans/' + loan.id}> View</a>
             </TableCell>
           </TableRow>
         ))}

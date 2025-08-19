@@ -15,6 +15,7 @@ import Status from '@/components/status';
 import { STATUSCONST } from '@/lib/constants';
 import { Loan } from '../types';
 import EmptyList from '../../loan-requests/components/empty-list';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
 type Props = { data: Loan[] };
 
@@ -55,7 +56,6 @@ export default function ActiveLoanTable({ data }: Props) {
           <TableHead className="py-[13px] ps-6">Action</TableHead>
         </TableRow>
       </TableHeader>
-
       <TableBody>
         {activeLoans.map((loan) => (
           <TableRow
@@ -66,23 +66,27 @@ export default function ActiveLoanTable({ data }: Props) {
               <p className="text-gray-900 font-medium">{loan.customerName}</p>
               <p className="text-gray-500">{loan.customerEmail}</p>
             </TableCell>
-            <TableCell className="p-6">{loan.loanAmount}</TableCell>
-            <TableCell className="p-6">{loan.outstandingBalance}</TableCell>
-            <TableCell className="p-6">{loan.dateRequested}</TableCell>
+            <TableCell className="p-6">{fmtNaira(loan.loanAmount)}</TableCell>
+            <TableCell className="p-6">
+              {fmtNaira(loan.outstandingBalance)}
+            </TableCell>
+            <TableCell className="p-6">{fmtDate(loan.dateRequested)}</TableCell>
             <TableCell className="p-6">
               {loan.loanDurationInMonths} months
             </TableCell>
             <TableCell className="p-6">
-              {loan.nextPaymentDate || 'N/A'}
+              {loan.nextPaymentDate ? fmtDate(loan.nextPaymentDate) : 'N/A'}
             </TableCell>
             <TableCell className="p-6">
               <Status status={loan.loanStatus} />
             </TableCell>
-            <TableCell className="text-[#E2A109] p-6">View</TableCell>
+            <TableCell className="text-[#E2A109] p-6">
+              <a href={'/loans/' + loan.id}> View</a>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
-
+      )
       <TableFooter className="border-t border-t-gray-200">
         <TableRow>
           <TableCell colSpan={8} className="px-6 py-6">

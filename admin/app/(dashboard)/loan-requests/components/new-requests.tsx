@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Table,
   TableBody,
@@ -6,13 +8,52 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import ActionButton from "./action-button";
-import Pagination from "@/components/pagination";
-import EmptyList from "./empty-list";
-import { Loan } from "../../loans/types";
+} from '@/components/ui/table';
+import ActionButton, { ActionType } from './action-button';
+import Pagination from '@/components/pagination';
+import EmptyList from './empty-list';
+import { Loan } from '../../loans/types';
+import { toast } from 'react-toastify';
+import { useState } from 'react';
+import axiosInstance from '@/lib/axiosInstance';
 
-const NewRequests = ({ data }: { data: Loan[] }) => {
+type Props = { data: Loan[] };
+
+const currency = (n: number) =>
+  typeof n === 'number' ? n.toLocaleString('en-NG', { maximumFractionDigits: 2 }) : String(n);
+
+const NewRequests = ({ data }: Props) => {
+  
+  const [submitting, setSubmitting] = useState<string | null>(null); 
+
+  async function acceptOffer(
+    loanId: string,
+    amountOffered: number,
+    monthlyRate: number,
+    action: ActionType
+  ) {
+    try {
+      setSubmitting(loanId);
+
+      await axiosInstance.patch(`/loan/admin/action/${loanId}`, {
+        actionType: action,
+        amountOffered,
+        interest: monthlyRate,
+      });
+
+      toast.success(
+        action === 'offer' ? 'Request accepted successfully' : 'Request declined successfully'
+      );
+      return true;
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'An error occurred';
+      toast.error(msg);
+      return false;
+    } finally {
+      setSubmitting(null);
+    }
+  }
+
   if (!data || data.length < 1) {
     return (
       <EmptyList
@@ -22,6 +63,7 @@ const NewRequests = ({ data }: { data: Loan[] }) => {
       />
     );
   }
+
   return (
     <Table>
       <TableHeader>
@@ -35,27 +77,57 @@ const NewRequests = ({ data }: { data: Loan[] }) => {
           <TableHead className="py-[13px] ps-6">Action</TableHead>
         </TableRow>
       </TableHeader>
+
       <TableBody>
-        {data.map((request) => (
-          <TableRow
-            className="border-b border-b-gray-200 text-resin-black"
-            key={request.id}
-          >
-            <TableCell className="p-6">
-              <p className="text-gray-900 font-medium">{request.customerName}</p>
-              <p className="text-gray-500">{request.id}</p>
-            </TableCell>
-            <TableCell className="p-6">------</TableCell>
-            <TableCell className="p-6">-----</TableCell>
-            <TableCell className="p-6">{request.loanAmount}</TableCell>
-            <TableCell className="p-6">{request.dateRequested}</TableCell>
-            <TableCell className="p-6">{request.loanDurationInMonths} months</TableCell>
-            <TableCell className="p-6">
-              <ActionButton id={request.id} />
-            </TableCell>
-          </TableRow>
-        ))}
+        {data.map((request) => {
+          const {
+            id,
+            userFirstName,
+            userLastName,
+            customerName,
+            loanAmount,
+            dateRequested,
+            loanDurationInMonths,
+            interest,
+          } = request;
+
+          const isRowSubmitting = submitting === id;
+
+          return (
+            <TableRow className="border-b border-b-gray-200 text-resin-black" key={id}>
+              <TableCell className="p-6">
+                <p className="text-gray-900 font-medium capitalize">
+                  {userFirstName} {userLastName}
+                </p>
+                <p className="text-gray-500">{id}</p>
+              </TableCell>
+
+              <TableCell className="p-6">------</TableCell>
+
+              <TableCell className="p-6">{customerName ?? '—'}</TableCell>
+
+              <TableCell className="p-6">₦{currency(loanAmount)}</TableCell>
+
+              <TableCell className="p-6">
+                {new Date(dateRequested).toLocaleString()}
+              </TableCell>
+
+              <TableCell className="p-6">{loanDurationInMonths} months</TableCell>
+
+              <TableCell className="p-6">
+                <ActionButton
+                  id={id}
+                  disabled={isRowSubmitting}
+                  handleAction={(action) =>
+                    acceptOffer(id, loanAmount, interest, action)
+                  }
+                />
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
+
       <TableFooter className="border-t border-t-gray-200">
         <TableRow>
           <TableCell colSpan={7} className="px-6 py-6">

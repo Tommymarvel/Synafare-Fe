@@ -328,11 +328,11 @@ export default function ActiveLoans({ loans, }: { loans: Loan[]}) {
                         loan={loan}
                         onAction={(action) => {
                           if (action === 'viewLoan') {
-                            console.log('Viewing offer for loan:', loan);
-                            // setActiveLoan(loan);
-                            // setModalOpen(true);
+                          
                             window.location.href = `/dashboard/loans/${loan.id}`;
-                          } 
+                          } else if (action === 'liquidateLoan') {
+                            window.location.href = `/dashboard/loans/${loan.id}/liquidate`;
+                          }
                           console.log(action, loan.id);
                         }}
                       />

@@ -138,7 +138,7 @@ export default function WithdrawModal({
             try {
               setSubmitting(true);
               await axiosInstance.post('/payment/withdraw', {
-                amount: Number(vals.amount) * 100, // Naira → Kobo
+                amount: Number(vals.amount),
                 bank_code: vals.bankCode,
                 acc_no: vals.accountNumber,
               });

@@ -16,6 +16,9 @@ export interface Loan {
   id: string;
   customerName: string;
   customerEmail: string;
+  userFirstName: string;
+  userLastName: string;
+  userPhnNo: string;
   transactionCost: number;
   loanDurationInMonths: number;
   downpaymentInPercent: number;
@@ -47,6 +50,15 @@ export interface LoanAPI {
     date_joined?: string;
   };
 
+  user?: {
+    _id?: string;
+    email?: string;
+
+    first_name?: string;
+    last_name?: string;
+    phn_no?: string;
+  };
+
   transaction_cost?: number;
   loan_duration_in_months?: number;
   downpayment_in_percent?: number;
@@ -69,6 +81,7 @@ export interface LoanAPI {
 
   repayments?: Repay[];
 }
+
 
 /** Typical list envelope */
 export interface LoansEnvelope {
@@ -155,6 +168,9 @@ export function toLoan(api: LoanAPI): Loan {
     customerName: api.customer?.customer_name ?? '—',
     customerEmail: api.customer?.customer_email ?? '—',
     customerPhone: api.customer?.customer_phn ?? '',
+    userFirstName: api.user?.first_name ?? '—',
+    userLastName: api.user?.last_name ?? '—',
+    userPhnNo: api.user?.phn_no ?? '—',
     transactionCost: api.transaction_cost ?? 0,
     loanDurationInMonths: api.loan_duration_in_months ?? 0,
     downpaymentInPercent: api.downpayment_in_percent ?? 0,

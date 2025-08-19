@@ -5,7 +5,7 @@ export type UserStatus =
   | typeof STATUSCONST.VERIFIED;
 
 export type UserLoanReqStatus =
-  | typeof STATUSCONST.OFFERRECEIVED
+  | typeof STATUSCONST.OFFER_RECEIVED
   | typeof STATUSCONST.ACTIVE
   | typeof STATUSCONST.COMPLETED
   | typeof STATUSCONST.REJECTED;

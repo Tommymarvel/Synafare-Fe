@@ -7,7 +7,7 @@ const TopCards = ({
   iconbg,
 }: {
   title: string;
-  value: string;
+  value: number;
   children: React.ReactNode;
   iconbg?: string;
 }) => {

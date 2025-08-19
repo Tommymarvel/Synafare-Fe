@@ -2,8 +2,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CatelogueType, DInventoryDataType } from "@/types/usertypes";
 import DistEmbededInventory from "./distributor.inv.inv";
 import InstallerInventory from "./installer.inventory";
-import CardWrapper from "@/components/cardWrapper";
-import EmptyList from "@/app/(dashboard)/loan-requests/components/empty-list";
+// import CardWrapper from "@/components/cardWrapper";
+// import EmptyList from "@/app/(dashboard)/loan-requests/components/empty-list";
 
 const DistributorInventory = ({
   catalogueData,

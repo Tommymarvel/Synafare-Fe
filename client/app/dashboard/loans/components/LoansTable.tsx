@@ -9,6 +9,9 @@ import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { KeyedMutator } from 'swr';
+import FinancingOfferModal from './FinancingOfferModal';
+import { fmtNaira } from '@/lib/format';
+// import AcceptLoanAgreement from './AcceptLoanAgreement';
 
 type DateRange = '' | '7' | '30' | '90';
 
@@ -157,12 +160,21 @@ function buildMenuForStatus(
   }
 }
 
-export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : KeyedMutator<Loan[]> }) {
+export default function LoansTable({
+  loans,
+  refresh,
+}: {
+  loans: Loan[];
+  refresh: KeyedMutator<Loan[]>;
+}) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<LoanStatus | ''>('');
   const [dateRange, setDateRange] = useState<DateRange>('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeLoan, setActiveLoan] = useState<Loan | null>(null);
+  // const [showAgreement, setShowAgreement] = useState(false);
 
   // Compute filtered results
   const filtered = useMemo(() => {
@@ -231,7 +243,7 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
       await axiosInstance.post(`/loan/action/${id}`, {
         actionType: 'cancelled',
       });
-      refresh()
+      refresh();
       toast.success('Loan cancelled successfully');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -244,12 +256,12 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
     }
   };
 
-   const handleReject = async (id: string) => {
+  const handleReject = async (id: string) => {
     try {
       await axiosInstance.patch(`/loan/action/${id}`, {
         actionType: 'rejected',
       });
-      refresh()
+      refresh();
       toast.success('Loan rejected successfully');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -313,7 +325,6 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
           </select>
         </div>
       </div>
-
       {/* Table */}
       <div className="-mx-1 md:mx-0">
         <div
@@ -358,7 +369,7 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
                   </td>
                 </tr>
               ) : (
-                pageRows.map((loan) => (
+                pageRows.map((loan: Loan) => (
                   <tr key={loan.id} className="hover:bg-neutral-50 border-b">
                     <td className="px-6 py-3 text-center">
                       <input
@@ -372,7 +383,8 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
 
                     <td className="px-6 py-3">
                       <div className="font-medium text-sm text-raisin whitespace-nowrap md:whitespace-normal capitalize truncate w-[10ch]">
-                        {loan?.customerName || `${loan.user?.first_name} ${loan?.user?.last_name}` }
+                        {loan?.customerName ||
+                          `${loan.user?.first_name} ${loan?.user?.last_name}`}
                       </div>
                       <div className="text-xs text-[#797979] whitespace-nowrap md:whitespace-normal truncate w-[10ch]">
                         {loan?.customerEmail || loan?.user?.email}
@@ -380,10 +392,10 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
-                      ₦{loan.transactionCost.toLocaleString()}
+                      {fmtNaira(loan.transactionCost)}
                     </td>
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
-                      ₦{loan.loan_amount}
+                      {fmtNaira(loan.loan_amount)}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
@@ -415,29 +427,40 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
                             // Navigate to loan details page
                             window.location.href = `/dashboard/loans/${loan.id}`;
                           } else if (action === 'liquidateLoan') {
-                            // Handle liquidate loan action
-                            console.log('Liquidate Loan:', loan.id);
+                              window.location.href = `/dashboard/loans/${loan.id}/liquidate`;
                           } else if (action === 'rejectRequest') {
                             handleReject(loan.id);
-                          }   else if (action === 'cancelRequest') {
+                          } else if (action === 'cancelRequest') {
                             handleCancel(loan.id);
-                          }else if(action === "acceptRequest"){
+                          } else if (action === 'acceptRequest') {
                             try {
-                              await axiosInstance.patch(`/loan/${loan.id}/agreement/`,{actionType : "signed"});
-                              toast.success("Loan agreement signed successfully")
-                              window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+                              await axiosInstance.patch(
+                                `/loan/${loan.id}/agreement/`,
+                                { actionType: 'signed' }
+                              );
+                              toast.success(
+                                'Loan agreement signed successfully'
+                              );
+                              if (loan.loan_type === 'inventory_financing') {
+                                window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+                              }
                             } catch (error) {
-                              const axiosError = error as AxiosError<{ message?: string }>;
+                              const axiosError = error as AxiosError<{
+                                message?: string;
+                              }>;
                               toast.error(
                                 (axiosError.response && axiosError.response.data
-                                  ? axiosError.response.data.message || axiosError.response.data
+                                  ? axiosError.response.data.message ||
+                                    axiosError.response.data
                                   : axiosError.message || 'An error occurred'
                                 ).toString()
                               );
                             }
-                            
                           }
-
+                          if (action === 'viewOffer') {
+                            setActiveLoan(loan);
+                            setModalOpen(true);
+                          }
                           console.log(action, loan.id);
                         }}
                       />
@@ -449,7 +472,6 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
           </table>
         </div>
       </div>
-
       {/* Footer / Pagination */}
       <div className="flex items-center justify-between py-4 px-6">
         <button
@@ -477,6 +499,50 @@ export default function LoansTable({ loans,refresh }: { loans: Loan[],refresh : 
           Next <ChevronRight className="w-4 h-4 ml-1" />
         </button>
       </div>
+      <FinancingOfferModal
+        open={modalOpen}
+        loan={activeLoan}
+        onClose={() => setModalOpen(false)}
+        onReject={() => {
+          setModalOpen(false);
+          // TODO: call reject API
+          alert('Offer rejected (stub)');
+        }}
+        onAccept={async (loan) => {
+          console.log('Accepting loan offer:', loan.id);
+          // if (loan.loan_agreement !== 'signed') {
+          //   // setShowAgreement(true);
+          //   return;
+          // }
+
+          setModalOpen(false);
+
+          try {
+            await axiosInstance.patch(`/loan/${loan.id}/agreement/`, {
+              actionType: 'signed',
+            });
+
+            toast.success('Loan agreement signed successfully');
+
+            if (loan.loan_type === 'inventory_financing') {
+              window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+            }
+          } catch (error) {
+            const axiosError = error as AxiosError<{ message?: string }>;
+            toast.error(
+              axiosError.response?.data?.message ||
+                axiosError.message ||
+                'An error occurred'
+            );
+          }
+        }}
+      />
+      {/* <AcceptLoanAgreement
+        open={showAgreement}
+        onClose={() => setShowAgreement(false)}
+        onAccept={handleAccept}
+        loan={activeLoan}
+      /> */}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import CardWrapper from "@/components/cardWrapper";
-import Image from "next/image";
 import {
   Select,
   SelectContent,

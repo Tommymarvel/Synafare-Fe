@@ -89,7 +89,7 @@ const ProductInformation = ({}) => {
               <span className="text-xs text-gray-3">Description</span>
               <p className="text-sm/[24px] ">
                 Luminous 1.5 kVA inverter and battery combo is specially
-                designed to cater today's need keeping future aspiration in
+                designed to cater today&apos;s need keeping future aspiration in
                 mind, The inverter set powers all home appliances except home
                 air-conditioners and 1 HP water motor, rest everything will be
                 running for 4-6 hours whenever there is power outage such as led

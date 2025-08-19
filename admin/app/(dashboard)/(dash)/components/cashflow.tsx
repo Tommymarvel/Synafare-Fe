@@ -7,7 +7,6 @@ import {
   YAxis,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
   CartesianGrid,
 } from "recharts";
 import CardWrapper from "../../../../components/cardWrapper";

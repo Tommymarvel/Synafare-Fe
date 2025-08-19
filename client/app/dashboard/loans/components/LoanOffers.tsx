@@ -411,7 +411,9 @@ export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMu
           try {
             await axiosInstance.patch(`/loan/${loan.id}/agreement/`,{actionType : "signed"});
             toast.success("Loan agreement signed successfully")
-            window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+           if (loan.loan_type === 'inventory_financing') {
+             window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+           }
           } catch (error) {
             const axiosError = error as AxiosError<{ message?: string }>;
             toast.error(

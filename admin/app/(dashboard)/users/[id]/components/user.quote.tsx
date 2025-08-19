@@ -25,6 +25,8 @@ import { useState } from "react";
 import QuoteRequestModal from "./modals/quote-request";
 
 const UserQuote = ({ data }: { data: QuoteRequest[] }) => {
+    const [sent, setSent] = useState(false);
+    const [openQuote, setOpenQuote] = useState(false);
   if (!data || data.length < 1) {
     return (
       <CardWrapper className="px-[23px] py-3 rounded-lg">
@@ -37,8 +39,7 @@ const UserQuote = ({ data }: { data: QuoteRequest[] }) => {
       </CardWrapper>
     );
   }
-  const [sent, setSent] = useState(false);
-  const [openQuote, setOpenQuote] = useState(false);
+
   return (
     <>
       <QuoteRequestModal open={openQuote} onOpenChange={setOpenQuote} />

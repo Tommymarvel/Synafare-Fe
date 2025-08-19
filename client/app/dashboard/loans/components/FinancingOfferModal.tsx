@@ -3,20 +3,7 @@
 import { X } from 'lucide-react';
 import React from 'react';
 import type { Loan } from '../types';
-
-const N = (v: number) => `₦${v.toLocaleString('en-NG')}`;
-
-function compute(loan: Loan) {
-  const downPct = loan.downpaymentInNaira ?? 30;
-  const interest = loan.interest ?? 6;
-  const totalRepayment =
-    loan.totalRepayment ??
-    Math.round(Number(loan.loan_amount) * (1 + (interest) * Number(loan.loanDurationInMonths)));
-  const monthly = Math.round(totalRepayment / Math.max(1, Number(loan.loanDurationInMonths)));
-  const downAmount = Math.round((Number(loan.transactionCost) * downPct));
-
-  return { downPct, interest, totalRepayment, monthly, downAmount };
-}
+import { fmtNaira } from '@/lib/format';
 
 export default function FinancingOfferModal({
   open,
@@ -32,18 +19,17 @@ export default function FinancingOfferModal({
   onAccept: (loan: Loan) => void;
 }) {
   if (!open || !loan) return null;
-  const { downPct, interest, totalRepayment, monthly, downAmount } =
-    compute(loan);
+ 
 
   const rows: { label: string; value: React.ReactNode }[] = [
-    { label: 'Transaction Cost', value: N(loan.transactionCost) },
-    { label: 'Amount Requested', value: N(loan.loan_amount) },
-    { label: 'Amount Offered', value: N(loan.loan_amount) },
+    { label: 'Transaction Cost', value: fmtNaira(loan.transactionCost) },
+    { label: 'Amount Requested', value: fmtNaira(loan.loan_amount) },
+    { label: 'Amount Offered', value: fmtNaira(loan.loan_amount) },
     { label: 'Loan Duration', value: `${loan.loanDurationInMonths} months` },
-    { label: 'Interest (per month)', value: `${interest}%` },
-    { label: `Downpayment (${downPct}%)`, value: N(downAmount) },
-    { label: 'Total Repayment', value: N(totalRepayment) },
-    { label: 'Monthly instalment', value: N(monthly) },
+    { label: 'Interest (per month)', value: `${loan.interest*100}%` },
+    { label: `Downpayment (${loan.downpaymentInPercent}%)`, value: fmtNaira(loan.downpaymentInNaira) },
+    { label: 'Total Repayment', value: fmtNaira(loan.totalRepayment) },
+    { label: 'Monthly installment', value: fmtNaira(loan.monthly_repayment) },
   ];
 
   return (

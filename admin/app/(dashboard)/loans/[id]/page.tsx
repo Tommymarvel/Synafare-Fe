@@ -1,4 +1,3 @@
-
 'use client';
 
 import PageIntro from '@/components/page-intro';
@@ -6,14 +5,13 @@ import CardWrapper from '@/components/cardWrapper';
 import InfoDetail from './components/detail';
 import Status from '@/components/status';
 // import RepaymentHistory from './components/repayment-history';
-import AcceptRequestModal from './components/modals/accept-request';
-import { useState, useMemo } from 'react';
-import DeclineRequestModel from './components/modals/decline-request';
-import Button from '@/components/button';
 import { useLoanById } from '../../loans/hooks/useLoans';
 import { useParams } from 'next/navigation';
 import GoBack from '@/components/goback';
 import Document from '@/components/document';
+import { useMemo } from 'react';
+import Button from '@/components/button';
+import { AlertCircle } from 'lucide-react';
 
 const fmtNaira = (n: number) =>
   new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
@@ -21,9 +19,6 @@ const fmtNaira = (n: number) =>
   );
 
 export default function LoanRequestDetail() {
-  const [showAcceptRequest, setShowAcceptRequest] = useState(false);
-  const [showDeclineRequest, setShowDeclineRequest] = useState(false);
-
   const { id } = useParams<{ id: string }>();
   const { loan, isLoading, error } = useLoanById(id);
 
@@ -47,60 +42,29 @@ export default function LoanRequestDetail() {
 
   return (
     <div>
-      {/* Accept / Decline modals */}
-      <AcceptRequestModal
-        open={showAcceptRequest}
-        onOpenChange={setShowAcceptRequest}
-        // real data goes in:
-        loanId={loan.id}
-        amountRequested={loan.loanAmount}
-        transactionCost={loan.transactionCost}
-        defaultDurationMonths={loan.loanDurationInMonths || 3}
-        defaultMonthlyRate={loan.interest}
-        offerDetails={{
-          userFirstName: loan.userFirstName,
-          userLastName: loan.userLastName,
-        }}
-      />
-
-      <DeclineRequestModel
-        open={showDeclineRequest}
-        onOpenChange={setShowDeclineRequest}
-        id={loan.id}
-      />
-
       <GoBack className="mt-5 mb-3" />
 
       <div className="flex items-center mb-5">
         <PageIntro>
           {loan.userFirstName} {loan.userLastName}
         </PageIntro>
-        <div className="flex items-center gap-x-3 ms-auto text-resin-black font-medium">
-          <Button variant="Colored" onClick={() => setShowAcceptRequest(true)}>
-            Accept Request
-          </Button>
-          <Button onClick={() => setShowDeclineRequest(true)}>
-            Decline Request
-          </Button>
-
-          {/* <Button
-            variant="Colored"
-            className="flex gap-x-2"
-            onClick={() => setShowAcceptRequest(true)}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="inherit">
-              <path
-                d="M14.166 17.7083H5.83268C2.79102 17.7083 1.04102 15.9583 1.04102 12.9166V7.08329C1.04102 4.04163 2.79102 2.29163 5.83268 2.29163H14.166C17.2077 2.29163 18.9577 4.04163 18.9577 7.08329V12.9166C18.9577 15.9583 17.2077 17.7083 14.166 17.7083ZM5.83268 3.54163C3.44935 3.54163 2.29102 4.69996 2.29102 7.08329V12.9166C2.29102 15.3 3.44935 16.4583 5.83268 16.4583H14.166C16.5493 16.4583 17.7077 15.3 17.7077 12.9166V7.08329C17.7077 4.69996 16.5493 3.54163 14.166 3.54163H5.83268Z"
-                fill="inherit"
-              />
-              <path
-                d="M9.999 10.725C9.299 10.725 8.59067 10.5083 8.049 10.0666L5.44067 7.98331C5.174 7.76664 5.124 7.37497 5.34067 7.10831C5.55734 6.84164 5.94901 6.79164 6.21567 7.00831L8.824 9.09164C9.45733 9.59998 10.5323 9.59998 11.1657 9.09164L13.774 7.00831C14.0407 6.79164 14.4407 6.83331 14.649 7.10831C14.8657 7.37497 14.824 7.77498 14.549 7.98331L11.9407 10.0666C11.4073 10.5083 10.699 10.725 9.999 10.725Z"
-                fill="inherit"
-              />
-            </svg>
-            Send Offer
-          </Button> */}
-        </div>
+        {loan.loanStatus === 'Overdue' && (
+          <div className="flex items-center gap-x-3 ms-auto text-resin-black font-medium">
+            <Button variant="Colored" className="flex gap-x-2">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="inherit">
+                <path
+                  d="M14.166 17.7083H5.83268C2.79102 17.7083 1.04102 15.9583 1.04102 12.9166V7.08329C1.04102 4.04163 2.79102 2.29163 5.83268 2.29163H14.166C17.2077 2.29163 18.9577 4.04163 18.9577 7.08329V12.9166C18.9577 15.9583 17.2077 17.7083 14.166 17.7083ZM5.83268 3.54163C3.44935 3.54163 2.29102 4.69996 2.29102 7.08329V12.9166C2.29102 15.3 3.44935 16.4583 5.83268 16.4583H14.166C16.5493 16.4583 17.7077 15.3 17.7077 12.9166V7.08329C17.7077 4.69996 16.5493 3.54163 14.166 3.54163H5.83268Z"
+                  fill="inherit"
+                />
+                <path
+                  d="M9.999 10.725C9.299 10.725 8.59067 10.5083 8.049 10.0666L5.44067 7.98331C5.174 7.76664 5.124 7.37497 5.34067 7.10831C5.55734 6.84164 5.94901 6.79164 6.21567 7.00831L8.824 9.09164C9.45733 9.59998 10.5323 9.59998 11.1657 9.09164L13.774 7.00831C14.0407 6.79164 14.4407 6.83331 14.649 7.10831C14.8657 7.37497 14.824 7.77498 14.549 7.98331L11.9407 10.0666C11.4073 10.5083 10.699 10.725 9.999 10.725Z"
+                  fill="inherit"
+                />
+              </svg>
+              Send Reminder
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="bg-resin-black text-gray-4 rounded-4 p-10 flex justify-between rounded-2xl">
@@ -122,6 +86,12 @@ export default function LoanRequestDetail() {
         <div className="grow space-y-5">
           {/* If loan is overdue, show banner based on your own logic */}
           {/* Example condition could be derived from nextPaymentDate if you add it */}
+          {loan.loanStatus === 'Overdue' && (
+            <div className="flex items-center justify-center gap-2 border border-red-500 bg-red-100 text-red-700 rounded-lg px-4 py-2">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <span className="font-medium">Loan is overdue</span>
+            </div>
+          )}
 
           <CardWrapper className="p-0 w-full ps-[18px] pb-6">
             <h2 className="border-b border-b-gray-4 p-4 pb-[10px] font-medium text-[16px]">
@@ -203,8 +173,12 @@ export default function LoanRequestDetail() {
               Documents
             </h2>
             <ul>
-              {loan.bankStatement && <Document name="Bank Statement" url={loan.bankStatement} />}
-              {loan.trxInvoice && <Document name="Invoice" url={loan.trxInvoice} />}
+              {loan.bankStatement && (
+                <Document name="Bank Statement" url={loan.bankStatement} />
+              )}
+              {loan.trxInvoice && (
+                <Document name="Invoice" url={loan.trxInvoice} />
+              )}
             </ul>
           </CardWrapper>
         </div>

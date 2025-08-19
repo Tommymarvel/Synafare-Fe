@@ -1,6 +1,6 @@
 const PageIntro = ({ children }: { children: React.ReactNode }) => {
   return (
-    <h1 className="text-2xl font-medium text-resin-black mb-[25px]">
+    <h1 className="text-2xl font-medium capitalize text-resin-black mb-[25px]">
       {children}
     </h1>
   );
