@@ -27,7 +27,7 @@ const Dasboard = () => {
             <p className="text-lg font-medium">₦ 10,863,113.36</p>
           </div>
 
-          <TopCards title="Verification Requests" value="246">
+          <TopCards title="Verification Requests" value={246}>
             <svg
               width="20"
               height="20"
@@ -58,7 +58,7 @@ const Dasboard = () => {
             </svg>
           </TopCards>
 
-          <TopCards title="Total Users" value="3,246">
+          <TopCards title="Total Users" value={3246}>
             <svg
               width="21"
               height="21"
@@ -97,7 +97,7 @@ const Dasboard = () => {
             </svg>
           </TopCards>
 
-          <TopCards title="Total Loans" value="178">
+          <TopCards title="Total Loans" value={178}>
             <svg
               width="20"
               height="20"
@@ -158,7 +158,7 @@ const Dasboard = () => {
                 <TableCell className="p-6">₦1,181,675</TableCell>
                 <TableCell className="p-6">Jan 6, 2025</TableCell>
                 <TableCell className="p-6">
-                  <StatusComp status="Pending">Pending</StatusComp>
+                  <StatusComp status="Pending" />
                 </TableCell>
                 <TableCell className="text-[#E2A109] p-6">View</TableCell>
               </TableRow>
@@ -168,7 +168,7 @@ const Dasboard = () => {
                 <TableCell className="p-6">₦1,181,675</TableCell>
                 <TableCell className="p-6">Jan 6, 2025</TableCell>
                 <TableCell className="p-6">
-                  <StatusComp status="Successful">Successful</StatusComp>
+                  <StatusComp status="Success" />
                 </TableCell>
                 <TableCell className="text-[#E2A109] p-6">View</TableCell>
               </TableRow>
