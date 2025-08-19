@@ -1,4 +1,4 @@
-import EmptyList from "./empty-list";
+import EmptyList from './empty-list';
 
 import {
   Table,
@@ -8,10 +8,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import Pagination from "@/components/pagination";
-import Status from "@/components/status";
-import { Loan } from "../../loans/types";
+} from '@/components/ui/table';
+import Pagination from '@/components/pagination';
+import Status from '@/components/status';
+import { Loan } from '../../loans/types';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
 const LoanOffers = ({ data }: { data: Loan[] }) => {
   if (!data || data.length < 1)
@@ -45,14 +46,18 @@ const LoanOffers = ({ data }: { data: Loan[] }) => {
             key={request.id}
           >
             <TableCell className="p-6">
-              <p className="text-gray-900 font-medium">{request.customerName}</p>
-              <p className="text-gray-500">{request.id}</p>
+              <p className="text-gray-900 font-medium">
+                {request.userFirstName} {request.userLastName}
+              </p>
+              <p className="text-gray-500">{request.id.slice(0, 8)}...</p>{' '}
             </TableCell>
-            <TableCell className="p-6">-----</TableCell>
-            <TableCell className="p-6">------</TableCell>
-            <TableCell className="p-6">-----</TableCell>
             <TableCell className="p-6">
-             ------
+              {fmtNaira(request.loanAmount)}
+            </TableCell>
+            <TableCell className="p-6">---</TableCell>
+            <TableCell className="p-6">{request.customerName}</TableCell>
+            <TableCell className="p-6">
+              {fmtDate(request.datePaid ?? '')}
             </TableCell>
             <TableCell className="p-6">
               <Status status={request.loanStatus} />

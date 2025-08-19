@@ -3,7 +3,6 @@ import { DM_Sans } from 'next/font/google';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 
-
 import './globals.css';
 
 const beVietnam = Be_Vietnam_Pro({
@@ -25,7 +24,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-
     <>
       {' '}
       <ToastContainer theme="light" />

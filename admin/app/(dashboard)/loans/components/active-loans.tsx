@@ -86,7 +86,7 @@ export default function ActiveLoanTable({ data }: Props) {
           </TableRow>
         ))}
       </TableBody>
-      )
+      
       <TableFooter className="border-t border-t-gray-200">
         <TableRow>
           <TableCell colSpan={8} className="px-6 py-6">

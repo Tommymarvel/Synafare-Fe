@@ -16,11 +16,10 @@ import { Loan } from '../../loans/types';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
 type Props = { data: Loan[] };
 
-const currency = (n: number) =>
-  typeof n === 'number' ? n.toLocaleString('en-NG', { maximumFractionDigits: 2 }) : String(n);
 
 const NewRequests = ({ data }: Props) => {
   
@@ -95,21 +94,21 @@ const NewRequests = ({ data }: Props) => {
 
           return (
             <TableRow className="border-b border-b-gray-200 text-resin-black" key={id}>
-              <TableCell className="p-6">
+                <TableCell className="p-6">
                 <p className="text-gray-900 font-medium capitalize">
                   {userFirstName} {userLastName}
                 </p>
-                <p className="text-gray-500">{id}</p>
-              </TableCell>
+                <p className="text-gray-500">{id.slice(0, 8)}...</p>
+                </TableCell>
 
               <TableCell className="p-6">------</TableCell>
 
               <TableCell className="p-6">{customerName ?? '—'}</TableCell>
 
-              <TableCell className="p-6">₦{currency(loanAmount)}</TableCell>
+              <TableCell className="p-6">{fmtNaira(loanAmount)}</TableCell>
 
               <TableCell className="p-6">
-                {new Date(dateRequested).toLocaleString()}
+                {fmtDate(dateRequested)}
               </TableCell>
 
               <TableCell className="p-6">{loanDurationInMonths} months</TableCell>

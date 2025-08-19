@@ -11,6 +11,7 @@ import EmptyList from "./empty-list";
 import Status from "@/components/status";
 import Pagination from "@/components/pagination";
 import { Loan } from "../../loans/types";
+import { fmtDate, fmtNaira } from "@/lib/format";
 
 const DeclinedRequests = ({ data }: { data: Loan[] }) => {
   if (!data || data.length < 1)
@@ -44,13 +45,21 @@ const DeclinedRequests = ({ data }: { data: Loan[] }) => {
             key={request.id}
           >
             <TableCell className="p-6">
-              <p className="text-gray-900 font-medium">{request.customerName}</p>
-              <p className="text-gray-500">{request.id}</p>
+              <p className="text-gray-900 font-medium">
+                {request.customerName}
+              </p>
+              <p className="text-gray-500">{request.id.slice(0, 8)}...</p>{' '}
             </TableCell>
-            {/* <TableCell className="p-6">{request.userType}</TableCell> */}
-            <TableCell className="p-6">{request.loanAmount}</TableCell>
-            <TableCell className="p-6">{request.dateRequested}</TableCell>
-            <TableCell className="p-6">{request.loanDurationInMonths} months</TableCell>
+            <TableCell className="p-6">{request.userType ?? '---'}</TableCell>
+            <TableCell className="p-6">
+              {fmtNaira(request.loanAmount)}
+            </TableCell>
+            <TableCell className="p-6">
+              {fmtDate(request.dateRequested)}
+            </TableCell>
+            <TableCell className="p-6">
+              {request.loanDurationInMonths} months
+            </TableCell>
             <TableCell className="p-6">
               <Status status={request.loanStatus} />
             </TableCell>

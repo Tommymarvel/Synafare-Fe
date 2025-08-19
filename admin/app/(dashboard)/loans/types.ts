@@ -35,6 +35,8 @@ export interface Loan {
   elapsedMonths: number;
   repayments: Repay[];
   loanAmount: number;
+  userType?: string;
+  datePaid: string | null;
 }
 
 /* -------------------------------- API model -------------------------------- */
@@ -78,10 +80,10 @@ export interface LoanAPI {
   outstanding_bal?: number;
   monthly_repayment?: number;
   monthly_interest_value?: number;
-
+  user_type?: string;
+  datePaid?: string; // date when the loan was paid
   repayments?: Repay[];
 }
-
 
 /** Typical list envelope */
 export interface LoansEnvelope {
@@ -186,5 +188,7 @@ export function toLoan(api: LoanAPI): Loan {
     elapsedMonths: 0, // fill when backend provides
     repayments: api.repayments ?? [],
     loanAmount: amount,
+    userType: api.user_type,
+    datePaid: api.datePaid ?? null, // date when the loan was paid
   };
 }
