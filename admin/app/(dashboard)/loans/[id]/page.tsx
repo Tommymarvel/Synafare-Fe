@@ -5,13 +5,17 @@ import CardWrapper from '@/components/cardWrapper';
 import InfoDetail from './components/detail';
 import Status from '@/components/status';
 // import RepaymentHistory from './components/repayment-history';
-import { useLoanById } from '../../loans/hooks/useLoans';
+import { useLoanById, useRepayById } from '../../loans/hooks/useLoans';
 import { useParams } from 'next/navigation';
 import GoBack from '@/components/goback';
 import Document from '@/components/document';
 import { useMemo } from 'react';
 import Button from '@/components/button';
 import { AlertCircle } from 'lucide-react';
+import { fmtDate, formatPhoneNumber } from '@/lib/format';
+import Image from 'next/image';
+import Empty from '@/app/assets/repayHistory-empty.png';
+
 
 const fmtNaira = (n: number) =>
   new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
@@ -21,6 +25,7 @@ const fmtNaira = (n: number) =>
 export default function LoanRequestDetail() {
   const { id } = useParams<{ id: string }>();
   const { loan, isLoading, error } = useLoanById(id);
+  const { repayData } = useRepayById(id as string);
 
   const summary = useMemo(() => {
     if (!loan) {
@@ -156,14 +161,33 @@ export default function LoanRequestDetail() {
               Customer Information
             </h2>
             <div className="flex justify-between py-[27px] px-[18px]">
-              <InfoDetail title="Customer’s Name" value={loan.customerName} />
+              <InfoDetail
+                title="Customer’s Name"
+                value={
+                  loan.customerName?.trim() && loan.customerName !== '-'
+                    ? loan.customerName
+                    : loan.userFirstName && loan.userLastName
+                    ? `${loan.userFirstName} ${loan.userLastName}`
+                    : 'N/A'
+                }
+              />
               <InfoDetail
                 title="Customer’s Email Address"
-                value={loan.customerEmail}
+                value={
+                  loan.customerEmail?.trim() && loan.customerEmail !== '-'
+                    ? loan.userEmail
+                    : 'N/A'
+                }
               />
               <InfoDetail
                 title="Customer’s Phone Number"
-                value={loan.customerPhone || '—'}
+                value={
+                  loan.customerPhone?.trim() && loan.customerPhone !== '-'
+                    ? formatPhoneNumber(loan.customerPhone)
+                    : loan.userPhnNo?.trim() && loan.userPhnNo !== '-'
+                    ? formatPhoneNumber(loan.userPhnNo)
+                    : 'N/A'
+                }
               />
             </div>
           </CardWrapper>
@@ -184,6 +208,56 @@ export default function LoanRequestDetail() {
         </div>
 
         {/* <RepaymentHistory /> */}
+         <section className="rounded-lg border mt-2 lg:mt-1 lg:w-[20%]">
+                  <header className="px-4 py-3 border-b bg-[#F0F2F5] rounded-t-lg text-sm font-medium">
+                    Repayment History
+                  </header>
+                  <div className="p-6 flex items-center justify-center">
+                    {repayData?.result?.length === 0 ? (
+                      <div className="text-center h-fit text-sm text-[#797979]">
+                        <Image
+                          src={Empty}
+                          alt="No Repayment History"
+                          width={100}
+                          height={100}
+                        />
+                        <p>No repayment history</p>
+                      </div>
+                    ) : (
+                      <ul className="w-full space-y-3">
+                        {repayData?.result.map((r, i) => (
+                          <li key={i} className="flex gap-2 text-sm">
+                            <div className="flex flex-col justify-center items-center gap-2">
+                              <Image
+                                src={r.is_paid ? '/repay-dot.svg' : '/notrepay-dot.svg'}
+                                alt=""
+                                className=""
+                                width={10}
+                                height={10}
+                              />
+                              <Image
+                                src={'/notrepay-line.svg'}
+                                alt=""
+                                className=""
+                                width={1}
+                                height={10}
+                              />
+                            </div>
+                            <div>
+                              <h4 className="font-medium lg:text-base">
+                                {fmtNaira(r.amount)}
+                              </h4>
+                              <p>
+                                Repayment:{' '}
+                                {fmtDate(r?.repayment_date?.toISOString())}
+                              </p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </section>
       </div>
     </div>
   );

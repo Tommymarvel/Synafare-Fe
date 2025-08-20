@@ -37,6 +37,8 @@ export interface Loan {
   loanAmount: number;
   userType?: string;
   datePaid: string | null;
+  equityAmount: number;
+  userEmail: string;
 }
 
 /* -------------------------------- API model -------------------------------- */
@@ -55,12 +57,12 @@ export interface LoanAPI {
   user?: {
     _id?: string;
     email?: string;
-
     first_name?: string;
     last_name?: string;
     phn_no?: string;
+    nature_of_solar_business: string;
   };
-
+  next_payment: string; // Optional, not always present
   transaction_cost?: number;
   loan_duration_in_months?: number;
   downpayment_in_percent?: number;
@@ -81,7 +83,7 @@ export interface LoanAPI {
   monthly_repayment?: number;
   monthly_interest_value?: number;
   user_type?: string;
-  datePaid?: string; // date when the loan was paid
+  date_paid?: string; // date when the loan was paid
   repayments?: Repay[];
 }
 
@@ -167,12 +169,13 @@ export function toLoan(api: LoanAPI): Loan {
 
   return {
     id: api._id,
-    customerName: api.customer?.customer_name ?? '—',
+    customerName: api.customer?.customer_name ?? '-',
     customerEmail: api.customer?.customer_email ?? '—',
     customerPhone: api.customer?.customer_phn ?? '',
     userFirstName: api.user?.first_name ?? '—',
     userLastName: api.user?.last_name ?? '—',
     userPhnNo: api.user?.phn_no ?? '—',
+    userEmail: api.user?.email ?? '—',
     transactionCost: api.transaction_cost ?? 0,
     loanDurationInMonths: api.loan_duration_in_months ?? 0,
     downpaymentInPercent: api.downpayment_in_percent ?? 0,
@@ -183,12 +186,13 @@ export function toLoan(api: LoanAPI): Loan {
     trxInvoice: api.trx_invoice ?? '',
     loanStatus: mapApiStatusToConst(api.loan_status),
     dateRequested: api.createdAt ?? '',
-    nextPaymentDate: '', // fill when backend provides
+    nextPaymentDate: api.next_payment, // fill when backend provides
     outstandingBalance: api.outstanding_bal ?? 0,
     elapsedMonths: 0, // fill when backend provides
     repayments: api.repayments ?? [],
     loanAmount: amount,
-    userType: api.user_type,
-    datePaid: api.datePaid ?? null, // date when the loan was paid
+    userType: api.user?.nature_of_solar_business,
+    datePaid: api.date_paid ?? null,
+    equityAmount: api.monthly_repayment ?? 0,
   };
 }

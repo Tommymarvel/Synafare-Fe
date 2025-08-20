@@ -4,7 +4,9 @@ export type LoanStatus =
   | 'OFFER_RECEIVED'
   | 'ACTIVE'
   | 'COMPLETED'
-  | 'REJECTED';
+  | 'REJECTED'
+  | 'AWAITING DOWNPAYMENT'
+  | 'AWAITING DISBURSEMENT';
 
 export function toLoanStatus(raw?: string): LoanStatus {
   const v = (raw ?? '').toLowerCase();
@@ -12,6 +14,8 @@ export function toLoanStatus(raw?: string): LoanStatus {
   if (v === 'approved' || v === 'active') return 'ACTIVE';
   if (v === 'completed') return 'COMPLETED';
   if (v === 'rejected') return 'REJECTED';
+  if (v === 'awaiting_downpayment') return 'AWAITING DOWNPAYMENT';
+  if (v === 'awaiting_disbursement') return 'AWAITING DISBURSEMENT';
   return 'PENDING';
 }
 
@@ -83,6 +87,7 @@ export interface LoanAPI {
   loan_amount_offered: number;
   loan_type: string;
   loan_agreement: string;
+  next_payment:string;
   user: {
     email: string;
     email_confirmed: boolean;
@@ -110,7 +115,7 @@ export function toLoan(api: LoanAPI): Loan {
     trxInvoice: api.trx_invoice,
     loanStatus: toLoanStatus(api.loan_status),
     dateRequested: api.createdAt,
-    nextPaymentDate: api.nextPaymentDate ?? '',
+    nextPaymentDate: api.next_payment ?? '',
     outstandingBalance: api.outstanding_bal ?? 0,
     elapsedMonths: api.elapsedMonths ?? 0,
     repayments: api.repayments,

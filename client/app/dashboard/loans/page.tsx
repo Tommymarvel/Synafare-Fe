@@ -11,7 +11,6 @@ import LoansTable from './components/LoansTable';
 import PaidLoans from './components/PaidLoans';
 import { useLoans } from './hooks/useLoans';
 
-
 const TABS = [
   { key: 'all', label: 'All Loans' },
   { key: 'offers', label: 'Loan Offers' },
@@ -27,7 +26,7 @@ export default function LoansPage() {
   const router = useRouter();
   const [showAgreement, setShowAgreement] = useState(false);
 
-  const { loans, isLoading, error,refresh } = useLoans();
+  const { loans, isLoading, error, refresh } = useLoans();
 
   const offersCount = useMemo(
     () => loans.filter((loan) => loan.loanStatus === 'OFFER_RECEIVED').length,
@@ -51,19 +50,17 @@ export default function LoansPage() {
     const active = list.filter((l) => l.loanStatus === 'ACTIVE');
     const repaid = list.filter((l) => l.loanStatus === 'COMPLETED');
 
-  switch (activeTab) {
-    case 'offers':
-      return <LoansOffers loans={offers} refresh={refresh} />;
-    case 'active':
-      return <ActiveLoans loans={active}/>;
-    case 'paid': // <- not "paid" if your tab key is 'repaid'
-      return <PaidLoans loans={repaid} />;
-    default:
-      return <LoansTable loans={list} refresh={refresh} />;
-  }
+    switch (activeTab) {
+      case 'offers':
+        return <LoansOffers loans={offers} refresh={refresh} />;
+      case 'active':
+        return <ActiveLoans loans={active} />;
+      case 'paid': // <- not "paid" if your tab key is 'repaid'
+        return <PaidLoans loans={repaid} />;
+      default:
+        return <LoansTable loans={list} refresh={refresh} />;
+    }
   };
-
- 
 
   return (
     <div>

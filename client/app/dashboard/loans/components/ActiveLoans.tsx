@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { Search, ChevronRight, ChevronLeft, MoreVertical } from 'lucide-react';
 import type { Loan } from '../types';
 import { createPortal } from 'react-dom';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
 
 type DateRange = '' | '7' | '30' | '90';
@@ -299,7 +300,7 @@ export default function ActiveLoans({ loans, }: { loans: Loan[]}) {
                       ₦{loan.transactionCost.toLocaleString()}
                     </td>
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
-                  ------
+                  {fmtNaira(loan.loan_amount)}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
@@ -311,9 +312,7 @@ export default function ActiveLoans({ loans, }: { loans: Loan[]}) {
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
-                      {loan.nextPaymentDate
-                        ? format(new Date(loan.nextPaymentDate), 'MMM d, yyyy')
-                        : '— — —'}
+                     { fmtDate(loan.nextPaymentDate) || 'N/A' }
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">

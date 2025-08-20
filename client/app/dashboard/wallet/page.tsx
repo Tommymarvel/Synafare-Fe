@@ -22,6 +22,7 @@ import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { Transaction, useTransactions } from './hooks/useTransactions';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
 
 export type BankDetails = {
@@ -220,11 +221,11 @@ export default function WalletPage() {
                             {t.type}
                           </td>
                           <td className="whitespace-nowrap px-6 py-3 text-center text-sm">
-                            {t.amount}
+                            {fmtNaira(t.amount) }
                           </td>
 
                           <td className="hidden whitespace-nowrap px-6 py-3 text-center text-sm md:table-cell">
-                            {t.date}
+                            {fmtDate(t.date)}
                           </td>
 
                           <td className="whitespace-nowrap px-6 py-3 text-center text-sm lg:table-cell">

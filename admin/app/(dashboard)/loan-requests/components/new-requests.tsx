@@ -20,10 +20,8 @@ import { fmtDate, fmtNaira } from '@/lib/format';
 
 type Props = { data: Loan[] };
 
-
 const NewRequests = ({ data }: Props) => {
-  
-  const [submitting, setSubmitting] = useState<string | null>(null); 
+  const [submitting, setSubmitting] = useState<string | null>(null);
 
   async function acceptOffer(
     loanId: string,
@@ -41,7 +39,9 @@ const NewRequests = ({ data }: Props) => {
       });
 
       toast.success(
-        action === 'offer' ? 'Request accepted successfully' : 'Request declined successfully'
+        action === 'offer'
+          ? 'Request accepted successfully'
+          : 'Request declined successfully'
       );
       return true;
     } catch (e: unknown) {
@@ -88,30 +88,39 @@ const NewRequests = ({ data }: Props) => {
             dateRequested,
             loanDurationInMonths,
             interest,
+            userType,
           } = request;
-
           const isRowSubmitting = submitting === id;
 
           return (
-            <TableRow className="border-b border-b-gray-200 text-resin-black" key={id}>
-                <TableCell className="p-6">
+            <TableRow
+              className="border-b border-b-gray-200 text-resin-black"
+              key={id}
+            >
+              <TableCell className="p-6">
                 <p className="text-gray-900 font-medium capitalize">
                   {userFirstName} {userLastName}
                 </p>
                 <p className="text-gray-500">{id.slice(0, 8)}...</p>
-                </TableCell>
+              </TableCell>
 
-              <TableCell className="p-6">------</TableCell>
+              <TableCell className="p-6 capitalize">{userType}</TableCell>
 
-              <TableCell className="p-6">{customerName ?? '—'}</TableCell>
+              <TableCell className="p-6 capitalize">
+                {customerName?.trim() && customerName !== '-'
+                  ? customerName
+                  : userFirstName && userLastName
+                  ? `${userFirstName} ${userLastName}`
+                  : 'N/A'}
+              </TableCell>
 
               <TableCell className="p-6">{fmtNaira(loanAmount)}</TableCell>
 
-              <TableCell className="p-6">
-                {fmtDate(dateRequested)}
-              </TableCell>
+              <TableCell className="p-6">{fmtDate(dateRequested)}</TableCell>
 
-              <TableCell className="p-6">{loanDurationInMonths} months</TableCell>
+              <TableCell className="p-6">
+                {loanDurationInMonths} months
+              </TableCell>
 
               <TableCell className="p-6">
                 <ActionButton

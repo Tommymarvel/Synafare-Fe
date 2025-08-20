@@ -63,8 +63,19 @@ export default function ActiveLoanTable({ data }: Props) {
             key={loan.id}
           >
             <TableCell className="p-6">
-              <p className="text-gray-900 font-medium">{loan.customerName}</p>
-              <p className="text-gray-500">{loan.customerEmail}</p>
+              <p className="text-gray-900 font-medium">
+                {loan.customerName?.trim() && loan.customerName !== '-'
+                  ? loan.customerName
+                  : loan.userFirstName && loan.userLastName
+                  ? `${loan.userFirstName} ${loan.userLastName}`
+                  : 'N/A'}
+              </p>
+              <p className="text-gray-500">
+                {' '}
+                {loan.customerEmail?.trim() && loan.customerEmail !== '-'
+                  ? loan.userEmail
+                  : 'N/A'}
+              </p>
             </TableCell>
             <TableCell className="p-6">{fmtNaira(loan.loanAmount)}</TableCell>
             <TableCell className="p-6">
@@ -86,7 +97,7 @@ export default function ActiveLoanTable({ data }: Props) {
           </TableRow>
         ))}
       </TableBody>
-      
+
       <TableFooter className="border-t border-t-gray-200">
         <TableRow>
           <TableCell colSpan={8} className="px-6 py-6">

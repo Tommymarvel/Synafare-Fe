@@ -85,3 +85,29 @@ export function useLoanById(id?: string | number) {
 
   return { loan, isLoading: loading, isValidating, error, refresh: mutate };
 }
+
+
+interface Repay {
+  result: {
+    amount: number;
+    repayment_date: Date;
+    loan: string;
+    is_paid: boolean;
+  }[];
+}
+
+export function useRepayById(id?: string | number) {
+  const key = id
+    ? `/loan/${encodeURIComponent(String(id))}/repay-history`
+    : null;
+  const { data } = useSWR(key, fetcher, {
+    revalidateOnFocus: true,
+    dedupingInterval: 60_000,
+    keepPreviousData: true,
+  });
+  console.log(data);
+
+  return {
+    repayData: data as Repay,
+  };
+}

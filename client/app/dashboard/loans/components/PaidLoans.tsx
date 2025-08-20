@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { Search, ChevronRight, ChevronLeft } from 'lucide-react';
 import type { Loan } from '../types';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
 type DateRange = '' | '7' | '30' | '90';
 
@@ -188,7 +189,7 @@ export default function PaidLoans({ loans }: { loans: Loan[] }) {
                       ₦{loan.transactionCost.toLocaleString()}
                     </td>
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
-                     -----
+                  {fmtNaira(loan.loan_amount)}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
@@ -200,7 +201,7 @@ export default function PaidLoans({ loans }: { loans: Loan[] }) {
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
-                      - — — —
+                      {fmtDate(loan.nextPaymentDate) || 'N/A'}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">

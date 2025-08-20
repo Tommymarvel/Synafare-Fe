@@ -10,6 +10,7 @@ import { KeyedMutator } from 'swr';
 import { toast } from 'react-toastify';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
+import { fmtNaira } from '@/lib/format';
 
 type DateRange = '' | '7' | '30' | '90';
 
@@ -326,15 +327,15 @@ export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMu
                       ₦{loan.transactionCost.toLocaleString()}
                     </td>
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
-                      {loan.loan_amount}
+                      {fmtNaira(loan.loan_amount)}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
-                      {loan.loan_amount_offered}
+                      {fmtNaira(loan.loan_amount_offered)}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
-                      -----
+                      {fmtNaira(loan.monthly_repayment)}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">

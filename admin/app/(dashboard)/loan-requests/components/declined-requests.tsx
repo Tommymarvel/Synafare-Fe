@@ -46,11 +46,17 @@ const DeclinedRequests = ({ data }: { data: Loan[] }) => {
           >
             <TableCell className="p-6">
               <p className="text-gray-900 font-medium">
-                {request.customerName}
+                {request.customerName?.trim() && request.customerName !== '-'
+                  ? request.customerName
+                  : request.userFirstName && request.userLastName
+                  ? `${request.userFirstName} ${request.userLastName}`
+                  : 'N/A'}
               </p>
               <p className="text-gray-500">{request.id.slice(0, 8)}...</p>{' '}
             </TableCell>
-            <TableCell className="p-6">{request.userType ?? '---'}</TableCell>
+            <TableCell className="p-6 capitalize">
+              {request.userType ?? '---'}
+            </TableCell>
             <TableCell className="p-6">
               {fmtNaira(request.loanAmount)}
             </TableCell>
@@ -63,7 +69,9 @@ const DeclinedRequests = ({ data }: { data: Loan[] }) => {
             <TableCell className="p-6">
               <Status status={request.loanStatus} />
             </TableCell>
-            <TableCell className="p-6 text-[#E2A109]">View all</TableCell>
+            <TableCell className="p-6 text-[#E2A109]">
+              <a href={'/loan-requests/' + request.id}>View</a>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

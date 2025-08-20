@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import { KeyedMutator } from 'swr';
 import FinancingOfferModal from './FinancingOfferModal';
 import { fmtNaira } from '@/lib/format';
+import StatusChip from '@/app/components/statusChip';
 // import AcceptLoanAgreement from './AcceptLoanAgreement';
 
 type DateRange = '' | '7' | '30' | '90';
@@ -23,7 +24,8 @@ type RowAction =
   | 'viewOffer'
   | 'acceptRequest'
   | 'rejectRequest'
-  | 'liquidateLoan';
+  | 'liquidateLoan'
+  | 'payDownpayment';
 
 export function RowActions({
   loan,
@@ -146,6 +148,14 @@ function buildMenuForStatus(
         { key: 'acceptRequest', label: 'Accept Request' },
         { key: 'rejectRequest', label: 'Reject Request', tone: 'danger' },
       ];
+    case 'AWAITING DOWNPAYMENT':
+      return [
+        { key: 'viewLoan', label: 'View Loan' },
+        { key: 'payDownpayment', label: 'Pay Downpayment' },
+        { key: 'cancelRequest', label: 'Cancel Request', tone: 'danger' },
+      ];
+    case 'AWAITING DISBURSEMENT':
+      return [{ key: 'viewLoan', label: 'View Loan' }];
     case 'ACTIVE':
       return [
         { key: 'viewLoan', label: 'View Loan' },
@@ -308,6 +318,8 @@ export default function LoansTable({
             <option value="">Status</option>
             <option value="PENDING">Pending</option>
             <option value="OFFER_RECEIVED">Offer Received</option>
+            <option value="AWAITING_DOWNPAYMENT">Awaiting Downpayment</option>
+            <option value="AWAITING_DISBURSEMENT">Awaiting Disbursement</option>
             <option value="ACTIVE">Active</option>
             <option value="COMPLETED">Completed</option>
             <option value="REJECTED">Rejected</option>
@@ -422,12 +434,15 @@ export default function LoansTable({
                         onAction={async (action) => {
                           // TODO: wire these to real handlers
                           // action is one of:
-                          // 'viewLoan' | 'cancelRequest' | 'viewOffer' | 'acceptRequest' | 'rejectRequest' | 'liquidateLoan'
+                          // 'viewLoan' | 'cancelRequest' | 'viewOffer' | 'acceptRequest' | 'rejectRequest' | 'liquidateLoan' | 'payDownpayment'
                           if (action === 'viewLoan') {
                             // Navigate to loan details page
                             window.location.href = `/dashboard/loans/${loan.id}`;
                           } else if (action === 'liquidateLoan') {
-                              window.location.href = `/dashboard/loans/${loan.id}/liquidate`;
+                            window.location.href = `/dashboard/loans/${loan.id}/liquidate`;
+                          } else if (action === 'payDownpayment') {
+                            // Navigate to downpayment page
+                            window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
                           } else if (action === 'rejectRequest') {
                             handleReject(loan.id);
                           } else if (action === 'cancelRequest') {
@@ -544,24 +559,5 @@ export default function LoansTable({
         loan={activeLoan}
       /> */}
     </div>
-  );
-}
-
-const STATUS_MAP: Record<LoanStatus, readonly [string, string]> = {
-  PENDING: ['Pending', 'bg-yellow-50 text-yellow-600'],
-  OFFER_RECEIVED: ['Offer Received', 'bg-blue-50 text-blue-600'],
-  ACTIVE: ['Active', 'bg-green-50 text-green-600'],
-  COMPLETED: ['Completed', 'bg-emerald-50 text-emerald-600'],
-  REJECTED: ['Rejected', 'bg-red-50 text-red-600'],
-};
-
-function StatusChip({ status }: { status: LoanStatus }) {
-  const [label, classes] = STATUS_MAP[status];
-  return (
-    <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${classes}`}
-    >
-      {label}
-    </span>
   );
 }
