@@ -143,7 +143,7 @@ export default function AddInventoryForm() {
          validationSchema={InventorySchema}
          onSubmit={handleSubmit}
        >
-         {({ isSubmitting, setFieldValue, values }) => (
+         {({ isSubmitting, setFieldValue }) => (
            <Form className="space-y-8">
              {/* === Product Information === */}
              <div className="section">
