@@ -39,7 +39,7 @@ const Status = ({
     return (
       <span
         className={cn(
-          "bg-success-50/50 text-success text-xs py-[2px] px-2 rounded-full",
+          "bg-[#ecfdf3] text-[#027a48] text-xs py-[2px] px-2 rounded-full",
           className
         )}
       >
@@ -93,7 +93,7 @@ const Status = ({
   return (
     <span
       className={cn(
-        "bg-success-50/50 text-success text-xs py-[2px] px-2 rounded-full",
+        "bg-[#ecfdf3] text-[#027a48] text-xs py-[2px] px-2 rounded-full",
         className
       )}
     >

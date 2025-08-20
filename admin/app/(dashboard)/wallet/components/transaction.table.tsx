@@ -68,7 +68,6 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
               key={request.id}
             >
               <TableCell className="p-6 font-medium">
-                {" "}
                 {format(new Date(request.date), "MMM dd, yyyy")}
               </TableCell>
               <TableCell className="p-6 font-medium">{request.name}</TableCell>
