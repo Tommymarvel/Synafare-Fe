@@ -18,3 +18,9 @@ export const STATUSCONST = {
   PUBLISHED: "Published",
   OUTOFSTOCK: "Out of Stock",
 } as const;
+
+export const TRANSACTIONTYPE = {
+  DOWNPAYMENT: "Downpayment",
+  LOANDISBURSAL: "Loan Disbursal",
+  LOANREPAYMENT: "Loan Repayment	",
+};

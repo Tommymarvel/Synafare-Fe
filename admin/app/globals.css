@@ -18,6 +18,7 @@ button {
   --color-deep-green: #00110a;
   --color-success: #027a48;
   --color-success-50: #ecfdf3;
+  --color-gray: #dcdcdc;
   --color-gray-200: #eaecf0;
   --color-gray-300: #d0d5dd;
   --color-gray-400: #98a2b3;
@@ -26,6 +27,7 @@ button {
   --color-gray-900: #101828;
   --color-gray-4: #f0f2f5;
   --color-gray-3: #797979;
+  --color-gray-2: #98a2b3;
   --color-border-gray: #dcdcdc;
   --color-secondary-4: #fff8e2;
 }
