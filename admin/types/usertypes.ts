@@ -95,3 +95,11 @@ export interface DInventoryDataType {
   lastUpdated: string;
   status: DInventoryStatus;
 }
+
+export interface TeamMembers {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  dateAdded: string;
+}

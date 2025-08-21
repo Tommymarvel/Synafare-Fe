@@ -1,7 +1,13 @@
+"use client";
 import CardWrapper from "@/components/cardWrapper";
 import PageIntro from "@/components/page-intro";
+import { usePathname } from "next/navigation";
 
 const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
+  const path = usePathname();
+  if (path.startsWith("/settings/teams/new")) {
+    return <>{children}</>;
+  }
   return (
     <>
       <PageIntro>Settings</PageIntro>

@@ -50,6 +50,7 @@ const navs = [
     name: "Settings",
     href: "/settings",
     icon: SideNavIcons.Settings,
+    startsWith: true,
   },
 ];
 

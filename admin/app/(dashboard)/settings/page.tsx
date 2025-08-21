@@ -3,7 +3,7 @@ import InfoDetail from "../loan-requests/[id]/components/detail";
 import EditProfileMdoal from "./components/modals/edit-profile";
 import { useState } from "react";
 
-const Settings = () => {
+const ProfileSettings = () => {
   const [editProfileModal, setEditProfileModal] = useState(false);
   return (
     <>
@@ -92,4 +92,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default ProfileSettings;
