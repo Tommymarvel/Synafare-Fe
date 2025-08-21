@@ -8,8 +8,6 @@ import {
   Minus,
   Wallet as WalletIcon,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import AddMoneyModal from './components/AddMoneyModal';
 import Image from 'next/image';
@@ -19,19 +17,17 @@ import TransactionDetailsModal from './components/TransactionDetailsModal';
 import WithdrawModal from './components/WithdrawModal';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-toastify';
+import Pagination from '@/app/components/pagination';
 import { AxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { Transaction, useTransactions } from './hooks/useTransactions';
 import { fmtDate, fmtNaira } from '@/lib/format';
-
 
 export type BankDetails = {
   bankAccountNumber: string;
   bankAccountName: string;
   bankName: string;
 };
-
-
 
 const PAGE_SIZE = 10;
 
@@ -43,16 +39,13 @@ export default function WalletPage() {
 
   const [showTxn, setShowTxn] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-    const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
-
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
   const { transactions, meta, isLoading, error } = useTransactions({
     page,
     limit: PAGE_SIZE,
   });
   const totalPages = meta.totalPages;
-  const start = meta.total === 0 ? 0 : (meta.page - 1) * meta.limit + 1;
-  const end = Math.min(meta.page * meta.limit, meta.total);
 
   useEffect(() => {
     const getAccountDetails = async () => {
@@ -103,7 +96,7 @@ export default function WalletPage() {
               <p>
                 ₦
                 {new Intl.NumberFormat('en-NG').format(
-                  (user?.wallet_balance ?? 0)
+                  user?.wallet_balance ?? 0
                 )}
               </p>
             </div>
@@ -221,7 +214,7 @@ export default function WalletPage() {
                             {t.type}
                           </td>
                           <td className="whitespace-nowrap px-6 py-3 text-center text-sm">
-                            {fmtNaira(t.amount) }
+                            {fmtNaira(t.amount)}
                           </td>
 
                           <td className="hidden whitespace-nowrap px-6 py-3 text-center text-sm md:table-cell">
@@ -249,33 +242,12 @@ export default function WalletPage() {
                   </table>
                 </div>
               </div>
-              <div className="flex items-center justify-between py-4 px-6">
-                <button
-                  className="inline-flex items-center px-3 py-2 border rounded-md hover:bg-gray-50 disabled:opacity-50"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Previous
-                </button>
-
-                <div className="text-sm text-[#797979]">
-                  Showing{' '}
-                  <span className="font-medium text-raisin">
-                    {transactions.length === 0 ? 0 : start + 1}
-                  </span>
-                  –<span className="font-medium text-raisin">{end}</span> of{' '}
-                  <span className="font-medium text-raisin">
-                    {transactions.length}
-                  </span>
-                </div>
-
-                <button
-                  className="inline-flex items-center px-3 py-2 border rounded-md hover:bg-gray-50 disabled:opacity-50"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                >
-                  Next <ChevronRight className="w-4 h-4 ml-1" />
-                </button>
+              <div className="py-4 px-6">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                />
               </div>
             </div>
           ) : (

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { Search, ChevronRight, ChevronLeft, MoreVertical } from 'lucide-react';
+import { Search, MoreVertical } from 'lucide-react';
 import type { Loan } from '../types';
 import FinancingOfferModal from './FinancingOfferModal';
 import { createPortal } from 'react-dom';
@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
 import { fmtNaira } from '@/lib/format';
+import Pagination from '@/app/components/pagination';
 
 type DateRange = '' | '7' | '30' | '90';
 
@@ -127,7 +128,13 @@ export function RowActions({
   );
 }
 
-export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMutator<Loan[]> }) {
+export function LoansOffers({
+  loans,
+  refresh,
+}: {
+  loans: Loan[];
+  refresh: KeyedMutator<Loan[]>;
+}) {
   const [search, setSearch] = useState('');
 
   const [dateRange, setDateRange] = useState<DateRange>('');
@@ -197,13 +204,12 @@ export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMu
     });
   };
 
-
-   const handleReject = async (id: string) => {
+  const handleReject = async (id: string) => {
     try {
       await axiosInstance.patch(`/loan/action/${id}`, {
         actionType: 'rejected',
       });
-      refresh()
+      refresh();
       toast.success('Loan rejected successfully');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -316,7 +322,8 @@ export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMu
 
                     <td className="px-6 py-3">
                       <div className="font-medium text-sm text-raisin whitespace-nowrap md:whitespace-normal capitalize truncate w-[10ch]">
-                        {loan?.customerName || `${loan.user?.first_name} ${loan?.user?.last_name}` }
+                        {loan?.customerName ||
+                          `${loan.user?.first_name} ${loan?.user?.last_name}`}
                       </div>
                       <div className="text-xs text-[#797979] whitespace-nowrap md:whitespace-normal truncate w-[10ch]">
                         {loan?.customerEmail || loan?.user?.email}
@@ -358,7 +365,7 @@ export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMu
                             window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
                           } else if (action === 'rejectOffer') {
                             // TODO: call reject API
-                            handleReject(loan.id)
+                            handleReject(loan.id);
                           }
                         }}
                       />
@@ -372,31 +379,12 @@ export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMu
       </div>
 
       {/* Footer / Pagination */}
-      <div className="flex items-center justify-between py-4 px-6">
-        <button
-          className="inline-flex items-center px-3 py-2 border rounded-md hover:bg-gray-50 disabled:opacity-50"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page <= 1}
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" /> Previous
-        </button>
-
-        <div className="text-sm text-[#797979]">
-          Showing{' '}
-          <span className="font-medium text-raisin">
-            {filtered.length === 0 ? 0 : start + 1}
-          </span>
-          –<span className="font-medium text-raisin">{end}</span> of{' '}
-          <span className="font-medium text-raisin">{filtered.length}</span>
-        </div>
-
-        <button
-          className="inline-flex items-center px-3 py-2 border rounded-md hover:bg-gray-50 disabled:opacity-50"
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={page >= totalPages}
-        >
-          Next <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
+      <div className="py-4 px-6">
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
       <FinancingOfferModal
         open={modalOpen}
@@ -407,14 +395,16 @@ export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMu
           // TODO: call reject API
           alert('Offer rejected (stub)');
         }}
-        onAccept={async(loan) => {
+        onAccept={async (loan) => {
           setModalOpen(false);
           try {
-            await axiosInstance.patch(`/loan/${loan.id}/agreement/`,{actionType : "signed"});
-            toast.success("Loan agreement signed successfully")
-           if (loan.loan_type === 'inventory_financing') {
-             window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
-           }
+            await axiosInstance.patch(`/loan/${loan.id}/agreement/`, {
+              actionType: 'signed',
+            });
+            toast.success('Loan agreement signed successfully');
+            if (loan.loan_type === 'inventory_financing') {
+              window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
+            }
           } catch (error) {
             const axiosError = error as AxiosError<{ message?: string }>;
             toast.error(
@@ -424,7 +414,6 @@ export function LoansOffers({ loans,refresh }: { loans: Loan[],refresh : KeyedMu
               ).toString()
             );
           }
-
         }}
       />
     </div>

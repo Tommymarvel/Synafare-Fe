@@ -21,21 +21,46 @@ function loanStatusToStatusType(loanStatus: LoanStatus): StatusType {
   }
 }
 
-// Generic status chip that works with any status from STATUSCONST or LoanStatus
+// Helper function to convert generic string status to StatusType for inventory
+function inventoryStatusToStatusType(status: string): StatusType {
+  const upperStatus = status.toUpperCase();
+  switch (upperStatus) {
+    case 'PUBLISHED':
+      return STATUSCONST.PUBLISHED;
+    case 'UNPUBLISHED':
+      return STATUSCONST.UNPUBLISHED;
+    case 'DRAFT':
+      return STATUSCONST.DRAFT;
+    case 'OUT OF STOCK':
+    case 'OUTOFSTOCK':
+      return STATUSCONST.OUTOFSTOCK;
+    case 'PENDING':
+      return STATUSCONST.PENDING;
+    default:
+      return STATUSCONST.PUBLISHED; // Default to published for inventory
+  }
+}
+
+// Generic status chip that works with any status from STATUSCONST, LoanStatus, or string
 export default function StatusChip({
   status,
   className,
 }: {
-  status: StatusType | LoanStatus;
+  status: StatusType | LoanStatus | string;
   className?: string;
 }) {
-  // Convert LoanStatus to StatusType if needed
+  // Convert different status types to StatusType
   const normalizedStatus: StatusType =
-    typeof status === 'string' &&
-    ['PENDING', 'OFFER_RECEIVED', 'ACTIVE', 'COMPLETED', 'REJECTED'].includes(
-      status
-    )
-      ? loanStatusToStatusType(status as LoanStatus)
+    typeof status === 'string'
+      ? [
+          'PENDING',
+          'OFFER_RECEIVED',
+          'ACTIVE',
+          'COMPLETED',
+          'REJECTED',
+        ].includes(status)
+        ? loanStatusToStatusType(status as LoanStatus)
+        : inventoryStatusToStatusType(status)
       : (status as StatusType);
 
   // Helper function to get status styling

@@ -2,15 +2,14 @@
 
 import React, { useMemo, useState } from 'react';
 import { format } from 'date-fns';
-import { Search, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Search } from 'lucide-react';
 import type { Loan } from '../types';
 import { fmtDate, fmtNaira } from '@/lib/format';
+import Pagination from '@/app/components/pagination';
 
 type DateRange = '' | '7' | '30' | '90';
 
 const PAGE_SIZE = 10;
-
-
 
 export default function PaidLoans({ loans }: { loans: Loan[] }) {
   const [search, setSearch] = useState('');
@@ -18,7 +17,6 @@ export default function PaidLoans({ loans }: { loans: Loan[] }) {
   const [dateRange, setDateRange] = useState<DateRange>('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-
 
   // Compute filtered results
   const filtered = useMemo(() => {
@@ -178,9 +176,10 @@ export default function PaidLoans({ loans }: { loans: Loan[] }) {
 
                     <td className="px-6 py-3">
                       <div className="font-medium text-sm text-raisin whitespace-nowrap md:whitespace-normal capitalize truncate w-[10ch]">
-                        {loan?.customerName || `${loan.user?.first_name} ${loan?.user?.last_name}` }
+                        {loan?.customerName ||
+                          `${loan.user?.first_name} ${loan?.user?.last_name}`}
                       </div>
-                       <div className="text-xs text-[#797979] whitespace-nowrap md:whitespace-normal truncate w-[10ch]">
+                      <div className="text-xs text-[#797979] whitespace-nowrap md:whitespace-normal truncate w-[10ch]">
                         {loan?.customerEmail || loan?.user?.email}
                       </div>
                     </td>
@@ -189,7 +188,7 @@ export default function PaidLoans({ loans }: { loans: Loan[] }) {
                       ₦{loan.transactionCost.toLocaleString()}
                     </td>
                     <td className="px-6 py-3 text-sm text-center whitespace-nowrap">
-                  {fmtNaira(loan.loan_amount)}
+                      {fmtNaira(loan.loan_amount)}
                     </td>
 
                     <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
@@ -207,12 +206,17 @@ export default function PaidLoans({ loans }: { loans: Loan[] }) {
                     <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-600">
                         {' '}
-                       Completed
+                        Completed
                       </span>
                     </td>
 
-                    <td className="px-6 py-3 text-center text-neutral-400 hover:text-neutral-600 whitespace-nowrap cursor-default" onClick={()=> window.location.href = `/dashboard/loans/${loan.id}`}>
-                     View
+                    <td
+                      className="px-6 py-3 text-center text-neutral-400 hover:text-neutral-600 whitespace-nowrap cursor-default"
+                      onClick={() =>
+                        (window.location.href = `/dashboard/loans/${loan.id}`)
+                      }
+                    >
+                      View
                     </td>
                   </tr>
                 ))
@@ -223,34 +227,13 @@ export default function PaidLoans({ loans }: { loans: Loan[] }) {
       </div>
 
       {/* Footer / Pagination */}
-      <div className="flex items-center justify-between py-4 px-6">
-        <button
-          className="inline-flex items-center px-3 py-2 border rounded-md hover:bg-gray-50 disabled:opacity-50"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page <= 1}
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" /> Previous
-        </button>
-
-        <div className="text-sm text-[#797979]">
-          Showing{' '}
-          <span className="font-medium text-raisin">
-            {filtered.length === 0 ? 0 : start + 1}
-          </span>
-          –<span className="font-medium text-raisin">{end}</span> of{' '}
-          <span className="font-medium text-raisin">{filtered.length}</span>
-        </div>
-
-        <button
-          className="inline-flex items-center px-3 py-2 border rounded-md hover:bg-gray-50 disabled:opacity-50"
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={page >= totalPages}
-        >
-          Next <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
+      <div className="py-4 px-6">
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
-      
     </div>
   );
 }
-

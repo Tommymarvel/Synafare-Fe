@@ -7,8 +7,9 @@ import OutOfStock from '@/app/assets/outStock-icon.png';
 import Image from 'next/image';
 import Inventory from './components/inventory';
 import Catalogue from './components/catalogue';
-import { StatusType } from '@/app/components/statusChip';
-import { STATUSCONST } from '@/lib/constant';
+import { useInventory } from './hooks/useInventory';
+import Link from 'next/link';
+import { fmtNaira } from '@/lib/format';
 
 const TABS = [
   { key: 'inventory', label: 'Inventory' },
@@ -17,90 +18,52 @@ const TABS = [
 
 type TabKey = (typeof TABS)[number]['key'];
 
-const stats = [
-  {
-    title: 'Total Stock Value',
-    value: '₦0.00',
-    icon: Money,
-  },
-  {
-    title: 'Inventory',
-    value: 0,
-    icon: InventoryIcon,
-  },
-  {
-    title: 'In Stock',
-    value: 0,
-    icon: InStock,
-  },
-  {
-    title: 'Out of Stock',
-    value: 0,
-    icon: OutOfStock,
-  },
-];
-
-type CatelogueType = {
-  id: string;
-  product: string;
-  category: string;
-  dateCreated: string;
-};
-
-const CatlogueData: CatelogueType[] = [
-  {
-    id: '1a2b3c4d5e',
-    product: '1.5kVa 2.4kWh LT',
-    category: 'Inverter',
-    dateCreated: 'Jan 6, 2025',
-  },
-  {
-    id: '2f3g4h5i6j',
-    product: '1.5kVa 2.4kWh LT',
-    category: 'Battery',
-    dateCreated: 'Jan 6, 2025',
-  },
-];
-
-interface DInventoryDataType {
-  id: string;
-  productName: string;
-  url: string;
-  sku: string | null;
-  category: string;
-  price: number;
-  inStock: number;
-  lastUpdated: string;
-  status: StatusType;
-}
-
-const InventoryData: DInventoryDataType[] = [
-  {
-    id: 'prod-8a3f2b',
-    productName: '1.5kva 2.4kWh LT',
-    url: '/product-img.png',
-    sku: 'SKU-1234-SL',
-    category: 'Inverter',
-    price: 1181675,
-    inStock: 50,
-    lastUpdated: '2025-01-06',
-    status: STATUSCONST.DRAFT,
-  },
-  {
-    id: 'prod-9c2e4f',
-    productName: '1.5kva 2.4kWh LT',
-    url: '/product-img.png',
-    sku: 'SKU-1234-SL',
-    category: 'Battery',
-    price: 1181675,
-    inStock: 50,
-    lastUpdated: '2025-01-06',
-    status: STATUSCONST.UNPUBLISHED,
-  },
-];
-
 export default function Page() {
   const [activeTab, setActiveTab] = useState<TabKey>('inventory');
+
+  // Get inventory statistics for the dashboard cards
+  const { meta } = useInventory({ limit: 1 }); // Just fetch one item to get the meta data
+
+  const stats = [
+    {
+      title: 'Total Stock Value',
+      value: meta?.total_stock_value
+        ? fmtNaira(meta.total_stock_value)
+        : fmtNaira(0),
+      icon: Money,
+    },
+    {
+      title: 'Inventory',
+      value: meta?.total_products || 0,
+      icon: InventoryIcon,
+    },
+    {
+      title: 'In Stock',
+      value: meta?.total_in_stock || 0,
+      icon: InStock,
+    },
+    {
+      title: 'Out of Stock',
+      value: meta?.total_declined || 0,
+      icon: OutOfStock,
+    },
+  ];
+
+  // Mock catalogue data for now
+  const CatlogueData = [
+    {
+      id: '1a2b3c4d5e',
+      product: '1.5kVa 2.4kWh LT',
+      category: 'Inverter',
+      dateCreated: 'Jan 6, 2025',
+    },
+    {
+      id: '2f3g4h5i6j',
+      product: '1.5kVa 2.4kWh LT',
+      category: 'Battery',
+      dateCreated: 'Jan 6, 2025',
+    },
+  ];
 
   const renderTabContent = () => {
     // if (isLoading) return <p className="p-6">Loading…</p>;
@@ -116,7 +79,7 @@ export default function Page() {
       case 'catalogue':
         return <Catalogue data={CatlogueData} />;
       default:
-        return <Inventory data={InventoryData} />;
+        return <Inventory />;
     }
   };
   return (
@@ -124,7 +87,7 @@ export default function Page() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-medium">Inventory</h1>
         <button className="inline-flex items-center gap-2.5 px-3 py-2 bg-mikado text-raisin rounded-lg hover:bg-yellow-600">
-          <a
+          <Link
             href="/dashboard/inventory/add"
             className="flex items-center gap-2"
           >
@@ -150,7 +113,7 @@ export default function Page() {
               </svg>
             </span>
             <p className="text-sm ">Add to Inventory</p>
-          </a>
+          </Link>
         </button>
       </div>
 

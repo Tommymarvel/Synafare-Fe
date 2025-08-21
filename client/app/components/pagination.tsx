@@ -1,7 +1,79 @@
-const Pagination = () => {
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  disabled?: boolean;
+}
+
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  disabled = false,
+}: PaginationProps) => {
+  const getVisiblePages = () => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages);
+    } else {
+      if (totalPages > 1) {
+        rangeWithDots.push(totalPages);
+      }
+    }
+
+    return rangeWithDots;
+  };
+
+  const visiblePages = getVisiblePages();
+
+  const handlePrevious = () => {
+    if (currentPage > 1 && !disabled) {
+      onPageChange(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages && !disabled) {
+      onPageChange(currentPage + 1);
+    }
+  };
+
+  const handlePageClick = (page: number | string) => {
+    if (typeof page === 'number' && page !== currentPage && !disabled) {
+      onPageChange(page);
+    }
+  };
+
+  if (totalPages <= 1) {
+    return null; // Don't show pagination if there's only one page
+  }
+
   return (
     <div className="flex justify-between w-full">
-      <div className="border border-gray-300 py-2 px-4 rounded-lg flex gap-x-2">
+      <button
+        onClick={handlePrevious}
+        disabled={currentPage === 1 || disabled}
+        className="border border-gray-300 py-2 px-4 rounded-lg flex gap-x-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+      >
         <svg
           width="20"
           height="20"
@@ -18,48 +90,37 @@ const Pagination = () => {
           />
         </svg>
         Previous
-      </div>
+      </button>
+
       <ul className="flex gap-x-[2px]">
-        <li>
-          <a
-            href=""
-            className="flex items-center justify-center w-10 h-10 bg-secondary-4 rounded-sm"
-          >
-            1
-          </a>
-        </li>
-        <li>
-          <a href="" className="flex items-center justify-center w-10 h-10">
-            2
-          </a>
-        </li>
-        <li>
-          <a href="" className="flex items-center justify-center w-10 h-10">
-            3
-          </a>
-        </li>
-        <li>
-          <span className="flex justify-center items-end w-10 h-10 py-[10px] text-center">
-            ...
-          </span>
-        </li>
-        <li>
-          <a href="" className="flex items-center justify-center w-10 h-10">
-            8
-          </a>
-        </li>
-        <li>
-          <a href="" className="flex items-center justify-center w-10 h-10">
-            9
-          </a>
-        </li>
-        <li>
-          <a href="" className="flex items-center justify-center w-10 h-10">
-            10
-          </a>
-        </li>
+        {visiblePages.map((page, index) => (
+          <li key={index}>
+            {typeof page === 'number' ? (
+              <button
+                onClick={() => handlePageClick(page)}
+                disabled={disabled}
+                className={`flex items-center justify-center w-10 h-10 rounded-sm transition-colors ${
+                  page === currentPage
+                    ? 'bg-secondary-4 text-white'
+                    : 'hover:bg-gray-100 disabled:cursor-not-allowed'
+                }`}
+              >
+                {page}
+              </button>
+            ) : (
+              <span className="flex justify-center items-end w-10 h-10 py-[10px] text-center">
+                {page}
+              </span>
+            )}
+          </li>
+        ))}
       </ul>
-      <div className="border border-gray-300 py-2 px-4 rounded-lg flex gap-x-2">
+
+      <button
+        onClick={handleNext}
+        disabled={currentPage === totalPages || disabled}
+        className="border border-gray-300 py-2 px-4 rounded-lg flex gap-x-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+      >
         Next
         <svg
           width="20"
@@ -76,7 +137,7 @@ const Pagination = () => {
             strokeLinejoin="round"
           />
         </svg>
-      </div>
+      </button>
     </div>
   );
 };
