@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { Banknote } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoanBalanceCard() {
+  const {user} = useAuth()
   return (
     <div className="relative bg-white rounded-2xl border border-gray-200 p-4">
       {/* Top-right icon badge */}
@@ -18,7 +20,7 @@ export default function LoanBalanceCard() {
         <div className="mt-[25px]">
           {/* Balance amount */}
           <div className="mt-1 text-raisin text-[32px] font-medium">
-            ₦0<span className="text-sm">.00</span>
+            ₦<span className="text-sm">{user?.loan_balance || 0.00}</span>
           </div>
           {/* Available credit */}
           <p className="text-xs text-[#797979]">

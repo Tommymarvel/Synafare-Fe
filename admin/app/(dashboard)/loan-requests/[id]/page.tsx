@@ -1,42 +1,94 @@
-"use client";
-import PageIntro from "@/components/page-intro";
-import GoBack from "@/components/goback";
-import CardWrapper from "@/components/cardWrapper";
-import InfoDetail from "./components/detail";
-import Status from "@/components/status";
-import Document from "@/components/document";
-import RepaymentHistory from "./components/repayment-history";
-import AcceptRequestModal from "./components/modals/accept-request";
-import { useState } from "react";
-import DeclineRequestModel from "./components/modals/decline-request";
-import Button from "@/components/button";
 
-const LoanRequestDetail = () => {
+'use client';
+
+import PageIntro from '@/components/page-intro';
+import CardWrapper from '@/components/cardWrapper';
+import InfoDetail from './components/detail';
+import Status from '@/components/status';
+// import RepaymentHistory from './components/repayment-history';
+import AcceptRequestModal from './components/modals/accept-request';
+import { useState, useMemo } from 'react';
+import DeclineRequestModel from './components/modals/decline-request';
+import Button from '@/components/button';
+import { useLoanById, useRepayById } from '../../loans/hooks/useLoans';
+import { useParams } from 'next/navigation';
+import GoBack from '@/components/goback';
+import Document from '@/components/document';
+import { fmtDate, formatPhoneNumber } from '@/lib/format';
+import Image from 'next/image';
+import Empty from '@/app/assets/repayHistory-empty.png';
+
+
+const fmtNaira = (n: number) =>
+  new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
+    n ?? 0
+  );
+
+export default function LoanRequestDetail() {
   const [showAcceptRequest, setShowAcceptRequest] = useState(false);
-  const [showDeclineRequest, setshowDeclineRequest] = useState(false);
+  const [showDeclineRequest, setShowDeclineRequest] = useState(false);
+
+  const { id } = useParams<{ id: string }>();
+  const { loan, isLoading, error } = useLoanById(id);
+  const { repayData } = useRepayById(id as string);
+
+  const summary = useMemo(() => {
+    if (!loan) {
+      return {
+        outstanding: 0,
+        elapsed: 0,
+        duration: 0,
+      };
+    }
+    return {
+      outstanding: loan.outstandingBalance ?? 0,
+      elapsed: loan.elapsedMonths ?? 0,
+      duration: loan.loanDurationInMonths ?? 0,
+    };
+  }, [loan]);
+
+  if (isLoading) return <div className="p-6">Loading…</div>;
+  if (error || !loan) return <div className="p-6">Failed to load loan.</div>;
+
   return (
     <div>
+      {/* Accept / Decline modals */}
       <AcceptRequestModal
         open={showAcceptRequest}
         onOpenChange={setShowAcceptRequest}
+        // real data goes in:
+        loanId={loan.id}
+        amountRequested={loan.loanAmount}
+        transactionCost={loan.transactionCost}
+        defaultDurationMonths={loan.loanDurationInMonths || 3}
+        defaultMonthlyRate={loan.interest}
+        offerDetails={{
+          userFirstName: loan.userFirstName,
+          userLastName: loan.userLastName,
+        }}
       />
 
       <DeclineRequestModel
         open={showDeclineRequest}
-        onOpenChange={setshowDeclineRequest}
+        onOpenChange={setShowDeclineRequest}
+        id={loan.id}
       />
+
       <GoBack className="mt-5 mb-3" />
+
       <div className="flex items-center mb-5">
-        <PageIntro>David Smith</PageIntro>
+        <PageIntro>
+          {loan.userFirstName} {loan.userLastName}
+        </PageIntro>
         <div className="flex items-center gap-x-3 ms-auto text-resin-black font-medium">
           <Button variant="Colored" onClick={() => setShowAcceptRequest(true)}>
             Accept Request
           </Button>
-          <Button onClick={() => setshowDeclineRequest(true)}>
+          <Button onClick={() => setShowDeclineRequest(true)}>
             Decline Request
           </Button>
 
-          <Button
+          {/* <Button
             variant="Colored"
             className="flex gap-x-2"
             onClick={() => setShowAcceptRequest(true)}
@@ -51,49 +103,31 @@ const LoanRequestDetail = () => {
                 fill="inherit"
               />
             </svg>
-            Send Reminder
-          </Button>
+            Send Offer
+          </Button> */}
         </div>
       </div>
 
       <div className="bg-resin-black text-gray-4 rounded-4 p-10 flex justify-between rounded-2xl">
         <div className="space-y-[10px]">
           <p className="text-sm">Outstanding Balance</p>
-          <h3 className="font-bold text-[28px]/[100%]">-----------</h3>
+          <h3 className="font-bold text-[28px]/[100%]">
+            {fmtNaira(summary.outstanding)}
+          </h3>
         </div>
         <div>
           <p className="text-sm">Duration</p>
-          <h3 className="text-[32px]/[100%] font-medium">0/3 Months</h3>
+          <h3 className="text-[32px]/[100%] font-medium">
+            {summary.elapsed}/{summary.duration} Months
+          </h3>
         </div>
       </div>
 
       <div className="mt-[10px] flex gap-x-5">
         <div className="grow space-y-5">
-          <div className="border py-3 rounded-[10px] items-center border-[#CF0C0C] text-[#CF0C0C] bg-[#F8DBDB] flex justify-center gap-x-1">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clipPath="url(#clip0_864_205037)">
-                <path
-                  d="M8.00065 10.6666V7.99992M8.00065 5.33325H8.00732M14.6673 7.99992C14.6673 11.6818 11.6826 14.6666 8.00065 14.6666C4.31875 14.6666 1.33398 11.6818 1.33398 7.99992C1.33398 4.31802 4.31875 1.33325 8.00065 1.33325C11.6826 1.33325 14.6673 4.31802 14.6673 7.99992Z"
-                  stroke="#CF0C0C"
-                  strokeWidth="1.3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_864_205037">
-                  <rect width="16" height="16" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-            Loan is overdue
-          </div>
+          {/* If loan is overdue, show banner based on your own logic */}
+          {/* Example condition could be derived from nextPaymentDate if you add it */}
+
           <CardWrapper className="p-0 w-full ps-[18px] pb-6">
             <h2 className="border-b border-b-gray-4 p-4 pb-[10px] font-medium text-[16px]">
               Loan Details
@@ -101,28 +135,56 @@ const LoanRequestDetail = () => {
 
             <div className="flex justify-between pt-7">
               <div className="grid grid-cols-2 flex-1 gap-[15px]">
-                <InfoDetail title="Transaction Cost" value=" ₦1,250,000" />
-                <InfoDetail title="Loan Duration" value=" 3 months" />
-                <InfoDetail title="Downpayment (30%)" value="₦375,000" />
-                <InfoDetail title="Total Repayment" value="₦375,000" />
+                <InfoDetail
+                  title="Transaction Cost"
+                  value={fmtNaira(loan.transactionCost)}
+                />
+                <InfoDetail
+                  title="Loan Duration"
+                  value={`${loan.loanDurationInMonths} months`}
+                />
+                <InfoDetail
+                  title={`Downpayment (${Math.round(
+                    loan.downpaymentInPercent * 100
+                  )}%)`}
+                  value={fmtNaira(loan.downpaymentInNaira)}
+                />
+                <InfoDetail
+                  title="Total Repayment"
+                  value={fmtNaira(loan.totalRepayment)}
+                />
               </div>
 
               <div className="grid grid-cols-2 flex-1 gap-[15px]">
-                <InfoDetail title="Interest (per month)" value="₦1,250,000" />
-                <InfoDetail title="Loan Amount" value="₦1,250,000" />
-                <InfoDetail title="Next Payment" value="N/A" />
-                <InfoDetail title="status" value="">
-                  <Status status="Pending" className="font-medium" />
+                <InfoDetail
+                  title="Interest (per month)"
+                  value={loan.interest ? `${loan.interest}` : '—'}
+                />
+                <InfoDetail
+                  title="Loan Amount"
+                  value={fmtNaira(loan.loanAmount)}
+                />
+                <InfoDetail
+                  title="Next Payment"
+                  value={
+                    loan.nextPaymentDate
+                      ? new Date(loan.nextPaymentDate).toLocaleDateString(
+                          'en-NG'
+                        )
+                      : 'N/A'
+                  }
+                />
+                <InfoDetail title="Status" value="">
+                  <Status status={loan.loanStatus} className="font-medium" />
                 </InfoDetail>
               </div>
             </div>
           </CardWrapper>
 
-          {/* display this only when its Rejected */}
-          <CardWrapper className="p-0 w-full ps-[18px] pb-10 pt-4">
-            <InfoDetail title="Reason for Decline" value="Invoice is invalid" />
-          </CardWrapper>
-          {/* ######### */}
+          {/* Show only if rejected and backend provides reason; toggle as needed */}
+          {/* <CardWrapper className="p-0 w-full ps-[18px] pb-10 pt-4">
+            <InfoDetail title="Reason for Decline" value={loan.declineReason ?? '—'} />
+          </CardWrapper> */}
 
           <CardWrapper className="p-0 w-full">
             <h2 className="border-b border-b-gray-4 p-4 pb-[10px] font-medium text-[16px]">
@@ -131,15 +193,31 @@ const LoanRequestDetail = () => {
             <div className="flex justify-between py-[27px] px-[18px]">
               <InfoDetail
                 title="Customer’s Name"
-                value="Customer’s Email Address"
+                value={
+                  loan.customerName?.trim() && loan.customerName !== '-'
+                    ? loan.customerName
+                    : loan.userFirstName && loan.userLastName
+                    ? `${loan.userFirstName} ${loan.userLastName}`
+                    : 'N/A'
+                }
               />
               <InfoDetail
                 title="Customer’s Email Address"
-                value="mayree12@gmail.com"
+                value={
+                  loan.customerEmail?.trim() && loan.customerEmail !== '-'
+                    ? loan.userEmail
+                    : 'N/A'
+                }
               />
               <InfoDetail
                 title="Customer’s Phone Number"
-                value="+2348123456789"
+                value={
+                  loan.customerPhone?.trim() && loan.customerPhone !== '-'
+                    ? formatPhoneNumber(loan.customerPhone)
+                    : loan.userPhnNo?.trim() && loan.userPhnNo !== '-'
+                    ? formatPhoneNumber(loan.userPhnNo)
+                    : 'N/A'
+                }
               />
             </div>
           </CardWrapper>
@@ -149,16 +227,68 @@ const LoanRequestDetail = () => {
               Documents
             </h2>
             <ul>
-              {/* I no know whether the view document is link or popup */}
-              <Document name="Bank Statement.pdf" />
-              <Document name="Invoice.pdf" />
+              {loan.bankStatement && (
+                <Document name="Bank Statement" url={loan.bankStatement} />
+              )}
+              {loan.trxInvoice && (
+                <Document name="Invoice" url={loan.trxInvoice} />
+              )}
             </ul>
           </CardWrapper>
         </div>
-        <RepaymentHistory />
+
+        {/* <RepaymentHistory /> */}
+        <section className="rounded-lg border mt-2 lg:mt-1 lg:w-[20%]">
+          <header className="px-4 py-3 border-b bg-[#F0F2F5] rounded-t-lg text-sm font-medium">
+            Repayment History
+          </header>
+          <div className="p-6 flex items-center justify-center">
+            {repayData?.result?.length === 0 ? (
+              <div className="text-center h-fit text-sm text-[#797979]">
+                <Image
+                  src={Empty}
+                  alt="No Repayment History"
+                  width={100}
+                  height={100}
+                />
+                <p>No repayment history</p>
+              </div>
+            ) : (
+              <ul className="w-full space-y-3">
+                {repayData?.result.map((r, i) => (
+                  <li key={i} className="flex gap-2 text-sm">
+                    <div className="flex flex-col justify-center items-center gap-2">
+                      <Image
+                        src={r.is_paid ? '/repay-dot.svg' : '/notrepay-dot.svg'}
+                        alt=""
+                        className=""
+                        width={10}
+                        height={10}
+                      />
+                      <Image
+                        src={'/notrepay-line.svg'}
+                        alt=""
+                        className=""
+                        width={1}
+                        height={10}
+                      />
+                    </div>
+                    <div>
+                      <h4 className="font-medium lg:text-base">
+                        {fmtNaira(r.amount)}
+                      </h4>
+                      <p>
+                        Repayment:{' '}
+                        {fmtDate(r?.repayment_date?.toISOString())}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );
-};
-
-export default LoanRequestDetail;
+}

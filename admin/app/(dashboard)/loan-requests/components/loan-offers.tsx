@@ -1,5 +1,4 @@
-import EmptyList from "./empty-list";
-import { LoanRecord } from "@/types/loantypes";
+import EmptyList from './empty-list';
 
 import {
   Table,
@@ -9,11 +8,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import Pagination from "@/components/pagination";
-import Status from "@/components/status";
+} from '@/components/ui/table';
+import Pagination from '@/components/pagination';
+import Status from '@/components/status';
+import { Loan } from '../../loans/types';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
-const LoanOffers = ({ data }: { data: LoanRecord[] }) => {
+const LoanOffers = ({ data }: { data: Loan[] }) => {
   if (!data || data.length < 1)
     return (
       <div>
@@ -45,19 +46,28 @@ const LoanOffers = ({ data }: { data: LoanRecord[] }) => {
             key={request.id}
           >
             <TableCell className="p-6">
-              <p className="text-gray-900 font-medium">{request.name}</p>
-              <p className="text-gray-500">{request.id}</p>
+              <p className="text-gray-900 font-medium">
+                {request.customerName?.trim() && request.customerName !== '-'
+                  ? request.customerName
+                  : request.userFirstName && request.userLastName
+                  ? `${request.userFirstName} ${request.userLastName}`
+                  : 'N/A'}
+              </p>
+              <p className="text-gray-500">{request.id.slice(0, 8)}...</p>{' '}
             </TableCell>
-            <TableCell className="p-6">{request.loanOffer}</TableCell>
-            <TableCell className="p-6">{request.equityAmount}</TableCell>
-            <TableCell className="p-6">{request.customer}</TableCell>
             <TableCell className="p-6">
-              {request.datePaid ?? "------------"}
+              {fmtNaira(request.loanAmount)}
+            </TableCell>
+            <TableCell className="p-6">{fmtNaira(request.equityAmount)}</TableCell>
+            <TableCell className="p-6">{request.customerName}</TableCell>
+            <TableCell className="p-6">
+              {fmtDate(request.datePaid ?? '')}
             </TableCell>
             <TableCell className="p-6">
-              <Status status={request.status} />
+              <Status status={request.loanStatus} />
             </TableCell>
-            <TableCell className="p-6 text-[#E2A109]">View all</TableCell>
+            <TableCell className="p-6 text-[#E2A109]">
+              <a href={'/loan-requests/' + request.id}>View</a></TableCell>
           </TableRow>
         ))}
       </TableBody>

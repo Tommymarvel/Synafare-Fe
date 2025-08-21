@@ -69,3 +69,37 @@ select option:checked {
   background-color: theme('colors.mikado');
   color: white;
 }
+
+
+
+/* ---- Inventory form primitives ---- */
+.form-card { @apply max-w-5xl mx-auto bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8; }
+.page-title { @apply text-center text-xl md:text-2xl font-semibold; }
+
+.section { @apply mt-6; }
+.section-title { @apply text-sm font-semibold text-gray-900 mb-3; }
+
+.label { @apply block text-sm font-medium text-gray-800 mb-1.5; }
+.required::after { content:" *"; @apply text-red-500; }
+
+/* Inputs */
+.input { @apply w-full h-11 rounded-lg border border-gray-200 bg-white px-3.5 text-sm text-gray-900
+  placeholder:text-gray-400 outline-none focus:ring-4 focus:ring-gray-100 focus:border-gray-300; }
+.textarea { @apply w-full rounded-lg border border-gray-200 bg-white px-3.5 py-3 text-sm
+  placeholder:text-gray-400 outline-none focus:ring-4 focus:ring-gray-100 focus:border-gray-300; }
+
+/* Select with hidden native arrow (we’ll add our own) */
+.select { @apply input appearance-none pr-10; }
+
+/* Help text */
+.help { @apply text-xs text-gray-500; }
+
+/* Uploader */
+.uploader-tile { @apply border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 py-8 hover:border-gray-300 transition; }
+.thumb { @apply relative w-28 h-28 md:w-32 md:h-32 rounded-xl overflow-hidden border border-gray-200; }
+.thumb-del { @apply absolute top-1 right-1 bg-white/90 border border-gray-200 rounded-full w-6 h-6 grid place-items-center text-[11px] font-semibold; }
+
+/* Buttons */
+.btn { @apply inline-flex items-center justify-center rounded-xl text-sm font-medium px-5 py-3 transition; }
+.btn-ghost { @apply btn border border-gray-200 bg-white hover:bg-gray-50; }
+.btn-primary { @apply btn bg-mikado text-white hover:brightness-95; }

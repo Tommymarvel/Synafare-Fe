@@ -10,9 +10,10 @@ import {
 import EmptyList from "./empty-list";
 import Status from "@/components/status";
 import Pagination from "@/components/pagination";
-import { DeclineLoanType } from "@/types/loantypes";
+import { Loan } from "../../loans/types";
+import { fmtDate, fmtNaira } from "@/lib/format";
 
-const DeclinedRequests = ({ data }: { data: DeclineLoanType[] }) => {
+const DeclinedRequests = ({ data }: { data: Loan[] }) => {
   if (!data || data.length < 1)
     return (
       <div>
@@ -44,17 +45,33 @@ const DeclinedRequests = ({ data }: { data: DeclineLoanType[] }) => {
             key={request.id}
           >
             <TableCell className="p-6">
-              <p className="text-gray-900 font-medium">{request.name}</p>
-              <p className="text-gray-500">{request.id}</p>
+              <p className="text-gray-900 font-medium">
+                {request.customerName?.trim() && request.customerName !== '-'
+                  ? request.customerName
+                  : request.userFirstName && request.userLastName
+                  ? `${request.userFirstName} ${request.userLastName}`
+                  : 'N/A'}
+              </p>
+              <p className="text-gray-500">{request.id.slice(0, 8)}...</p>{' '}
             </TableCell>
-            <TableCell className="p-6">{request.userType}</TableCell>
-            <TableCell className="p-6">{request.loanAmount}</TableCell>
-            <TableCell className="p-6">{request.dateRequested}</TableCell>
-            <TableCell className="p-6">{request.duration}</TableCell>
+            <TableCell className="p-6 capitalize">
+              {request.userType ?? '---'}
+            </TableCell>
             <TableCell className="p-6">
-              <Status status={request.status} />
+              {fmtNaira(request.loanAmount)}
             </TableCell>
-            <TableCell className="p-6 text-[#E2A109]">View all</TableCell>
+            <TableCell className="p-6">
+              {fmtDate(request.dateRequested)}
+            </TableCell>
+            <TableCell className="p-6">
+              {request.loanDurationInMonths} months
+            </TableCell>
+            <TableCell className="p-6">
+              <Status status={request.loanStatus} />
+            </TableCell>
+            <TableCell className="p-6 text-[#E2A109]">
+              <a href={'/loan-requests/' + request.id}>View</a>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

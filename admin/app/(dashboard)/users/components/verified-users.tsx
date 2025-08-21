@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import {
   Table,
   TableBody,
@@ -7,20 +7,23 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import Pagination from "@/components/pagination";
-import EmptyList from "../../loan-requests/components/empty-list";
-import Status from "@/components/status";
-import UserActionButton from "./user-action";
-import { STATUSCONST } from "@/lib/constants";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-import DeclineUserModal from "./modals/decline-user";
-import ConfirmDeleteUser from "./modals/confirm-delete-user";
-import ConfirmVerifyUserModal from "./modals/confirm-verify-user";
-import { AllUsers } from "@/types/usertypes";
+} from '@/components/ui/table';
+import Pagination from '@/components/pagination';
+import EmptyList from '../../loan-requests/components/empty-list';
+import Status from '@/components/status';
+import UserActionButton from './user-action';
+import { STATUSCONST } from '@/lib/constants';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useState } from 'react';
+import DeclineUserModal from './modals/decline-user';
+import ConfirmDeleteUser from './modals/confirm-delete-user';
+import ConfirmVerifyUserModal from './modals/confirm-verify-user';
+import { AllUsers } from '@/types/usertypes';
 
 const VerifiedUsersTable = ({ data }: { data: AllUsers[] }) => {
+  const [showDeclineModal, setshowDeclineModal] = useState(false);
+  const [showDeleteModal, setshowDeleteModal] = useState(false);
+  const [showVerifyModal, setshowVerifyModal] = useState(false);
   if (!data || data.length < 1) {
     return (
       <EmptyList
@@ -30,9 +33,6 @@ const VerifiedUsersTable = ({ data }: { data: AllUsers[] }) => {
       />
     );
   }
-  const [showDeclineModal, setshowDeclineModal] = useState(false);
-  const [showDeleteModal, setshowDeleteModal] = useState(false);
-  const [showVerifyModal, setshowVerifyModal] = useState(false);
 
   const filteredData = data.filter((x) => x.status == STATUSCONST.VERIFIED);
 

@@ -64,19 +64,19 @@ const UsersPage = () => {
       <div className="space-y-5">
         <PageIntro>Loan Requests,</PageIntro>
         <div className="flex gap-x-[13px]">
-          <TopCards iconbg="bg-[#FFF8E2]" title="Total Users" value="3,264">
+          <TopCards iconbg="bg-[#FFF8E2]" title="Total Users" value={3264}>
             {money}
           </TopCards>
 
           <TopCards
             iconbg="bg-[#FFF8E2]"
             title="Verification Requests"
-            value="264"
+            value={264}
           >
             {money}
           </TopCards>
 
-          <TopCards iconbg="bg-[#FFF8E2]" title="Verified Users" value="3000">
+          <TopCards iconbg="bg-[#FFF8E2]" title="Verified Users" value={3000}>
             {money}
           </TopCards>
           <div className="flex-1" />
