@@ -1,13 +1,21 @@
 "use client";
-import ProductCarousel from "@/app/(dashboard)/users/product/[id]/components/carousel";
 import CardWrapper from "@/components/cardWrapper";
 import GoBack from "@/components/goback";
 import ProductList from "../../components/product-list";
 import { ProductListingData } from "@/data/marketplace";
 import { useState } from "react";
+import ProductCarouselThumbNailIncluded from "../../components/carousel-thumbnails";
 const productImages = ["/carousel-1.png", "/carousel-2.png"];
 const MPProductDetails = () => {
   const [activeCarousel, setActiveCarousel] = useState<number>(0);
+
+  const handleThumbnailClick = (index: number) => {
+    setActiveCarousel(index);
+  };
+
+  const handleCarouselChange = (index: number) => {
+    setActiveCarousel(index);
+  };
   return (
     <div className="pb-6 ">
       <div className="flex justify-between">
@@ -35,7 +43,11 @@ const MPProductDetails = () => {
       <CardWrapper className="p-0 mt-[10px] mb-6">
         <div className="grid grid-cols-2 px-4 gap-x-4">
           <div className="py-4 space-y-6">
-            <ProductCarousel urls={productImages} />
+            <ProductCarouselThumbNailIncluded
+              urls={productImages}
+              activeIndex={activeCarousel}
+              onSlideChange={handleCarouselChange}
+            />
           </div>
 
           <div className="border-l border-l-gray-100 p-4 flex flex-col">
@@ -84,7 +96,8 @@ const MPProductDetails = () => {
               className={`w-[57.61px] aspect-square cursor-pointer object-cover block rounded-[3.39px] ${
                 activeCarousel == i ? "border border-tertiary-1" : ""
               }`}
-              alt=""
+              alt={"thumb nail of carousel " + i}
+              onClick={() => handleThumbnailClick(i)}
             />
           ))}
         </div>

@@ -14,7 +14,7 @@ interface ProductCarouselProps {
   onSlideChange?: (index: number) => void;
 }
 
-const ProductCarousel = ({
+const ProductCarouselThumbNailIncluded = ({
   urls,
   activeIndex = 0,
   onSlideChange,
@@ -61,4 +61,4 @@ const ProductCarousel = ({
   );
 };
 
-export default ProductCarousel;
+export default ProductCarouselThumbNailIncluded;
