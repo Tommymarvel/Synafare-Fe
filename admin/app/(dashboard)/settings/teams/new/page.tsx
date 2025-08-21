@@ -24,7 +24,7 @@ const NewTeamMember = () => {
     defaultValues: newUserDefaultValues,
   });
 
-  const [openSuccessModal, setOpenSuccessModal] = useState(true);
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
   const submitHandler = function (data: FormData) {
     console.log(data);
 

@@ -168,3 +168,30 @@ export const walletTransactions: WalletTransactions[] = [
     status: "Successful",
   },
 ];
+
+export const AdminInvItems = [
+  {
+    id: "a1b2c3d4-e5f6-7890-abcd-000000000001",
+    name: "Inverter",
+    quantity: 120,
+    dateAdded: "2025-01-12T00:00:00Z",
+  },
+  {
+    id: "a1b2c3d4-e5f6-7890-abcd-000000000002",
+    name: "Battery",
+    quantity: 120,
+    dateAdded: "2025-01-12T00:00:00Z",
+  },
+  {
+    id: "a1b2c3d4-e5f6-7890-abcd-000000000003",
+    name: "Pannel", // Optional: change to "Panel" if typo
+    quantity: 120,
+    dateAdded: "2025-01-12T00:00:00Z",
+  },
+  {
+    id: "a1b2c3d4-e5f6-7890-abcd-000000000004",
+    name: "Accessory",
+    quantity: 120,
+    dateAdded: "2025-01-12T00:00:00Z",
+  },
+];

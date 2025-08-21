@@ -1,10 +1,8 @@
 import CardWrapper from "@/components/cardWrapper";
-import Status from "@/components/status";
 import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -17,7 +15,7 @@ const TeamMembers = () => {
   const data = TeamMembersData;
   return (
     <>
-      <h1 className="text-lg font-medium ">Profile</h1>
+      <h1 className="text-lg font-medium ">Team Members</h1>
       <div className="flex items-baseline justify-between">
         <p className="text-gray-3">
           Invite your colleagues to work faster and collaborate together.
