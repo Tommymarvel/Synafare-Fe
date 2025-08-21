@@ -34,6 +34,7 @@ const navs = [
     name: "Marketplace",
     href: "/marketplace",
     icon: SideNavIcons.Market,
+    startsWith: true,
   },
   {
     name: "Wallet",
@@ -49,6 +50,7 @@ const navs = [
     name: "Settings",
     href: "/settings",
     icon: SideNavIcons.Settings,
+    startsWith: true,
   },
 ];
 

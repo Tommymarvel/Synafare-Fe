@@ -21,3 +21,9 @@ export const STATUSCONST = {
   AWAITING_DOWNPAYMENT: 'Awaiting Downpayment',
   AWAITING_LOAN_DISBURSEMENT: 'Awaiting Loan Disbursement',
 } as const;
+
+export const TRANSACTIONTYPE = {
+  DOWNPAYMENT: "Downpayment",
+  LOANDISBURSAL: "Loan Disbursal",
+  LOANREPAYMENT: "Loan Repayment	",
+};

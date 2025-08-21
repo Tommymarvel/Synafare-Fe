@@ -5,6 +5,7 @@ import {
   Invoice,
   QuoteRequest,
   QuoteRequestStatus,
+  TeamMembers,
   UserCustomer,
   UserLoanRecord,
 } from "@/types/usertypes";
@@ -467,5 +468,36 @@ export const InventoryData: DInventoryDataType[] = [
     inStock: 50,
     lastUpdated: "2025-01-06",
     status: "Published",
+  },
+];
+
+export const TeamMembersData: TeamMembers[] = [
+  {
+    id: "BHEGIUBO432901",
+    name: "David Smith",
+    email: "johnsmith123@gmail.com",
+    role: "Admin",
+    dateAdded: "2025-01-12T00:00:00Z",
+  },
+  {
+    id: "BHEGIUBO432902",
+    name: "Adeyemi Johnson",
+    email: "johnsmith123@gmail.com",
+    role: "Operations",
+    dateAdded: "2025-01-12T00:00:00Z",
+  },
+  {
+    id: "BHEGIUBO432903",
+    name: "Chima Musa",
+    email: "johnsmith123@gmail.com",
+    role: "Finance",
+    dateAdded: "2025-01-12T00:00:00Z",
+  },
+  {
+    id: "BHEGIUBO432904",
+    name: "Adeyemi Johnson",
+    email: "johnsmith123@gmail.com",
+    role: "Custom",
+    dateAdded: "2025-01-12T00:00:00Z",
   },
 ];

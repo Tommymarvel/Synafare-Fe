@@ -28,6 +28,7 @@ export default function Status({ status, className }: Props) {
     status === STATUSCONST.SUCCESS ||
     status === STATUSCONST.PAID ||
 
+
     status === STATUSCONST.ACTIVE ||
     status === STATUSCONST.COMPLETED
   ) {
@@ -60,6 +61,7 @@ export default function Status({ status, className }: Props) {
   return (
     <span
       className={cn(
+
         'bg-neutral-100 text-neutral-600 text-xs py-[2px] px-2 rounded-full',
         className
       )}

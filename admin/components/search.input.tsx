@@ -1,3 +1,4 @@
+
 // components/search.input.tsx
 'use client';
 
@@ -21,6 +22,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     <div className={`relative w-full ${className}`}>
       <input
         type="search"
+
         value={value}
         onChange={onChange}
         placeholder={placeholder}
