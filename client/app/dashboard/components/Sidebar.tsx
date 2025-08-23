@@ -12,7 +12,7 @@ import marketplaceSrc from '@/app/assets/marketplace.svg';
 import quoteSrc from '@/app/assets/quote.svg';
 import invoiceSrc from '@/app/assets/invoice.svg';
 import customerSrc from '@/app/assets/customer.svg';
-import {  XIcon } from 'lucide-react';
+import { XIcon } from 'lucide-react';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', src: homeSrc },
@@ -30,7 +30,7 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({  onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const pathname = usePathname();
 
   return (
@@ -43,8 +43,8 @@ const Sidebar: React.FC<SidebarProps> = ({  onClose }) => {
           height={48}
           className="mb-4"
         />
-        <span onClick={onClose} className='flex md:hidden'>
-          <XIcon className='text-mikado'/>
+        <span onClick={onClose} className="flex md:hidden">
+          <XIcon className="text-mikado" />
         </span>
       </div>
       <div className="mt-9 flex flex-col space-y-1">

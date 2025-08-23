@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import {
   Table,
   TableBody,
@@ -7,20 +7,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import Pagination from "@/components/pagination";
-import Status from "@/components/status";
+} from '@/components/ui/table';
+import Pagination from '@/components/pagination';
+import Status from '@/components/status';
 
-import { WalletTransactions } from "@/types/market.place.types";
-import ViewTransactionReceipt from "./modals/view-transaction";
-import { useState } from "react";
-import { format } from "date-fns";
+import { WalletTransactions } from '@/types/market.place.types';
+import ViewTransactionReceipt from './modals/view-transaction';
+import { useState } from 'react';
+import { format } from 'date-fns';
+import Image from 'next/image';
 const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
+  const [openModal, setOpenModal] = useState(true);
+  const [currentReceipt, setCurrentReceipt] = useState<
+    WalletTransactions | undefined
+  >();
+
   if (!data.length) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="space-y-[10px]">
-          <img
+          <Image
             src="/coins.svg"
             className="mx-auto block"
             alt="No recent transactions"
@@ -32,10 +38,7 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
       </div>
     );
   }
-  const [openModal, setOpenModal] = useState(true);
-  const [currentReceipt, setCurrentReceipt] = useState<
-    WalletTransactions | undefined
-  >();
+
   const handleShowReceipt = function (id: string) {
     const receipt = data.find((x) => x.id == id);
     if (!receipt) return;
@@ -68,7 +71,7 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
               key={request.id}
             >
               <TableCell className="p-6 font-medium">
-                {format(new Date(request.date), "MMM dd, yyyy")}
+                {format(new Date(request.date), 'MMM dd, yyyy')}
               </TableCell>
               <TableCell className="p-6 font-medium">{request.name}</TableCell>
               <TableCell className="p-6 font-medium">
@@ -78,9 +81,9 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
                 {request.transactionRef}
               </TableCell>
               <TableCell className="p-6 font-medium">
-                {request.amount.toLocaleString("en-NG", {
-                  style: "currency",
-                  currency: "NGN",
+                {request.amount.toLocaleString('en-NG', {
+                  style: 'currency',
+                  currency: 'NGN',
                 })}
               </TableCell>
               <TableCell className="p-6 font-medium">

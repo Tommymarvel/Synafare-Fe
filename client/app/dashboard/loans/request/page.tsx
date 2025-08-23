@@ -6,9 +6,16 @@ import { useState } from 'react';
 import CustomerLoanForm from './components/CustomerLoanForm';
 import LoanTabs, { LoanTab } from './components/LoanTabs';
 import InventoryLoanForm from './components/InventoryLoanForm';
+import SubmissionSuccess from '../components/SubmissionSucess';
 
 export default function RequestLoanPage() {
   const [active, setActive] = useState<LoanTab>('customer');
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  // If submission was successful, show only the success component
+  if (isSuccess) {
+    return <SubmissionSuccess />;
+  }
 
   return (
     <div className="py-4 max-w-3xl mx-auto">
@@ -30,7 +37,11 @@ export default function RequestLoanPage() {
 
       <LoanTabs activeTab={active} onChange={setActive} />
 
-      {active === 'customer' ? <CustomerLoanForm /> : <InventoryLoanForm />}
+      {active === 'customer' ? (
+        <CustomerLoanForm onSuccess={() => setIsSuccess(true)} />
+      ) : (
+        <InventoryLoanForm onSuccess={() => setIsSuccess(true)} />
+      )}
     </div>
   );
 }

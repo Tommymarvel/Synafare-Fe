@@ -2,39 +2,66 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronRight } from 'lucide-react';
-import ScheduleIllustration from '@/app/assets/repayment-illustration.svg'; // placeholder asset
+import ScheduleIllustration from '@/app/assets/repayment-illustration.svg';
+import { useLoans } from '../../loans/hooks/useLoans';
+import { fmtDate } from '@/lib/format';
 
-interface ScheduleEntry {
-  amount: number;
-  date: string; // e.g. 'Apr 1, 2025'
-  status: 'Paid' | 'Due' | 'Upcoming';
-}
+export default function RepaymentScheduleCard() {
+  const { loans, isLoading, error } = useLoans();
 
-type Props = {
-  schedule?: ScheduleEntry[];
-};
+  // Get upcoming repayments from active loans
+  const upcomingRepayments = loans
+    .filter(
+      (loan) => loan.loanStatus === 'ACTIVE' && loan.outstandingBalance > 0
+    )
+    .map((loan) => ({
+      id: loan.id,
+      amount: loan.outstandingBalance || loan.totalRepayment,
+      date: loan.nextPaymentDate || '',
+      status: 'Due' as const,
+      loanId: loan.id,
+    }))
+    .filter((repayment) => repayment.date) // Only include loans with payment dates
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3); // Show only first 3 upcoming payments
 
-export default function RepaymentScheduleCard({ schedule = [] }: Props) {
-  const hasEntries = Array.isArray(schedule) && schedule.length > 0;
+  const hasEntries = upcomingRepayments.length > 0;
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <p className="text-sm font-medium text-raisin">Repayment Schedule</p>
+        <Link
+          href="/dashboard/loans"
+          className="text-xs text-mikado hover:underline"
+        >
+          View all
+        </Link>
       </div>
 
-      {hasEntries ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-[43px] px-6">
+          <p className="text-sm text-gray-500">Loading schedule...</p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-[43px] px-6">
+          <p className="text-sm text-red-500">Failed to load schedule</p>
+        </div>
+      ) : hasEntries ? (
         <ul>
-          {schedule.map(({ amount, date, status }, idx) => {
+          {upcomingRepayments.map(({ amount, date, status, loanId }, idx) => {
             const isDue = status === 'Due';
             return (
               <li
-                key={idx}
+                key={loanId}
                 className={`flex items-center justify-between px-6 py-4 ${
-                  idx < schedule.length - 1 ? 'border-b border-gray-200' : ''
+                  idx < upcomingRepayments.length - 1
+                    ? 'border-b border-gray-200'
+                    : ''
                 }`}
               >
                 <div className="flex flex-col">
@@ -49,12 +76,17 @@ export default function RepaymentScheduleCard({ schedule = [] }: Props) {
                       maximumFractionDigits: 2,
                     })}
                   </span>
-                  <span className="text-xs text-[#797979]">Due {date}</span>
+                  <span className="text-xs text-[#797979]">
+                    Due {fmtDate(date)}
+                  </span>
                 </div>
-                <button className="inline-flex items-center text-sm text-mikado ">
+                <Link
+                  href={`/dashboard/loans/${loanId}`}
+                  className="inline-flex items-center text-sm text-mikado hover:underline"
+                >
                   <span>Pay</span>
                   <ChevronRight className="w-4 h-4 ml-1" />
-                </button>
+                </Link>
               </li>
             );
           })}

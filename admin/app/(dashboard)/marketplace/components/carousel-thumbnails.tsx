@@ -6,6 +6,7 @@ import {
   CarouselPrevious,
   CarouselApi,
 } from "@/components/ui/carousel";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface ProductCarouselProps {
@@ -47,7 +48,7 @@ const ProductCarouselThumbNailIncluded = ({
       <CarouselContent className="w-full aspect-[489/353] bg-black">
         {urls.map((src, i) => (
           <CarouselItem className="" key={i}>
-            <img
+            <Image
               src={src}
               className="w-full h-full object-cover object-center"
               alt="Product image"

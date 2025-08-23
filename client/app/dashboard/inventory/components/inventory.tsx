@@ -510,7 +510,7 @@ const Inventory = () => {
                     type="checkbox"
                     checked={selectedItems.includes(request._id)}
                     onChange={() => handleSelectItem(request._id)}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-5 h-5 text-mikado bg-gray-100 border-gray-300 rounded focus:ring-mikado"
                   />
                 </TableCell>
                 <TableCell className="p-6">

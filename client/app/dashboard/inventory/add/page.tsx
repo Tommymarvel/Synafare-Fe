@@ -17,7 +17,7 @@ interface InventoryFormValues {
   product_sku: string;
   quantity_in_stock: string;
   brand: string;
-  model: string;
+  model_number: string;
   unit_price: string;
   desc: string;
 }
@@ -52,9 +52,9 @@ const InventorySchema = Yup.object().shape({
     then: (s) => s.required('Brand is required'),
     otherwise: (s) => s,
   }),
-  model: Yup.string().when('status', {
+  model_number: Yup.string().when('status', {
     is: (val: string) => val !== 'draft',
-    then: (s) => s.required('Model is required'),
+    then: (s) => s.required('Model number is required'),
     otherwise: (s) => s,
   }),
   unit_price: Yup.string().when('status', {
@@ -136,7 +136,7 @@ export default function AddInventoryForm() {
            product_sku: '',
            quantity_in_stock: '',
            brand: '',
-           model: '',
+           model_number: '',
            unit_price: '',
            desc: '',
          }}
@@ -240,12 +240,12 @@ export default function AddInventoryForm() {
                  <div>
                    <label className="label required">Model</label>
                    <Field
-                     name="model"
+                     name="model_number"
                      placeholder="1.5 kVa"
                      className="input"
                    />
                    <ErrorMessage
-                     name="model"
+                     name="model_number"
                      component="div"
                      className="help !text-red-500 mt-1"
                    />

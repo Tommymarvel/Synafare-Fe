@@ -44,6 +44,7 @@ export interface Loan {
   loan_amount_offered: number;
   loan_type: string;
   loan_agreement: string;
+  paidDuration: string; // Optional, not always present
   user?: {
     email: string;
     email_confirmed: boolean;
@@ -87,7 +88,8 @@ export interface LoanAPI {
   loan_amount_offered: number;
   loan_type: string;
   loan_agreement: string;
-  next_payment:string;
+  paid_duration: string; // Optional, not always present
+  next_payment: string;
   user: {
     email: string;
     email_confirmed: boolean;
@@ -112,6 +114,7 @@ export function toLoan(api: LoanAPI): Loan {
     interest: api.interest,
     totalRepayment: api.total_repayment,
     bankStatement: api.bank_statement,
+    paidDuration: api.paid_duration ?? '', 
     trxInvoice: api.trx_invoice,
     loanStatus: toLoanStatus(api.loan_status),
     dateRequested: api.createdAt,

@@ -1,23 +1,24 @@
 import { ProductListingType } from "@/types/market.place.types";
+import Image from "next/image";
+import Link from "next/link";
 
 const ProductList = ({ product }: { product: ProductListingType }) => {
   return (
     <div className="border-[1.17px] border-gray rounded-md">
-      <img
+      <Image
         src={product.src}
         alt=""
         className="w-full aspect-video object-cover"
       />
       <div className="bg-white py-3 px-[18px] space-y-[6px]">
-        <span className="text-mikado-yellow text-xs">{product.category}</span>
-        <a href="/marketplace/product/1" className="font-semibold block">
+        <Link href="/marketplace/product/1" className="font-semibold block">
           {product.title}
-        </a>
+        </Link>
         <a
-          href={"/marketplace/store/" + product.supplier_id}
+          href={'/marketplace/store/' + product.supplier_id}
           className="flex gap-x-[6px] hover:underline items-cent"
         >
-          <img
+          <Image
             src={product.supplier_profile}
             className="w-5 h-5 rounded-full"
             alt="avatar"

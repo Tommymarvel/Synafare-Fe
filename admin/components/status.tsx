@@ -7,7 +7,6 @@ export type StatusType = (typeof STATUSCONST)[keyof typeof STATUSCONST];
 type Props = {
   status: StatusType;
   className?: string;
-
 };
 
 export default function Status({ status, className }: Props) {
@@ -25,10 +24,24 @@ export default function Status({ status, className }: Props) {
   }
 
   if (
+    status === STATUSCONST.AWAITING_DOWNPAYMENT ||
+    status === STATUSCONST.AWAITING_LOAN_DISBURSEMENT
+  ) {
+    return (
+      <span
+        className={cn(
+          'bg-blue-50 text-blue-600 text-xs py-[2px] px-2 rounded-full',
+          className
+        )}
+      >
+        {status}
+      </span>
+    );
+  }
+
+  if (
     status === STATUSCONST.SUCCESS ||
     status === STATUSCONST.PAID ||
-
-
     status === STATUSCONST.ACTIVE ||
     status === STATUSCONST.COMPLETED
   ) {
@@ -57,11 +70,9 @@ export default function Status({ status, className }: Props) {
     );
   }
 
-
   return (
     <span
       className={cn(
-
         'bg-neutral-100 text-neutral-600 text-xs py-[2px] px-2 rounded-full',
         className
       )}

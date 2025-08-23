@@ -76,7 +76,7 @@ export default function LoanDetailsPage() {
   ];
 
   return (
-    <div className="py-4 max-w-5xl mx-auto">
+    <div className="py-4 max-w- mx-auto">
       {/* Top bar */}
       <div className="flex items-center justify-between">
         <Link
@@ -109,9 +109,9 @@ export default function LoanDetailsPage() {
         <div className="text-right">
           <p className="text-xs text-gray-300">Duration</p>
           <p className="mt-2 text-[clamp(28px,_3vw,_32px)] lg:font-medium">
-            {!loan?.elapsedMonths
+            {!loan?.paidDuration
               ? 'N/A'
-              : `${loan?.elapsedMonths}/${loan?.loanDurationInMonths} Months`}
+              : `${loan?.paidDuration}/${loan?.loanDurationInMonths} Months`}
           </p>
         </div>
       </div>

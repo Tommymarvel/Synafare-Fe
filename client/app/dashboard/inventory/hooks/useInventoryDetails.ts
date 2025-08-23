@@ -11,7 +11,7 @@ export interface InventoryDetailsType {
   unit_price: string;
   quantity_in_stock: number;
   brand?: string;
-  model?: string;
+  model_number?: string;
   product_image?: string[];
   desc?: string;
   status: string;

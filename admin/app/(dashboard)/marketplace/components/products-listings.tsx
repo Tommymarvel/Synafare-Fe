@@ -1,6 +1,7 @@
 import Pagination from "@/components/pagination";
 import ProductListing from "./product-list";
 import { ProductListingType } from "@/types/market.place.types";
+import Image from "next/image";
 
 const ProductsListings = ({ products }: { products: ProductListingType[] }) => {
   return (
@@ -8,7 +9,7 @@ const ProductsListings = ({ products }: { products: ProductListingType[] }) => {
       {!products.length && (
         <div className="flex items-center justify-center h-full min-h-[60vh] bg-black">
           <div className="space-y-[18px]">
-            <img src="/no-item.svg" className="w-[117px]" />
+            <Image alt="" src="/no-item.svg" className="w-[117px]" />
             <h1 className="text-gray-3 text-[18px]">Sorry, item unavailable</h1>
           </div>
         </div>

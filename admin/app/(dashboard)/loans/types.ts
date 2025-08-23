@@ -155,6 +155,10 @@ export function mapApiStatusToConst(s?: string): StatusConstValue {
     return STATUSCONST.COMPLETED;
   if (v === 'rejected' || v === 'declined') return STATUSCONST.REJECTED;
   if (v === 'overdue') return STATUSCONST.OVERDUE;
+  if (v === 'awaiting_downpayment' || v === 'awaiting_down_payment')
+    return STATUSCONST.AWAITING_DOWNPAYMENT;
+  if (v === 'awaiting_loan_disbursement' || v === 'awaiting_disbursement')
+    return STATUSCONST.AWAITING_LOAN_DISBURSEMENT;
   return STATUSCONST.PENDING;
 }
 

@@ -22,9 +22,9 @@ const ViewTransactionReceipt = ({
   onOpenChange: (x: boolean) => void;
   receipt?: WalletTransactions;
 }) => {
-  if (!receipt) return;
-
   const receiptRef = useRef<HTMLDivElement | null>(null);
+
+  if (!receipt) return null;
   const downloadReceipt = async () => {
     const element = receiptRef.current;
     if (!element) return;

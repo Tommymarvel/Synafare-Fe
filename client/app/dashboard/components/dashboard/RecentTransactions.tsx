@@ -2,23 +2,18 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
-import CoinStack from '@/app/assets/coins-stack.svg'; // placeholder asset
+import CoinStack from '@/app/assets/coins-stack.svg';
+import { useTransactions } from '../../wallet/hooks/useTransactions';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
-type Transaction = {
-  id: string;
-  type: string;
-  amount: number;
-  date: string;
-  status: 'Successful' | 'Pending' | 'Failed';
-  href: string;
-};
+export default function RecentTransactions() {
+  const { transactions, isLoading, error } = useTransactions({
+    page: 1,
+    limit: 5, // Show only 5 recent transactions on dashboard
+  });
 
-type Props = {
-  transactions?: Transaction[];
-};
-
-export default function RecentTransactions({ transactions = [] }: Props) {
   const hasTx = transactions.length > 0;
 
   return (
@@ -28,15 +23,23 @@ export default function RecentTransactions({ transactions = [] }: Props) {
         <h2 className="text-lg font-medium text-gray-800">
           Recent Transactions
         </h2>
-        <a
-          href="/dashboard/transactions"
+        <Link
+          href="/dashboard/wallet"
           className="text-sm text-raisin hover:underline"
         >
           View all
-        </a>
+        </Link>
       </div>
 
-      {hasTx ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <p className="text-sm text-gray-500">Loading transactions...</p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <p className="text-sm text-red-500">Failed to load transactions</p>
+        </div>
+      ) : hasTx ? (
         <div className="overflow-x-auto max-w-xs sm:max-w-[400px] md:max-w-[600px] lg:max-w-[800px] xl:max-w-full custom-scrollbar">
           <table className="table-auto inline-table min-w-full whitespace-nowrap">
             <thead className="bg-[#F0F2F5] text-raisin">
@@ -52,18 +55,22 @@ export default function RecentTransactions({ transactions = [] }: Props) {
             <tbody>
               {transactions.map((tx) => (
                 <tr key={tx.id} className="border-b last:border-none">
-                  <td className="py-3 px-6 font-mono text-raisin">{tx.id}</td>
-                  <td className="py-3 px-6 text-raisin">{tx.type}</td>
-                  <td className="py-3 px-6  text-raisin">
-                    ₦{tx.amount.toLocaleString()}
+                  <td className="py-3 px-6 font-mono text-raisin">
+                    {tx.refId.slice(0, 6)}...
                   </td>
-                  <td className="py-3 px-6 text-raisin">{tx.date}</td>
+                  <td className="py-3 px-6 text-raisin capitalize">
+                    {tx.type.replace(/_/g, ' ')}
+                  </td>
+                  <td className="py-3 px-6 text-raisin">
+                    {fmtNaira(tx.amount)}
+                  </td>
+                  <td className="py-3 px-6 text-raisin">{fmtDate(tx.date)}</td>
                   <td className="py-3 px-6">
                     <span
-                      className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                        tx.status === 'Successful'
+                      className={`inline-block px-2 py-1 text-xs font-medium rounded-full capitalize ${
+                        tx.status === 'successful'
                           ? 'bg-green-100 text-green-700'
-                          : tx.status === 'Pending'
+                          : tx.status === 'pending'
                           ? 'bg-peach text-yellow-700'
                           : 'bg-red-100 text-red-700'
                       }`}
@@ -72,12 +79,12 @@ export default function RecentTransactions({ transactions = [] }: Props) {
                     </span>
                   </td>
                   <td className="py-3 px-6">
-                    <a
-                      href={tx.href}
+                    <Link
+                      href="/dashboard/wallet"
                       className="text-mikado font-medium hover:underline"
                     >
                       View
-                    </a>
+                    </Link>
                   </td>
                 </tr>
               ))}

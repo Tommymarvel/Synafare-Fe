@@ -11,7 +11,7 @@ interface InventoryDataType {
   product_sku?: number;
   quantity_in_stock?: number;
   brand?: string;
-  model?: string;
+  model_number?: string;
   unit_price?: string;
   status: StatusType;
   desc?: string;

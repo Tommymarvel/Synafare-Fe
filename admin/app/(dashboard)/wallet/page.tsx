@@ -14,6 +14,7 @@ import TransactionTable from "./components/transaction.table";
 import { walletTransactions } from "@/data/marketplace";
 import { useEffect, useState } from "react";
 import { TRANSACTIONTYPE } from "@/lib/constants";
+import Image from "next/image";
 
 const Wallet = () => {
   const transactions = walletTransactions;
@@ -29,7 +30,7 @@ const Wallet = () => {
           transactions.filter((t) => t.transactionType == status)
         );
     },
-    [status]
+    [status, transactions]
   );
   return (
     <div className="space-y-6">
@@ -64,7 +65,7 @@ const Wallet = () => {
             ₦10,863,113<span className="text-gray-400 text-sm">.36</span>
           </h1>
         </div>
-        <img src="/wallet.svg" className="absolute right-0 top-5" alt="" />
+        <Image src="/wallet.svg" className="absolute right-0 top-5" alt="" />
       </div>
       <CardWrapper className="p-0 ">
         <div className="flex justify-between items-center px-6 py-2 border-b border-b-gray-4">

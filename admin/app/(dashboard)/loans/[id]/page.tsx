@@ -5,17 +5,22 @@ import CardWrapper from '@/components/cardWrapper';
 import InfoDetail from './components/detail';
 import Status from '@/components/status';
 // import RepaymentHistory from './components/repayment-history';
-import { useLoanById, useRepayById } from '../../loans/hooks/useLoans';
+import {
+  useLoanById,
+  useRepayById,
+  useDisburseLoan,
+} from '../../loans/hooks/useLoans';
 import { useParams } from 'next/navigation';
 import GoBack from '@/components/goback';
 import Document from '@/components/document';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Button from '@/components/button';
 import { AlertCircle } from 'lucide-react';
 import { fmtDate, formatPhoneNumber } from '@/lib/format';
+import { STATUSCONST } from '@/lib/constants';
 import Image from 'next/image';
 import Empty from '@/app/assets/repayHistory-empty.png';
-
+import { toast } from 'react-toastify';
 
 const fmtNaira = (n: number) =>
   new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
@@ -26,6 +31,8 @@ export default function LoanRequestDetail() {
   const { id } = useParams<{ id: string }>();
   const { loan, isLoading, error } = useLoanById(id);
   const { repayData } = useRepayById(id as string);
+  const { disburseLoan } = useDisburseLoan(id);
+  const [isDisbursing, setIsDisbursing] = useState(false);
 
   const summary = useMemo(() => {
     if (!loan) {
@@ -41,6 +48,23 @@ export default function LoanRequestDetail() {
       duration: loan.loanDurationInMonths ?? 0,
     };
   }, [loan]);
+
+  const handleDisburseLoan = async () => {
+    if (!loan) return;
+
+    try {
+      setIsDisbursing(true);
+      await disburseLoan();
+      // Optionally refresh the loan data or show success message
+      toast.success('Loan disbursed successfully!');
+      window.location.reload(); // Simple refresh, could be improved with SWR mutate
+    } catch (error) {
+      console.error('Error disbursing loan:', error);
+      toast.error('Failed to disburse loan. Please try again.');
+    } finally {
+      setIsDisbursing(false);
+    }
+  };
 
   if (isLoading) return <div className="p-6">Loading…</div>;
   if (error || !loan) return <div className="p-6">Failed to load loan.</div>;
@@ -67,6 +91,17 @@ export default function LoanRequestDetail() {
                 />
               </svg>
               Send Reminder
+            </Button>
+          </div>
+        )}
+        {loan.loanStatus === STATUSCONST.AWAITING_LOAN_DISBURSEMENT && (
+          <div className="flex items-center gap-x-3 ms-auto text-resin-black font-medium">
+            <Button
+              onClick={handleDisburseLoan}
+              disabled={isDisbursing}
+              className="  bg-green-600 hover:bg-green-700 text-white"
+            >
+              {isDisbursing ? 'Disbursing...' : 'Disburse Loan'}
             </Button>
           </div>
         )}
@@ -145,7 +180,9 @@ export default function LoanRequestDetail() {
                   }
                 />
                 <InfoDetail title="Status" value="">
-                  <Status status={loan.loanStatus} className="font-medium" />
+                  <div className="flex items-center gap-3">
+                    <Status status={loan.loanStatus} className="font-medium" />
+                  </div>
                 </InfoDetail>
               </div>
             </div>
@@ -208,56 +245,55 @@ export default function LoanRequestDetail() {
         </div>
 
         {/* <RepaymentHistory /> */}
-         <section className="rounded-lg border mt-2 lg:mt-1 lg:w-[20%]">
-                  <header className="px-4 py-3 border-b bg-[#F0F2F5] rounded-t-lg text-sm font-medium">
-                    Repayment History
-                  </header>
-                  <div className="p-6 flex items-center justify-center">
-                    {repayData?.result?.length === 0 ? (
-                      <div className="text-center h-fit text-sm text-[#797979]">
-                        <Image
-                          src={Empty}
-                          alt="No Repayment History"
-                          width={100}
-                          height={100}
-                        />
-                        <p>No repayment history</p>
-                      </div>
-                    ) : (
-                      <ul className="w-full space-y-3">
-                        {repayData?.result.map((r, i) => (
-                          <li key={i} className="flex gap-2 text-sm">
-                            <div className="flex flex-col justify-center items-center gap-2">
-                              <Image
-                                src={r.is_paid ? '/repay-dot.svg' : '/notrepay-dot.svg'}
-                                alt=""
-                                className=""
-                                width={10}
-                                height={10}
-                              />
-                              <Image
-                                src={'/notrepay-line.svg'}
-                                alt=""
-                                className=""
-                                width={1}
-                                height={10}
-                              />
-                            </div>
-                            <div>
-                              <h4 className="font-medium lg:text-base">
-                                {fmtNaira(r.amount)}
-                              </h4>
-                              <p>
-                                Repayment:{' '}
-                                {fmtDate(r?.repayment_date?.toISOString())}
-                              </p>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </section>
+        <section className="rounded-lg border mt-2 lg:mt-1 lg:w-[20%]">
+          <header className="px-4 py-3 border-b bg-[#F0F2F5] rounded-t-lg text-sm font-medium">
+            Repayment History
+          </header>
+          <div className="p-6 flex items-center justify-center">
+            {repayData?.result?.length === 0 ? (
+              <div className="text-center h-fit text-sm text-[#797979]">
+                <Image
+                  src={Empty}
+                  alt="No Repayment History"
+                  width={100}
+                  height={100}
+                />
+                <p>No repayment history</p>
+              </div>
+            ) : (
+              <ul className="w-full space-y-3">
+                {repayData?.result.map((r, i) => (
+                  <li key={i} className="flex gap-2 text-sm">
+                    <div className="flex flex-col justify-center items-center gap-2">
+                      <Image
+                        src={r.is_paid ? '/repay-dot.svg' : '/notrepay-dot.svg'}
+                        alt=""
+                        className=""
+                        width={10}
+                        height={10}
+                      />
+                      <Image
+                        src={'/notrepay-line.svg'}
+                        alt=""
+                        className=""
+                        width={1}
+                        height={10}
+                      />
+                    </div>
+                    <div>
+                      <h4 className="font-medium lg:text-base">
+                        {fmtNaira(r.amount)}
+                      </h4>
+                      <p>
+                        Repayment: {fmtDate(r?.repayment_date?.toISOString())}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

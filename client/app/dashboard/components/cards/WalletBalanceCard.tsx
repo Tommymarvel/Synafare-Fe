@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { EyeOff, Plus, Minus, Wallet } from 'lucide-react';
 import Spiral from '@/app/assets/spiral.png';
@@ -30,21 +31,24 @@ export default function WalletBalanceCard() {
           </div>
         </div>{' '}
         <div className="mt-1 text-[32px] font-medium">
-          ₦
-          {new Intl.NumberFormat('en-NG').format(
-            (user?.wallet_balance ?? 0)
-          )}
+          ₦{new Intl.NumberFormat('en-NG').format(user?.wallet_balance ?? 0)}
         </div>
         {/* Middle: Action buttons */}
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-          <button className="flex items-center px-4 py-2 bg-mikado rounded-lg text-raisin hover:bg-yellow-600 transition">
+          <Link
+            href="/dashboard/wallet"
+            className="flex items-center px-4 py-2 bg-mikado rounded-lg text-raisin hover:bg-yellow-600 transition"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add money
-          </button>
-          <button className="flex items-center px-4 py-2 border border-mikado rounded-lg text-mikado hover:bg-mikado hover:text-white transition">
+          </Link>
+          <Link
+            href="/dashboard/wallet"
+            className="flex items-center px-4 py-2 border border-mikado rounded-lg text-mikado hover:bg-mikado hover:text-white transition"
+          >
             <Minus className="w-4 h-4 mr-2" />
             Withdraw
-          </button>
+          </Link>
         </div>
         {/* Top-right: Icon badge */}
         <div className="absolute top-4 right-4 p-3 bg-mikado rounded-full text-gray-900">

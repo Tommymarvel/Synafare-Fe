@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DInventoryDataType } from "@/types/usertypes";
+import Image from "next/image";
 
 const DistEmbededInventory = ({ data }: { data: DInventoryDataType[] }) => {
   if (!data || data.length < 1)
@@ -100,7 +101,7 @@ const DistEmbededInventory = ({ data }: { data: DInventoryDataType[] }) => {
             >
               <TableCell className="p-6">
                 <div className="flex gap-x-3 items-center">
-                  <img
+                  <Image
                     src={request.url}
                     alt={request.productName}
                     className="w-8 h-8"
@@ -113,9 +114,9 @@ const DistEmbededInventory = ({ data }: { data: DInventoryDataType[] }) => {
               </TableCell>
               <TableCell className="p-6">{request.category}</TableCell>
               <TableCell className="p-6">
-                {request.price.toLocaleString("en-NG", {
-                  style: "currency",
-                  currency: "NGN",
+                {request.price.toLocaleString('en-NG', {
+                  style: 'currency',
+                  currency: 'NGN',
                 })}
               </TableCell>
               <TableCell className="p-6">{request.inStock}</TableCell>
@@ -124,7 +125,7 @@ const DistEmbededInventory = ({ data }: { data: DInventoryDataType[] }) => {
                 <Status status={request.status} />
               </TableCell>
               <TableCell className="p-6 text-[#E2A109] font-semibold">
-                <a href={"/users/product/" + request.id}>View</a>
+                <a href={'/users/product/' + request.id}>View</a>
               </TableCell>
             </TableRow>
           ))}

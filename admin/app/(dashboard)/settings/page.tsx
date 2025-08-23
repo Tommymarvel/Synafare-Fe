@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import InfoDetail from "../loan-requests/[id]/components/detail";
 import EditProfileMdoal from "./components/modals/edit-profile";
 import { useState } from "react";
@@ -16,7 +17,7 @@ const ProfileSettings = () => {
         <div className="rounded-lg border border-gray p-[18px] w-full">
           <div className="flex gap-x-[13px] items-center">
             <div className="relative">
-              <img
+              <Image
                 src="/avatar.jpg"
                 className="rounded-full w-[73px] aspect-square "
                 alt="Your profile picture"

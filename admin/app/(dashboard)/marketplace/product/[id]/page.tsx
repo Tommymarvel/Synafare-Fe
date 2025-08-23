@@ -1,13 +1,38 @@
-"use client";
-import CardWrapper from "@/components/cardWrapper";
-import GoBack from "@/components/goback";
-import ProductList from "../../components/product-list";
-import { ProductListingData } from "@/data/marketplace";
-import { useState } from "react";
-import ProductCarouselThumbNailIncluded from "../../components/carousel-thumbnails";
-const productImages = ["/carousel-1.png", "/carousel-2.png"];
-const MPProductDetails = () => {
+'use client';
+import CardWrapper from '@/components/cardWrapper';
+import GoBack from '@/components/goback';
+import ProductList from '../../components/product-list';
+import { ProductListingData } from '@/data/marketplace';
+import { useState, useEffect } from 'react';
+import ProductCarouselThumbNailIncluded from '../../components/carousel-thumbnails';
+import Image from 'next/image';
+
+// Mock function - replace with actual implementation
+const getProductById = (id: string) => {
+  return (
+    ProductListingData.find((product) => product.id === id) ||
+    ProductListingData[0]
+  );
+};
+
+interface PageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+const MPProductDetails = ({ params }: PageProps) => {
   const [activeCarousel, setActiveCarousel] = useState<number>(0);
+  const [product, setProduct] = useState(ProductListingData[0]);
+
+  useEffect(() => {
+    params.then((resolvedParams) => {
+      setProduct(getProductById(resolvedParams.id));
+    });
+  }, [params]);
+
+  // For admin, we'll use some default images since the data structure is simpler
+  const productImages = ['/carousel-1.png', '/carousel-2.png'];
 
   const handleThumbnailClick = (index: number) => {
     setActiveCarousel(index);
@@ -53,21 +78,24 @@ const MPProductDetails = () => {
           <div className="border-l border-l-gray-100 p-4 flex flex-col">
             <div className="space-y-6 pb-[6px]">
               <div>
-                <h1 className="text-[28px] font-semibold">
-                  Genus 1.5kVA Inverter
-                </h1>
+                <h1 className="text-[28px] font-semibold">{product.title}</h1>
                 <span className="text-gray-3 text-xs">
-                  SKU-1234-SL | Inverter | Luminous
+                  {product.id} | {product.category} | {product.supplier_name}
                 </span>
               </div>
               <div className="flex gap-x-2 items-center">
-                <img
-                  src="/product-avatar.png"
+                <Image
+                  src={product.supplier_profile}
                   className="w-5 h-5 rounded-full inline-block "
                   alt="avatar"
+                  width={20}
+                  height={20}
                 />
-                <a href="" className="text-mikado-yellow underline">
-                  Cloud Energy
+                <a
+                  href={`/dashboard/marketplace/store/${product.supplier_id}`}
+                  className="text-mikado-yellow underline"
+                >
+                  {product.supplier_name}
                 </a>
                 | <span>Lagos</span>
               </div>
@@ -75,7 +103,7 @@ const MPProductDetails = () => {
             <div className="border-t-2 border-t-gray-4 pt-[13px] grow  flex flex-col justify-between pb-2">
               <p className="text-xs/[24px]">
                 Luminous 1.5 kVA inverter and battery combo is specially
-                designed to cater today's need keeping future aspiration in
+                designed to cater today&apos;s need keeping future aspiration in
                 mind, The inverter set powers all home appliances except home
                 air-conditioners and 1 HP water motor, rest everything will be
                 running for 4-6 hours whenever there is power outage such as led
@@ -90,13 +118,15 @@ const MPProductDetails = () => {
         </div>
         <div className="flex gap-x-3 p-6">
           {productImages.map((p, i) => (
-            <img
+            <Image
               src={p}
               key={i}
               className={`w-[57.61px] aspect-square cursor-pointer object-cover block rounded-[3.39px] ${
-                activeCarousel == i ? "border border-tertiary-1" : ""
+                activeCarousel == i ? 'border border-tertiary-1' : ''
               }`}
-              alt={"thumb nail of carousel " + i}
+              alt={'thumb nail of carousel ' + i}
+              width={58}
+              height={58}
               onClick={() => handleThumbnailClick(i)}
             />
           ))}
@@ -107,10 +137,9 @@ const MPProductDetails = () => {
         <h2 className="font-semibold text-xl">Related Products</h2>
 
         <div className="grid grid-cols-4 gap-x-[15px]">
-          <ProductList product={ProductListingData[0]} />
-          <ProductList product={ProductListingData[0]} />
-          <ProductList product={ProductListingData[0]} />
-          <ProductList product={ProductListingData[0]} />
+          {ProductListingData.slice(0, 4).map((relatedProduct) => (
+            <ProductList key={relatedProduct.id} product={relatedProduct} />
+          ))}
         </div>
       </div>
     </div>

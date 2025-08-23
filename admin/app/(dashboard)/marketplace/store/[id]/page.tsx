@@ -10,6 +10,7 @@ import {
 import { ProductListingData } from "@/data/marketplace";
 import ProductsListings from "../../components/products-listings";
 import GoBack from "@/components/goback";
+import Image from "next/image";
 
 const Store = () => {
   return (
@@ -39,7 +40,7 @@ const Store = () => {
       <div className="flex gap-x-[18px] ">
         <div className="self-start items-center justify-center shrink-0 py-8 w-[250px] border border-gray rounded-[6px] px-[10px]">
           <div className="border-b-2 pb-[29px]  border-b-gray-4 mx-auto w-fit space-y-[6px] text-center">
-            <img
+            <Image
               src="/product-avatar.png"
               className="max-w-20 mx-auto"
               alt="profile of supplier"

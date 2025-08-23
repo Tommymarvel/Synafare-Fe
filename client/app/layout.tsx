@@ -1,5 +1,6 @@
 // app/layout.tsx
 import { AuthProvider } from '@/context/AuthContext';
+import { RFQProvider } from '@/context/RFQContext';
 import './globals.css';
 import { Be_Vietnam_Pro } from 'next/font/google';
 import type { ReactNode } from 'react';
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <ToastContainer theme="light" />
       <html lang="en" className={beVietnam.variable}>
         <body className="font-sans">
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <RFQProvider>{children}</RFQProvider>
+          </AuthProvider>
         </body>
       </html>
     </>

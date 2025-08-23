@@ -6,8 +6,10 @@ import useSWR from 'swr';
 import axiosInstance from '@/lib/axiosInstance';
 import { Input } from '@/app/components/form/Input';
 import CustomerSelect from '../components/CustomerSelect';
-import Error, { BankDropzone, TransactionDropzone } from '../components/DropAreas';
-import SubmissionSuccess from '../../components/SubmissionSucess';
+import Error, {
+  BankDropzone,
+  TransactionDropzone,
+} from '../components/DropAreas';
 import { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
@@ -80,9 +82,12 @@ const schema: Yup.ObjectSchema<CustomerFormValues> = Yup.object({
     .required(),
 }).required();
 
-export default function CustomerLoanForm() {
+export default function CustomerLoanForm({
+  onSuccess,
+}: {
+  onSuccess: () => void;
+}) {
   const [showAgreement, setShowAgreement] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const {
     data: list,
@@ -102,8 +107,6 @@ export default function CustomerLoanForm() {
       })),
     [list]
   );
-
-  if (isSuccess) return <SubmissionSuccess />;
 
   const initialValues: CustomerFormValues = {
     customerId: '',
@@ -151,7 +154,7 @@ export default function CustomerLoanForm() {
               );
 
             await axiosInstance.post('/loan/apply', fd);
-            setIsSuccess(true);
+            onSuccess();
           } catch (error) {
             const axiosError = error as AxiosError<{
               message?: string;

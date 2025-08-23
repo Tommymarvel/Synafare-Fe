@@ -7,7 +7,6 @@ import Error, {
   BankDropzone,
   TransactionDropzone,
 } from '../components/DropAreas';
-import SubmissionSuccess from '../../components/SubmissionSucess';
 import LoanAgreementModal from '../../components/LoanAgreeementModal';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -71,9 +70,12 @@ const schema: Yup.ObjectSchema<InventoryFormValues> = Yup.object({
     .required(),
 }).required();
 
-export default function InventoryLoanForm() {
+export default function InventoryLoanForm({
+  onSuccess,
+}: {
+  onSuccess: () => void;
+}) {
   const [showAgreement, setShowAgreement] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const [banks, setBanks] = useState<Bank[]>([]);
   const [loadingBanks, setLoadingBanks] = useState(false);
@@ -113,8 +115,6 @@ export default function InventoryLoanForm() {
   };
 
   const selectedBank = (code?: string) => banks.find((b) => b.code === code);
-
-  if (isSuccess) return <SubmissionSuccess />;
 
   return (
     <>
@@ -157,7 +157,7 @@ export default function InventoryLoanForm() {
               );
 
             await axiosInstance.post('/loan/apply', fd);
-            setIsSuccess(true);
+            onSuccess();
           } catch (error) {
             const axiosError = error as AxiosError<{
               message?: string;

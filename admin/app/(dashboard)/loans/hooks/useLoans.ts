@@ -5,12 +5,10 @@ import useSWR from 'swr';
 import axiosInstance from '@/lib/axiosInstance';
 import { Loan, LoanAPI, toLoan } from '../types';
 
-
 // fetch raw envelope (don’t assume shape)
 const fetcher = async (url: string) => {
   const res = await axiosInstance.get(url);
   return res.data;
-  
 };
 
 // normalize helpers
@@ -50,7 +48,8 @@ export function useLoans() {
 
   const apis = asList(data);
   const loans: Loan[] = apis.map(toLoan);
-  const total = (data as { meta?: { total?: number } })?.meta?.total ?? loans.length;
+  const total =
+    (data as { meta?: { total?: number } })?.meta?.total ?? loans.length;
   // const total_accepted = data?.meta?.total_acc ?? loans.length;
   const loading = typeof isLoading === 'boolean' ? isLoading : !data && !error;
 
@@ -86,7 +85,6 @@ export function useLoanById(id?: string | number) {
   return { loan, isLoading: loading, isValidating, error, refresh: mutate };
 }
 
-
 interface Repay {
   result: {
     amount: number;
@@ -111,3 +109,16 @@ export function useRepayById(id?: string | number) {
     repayData: data as Repay,
   };
 }
+
+export const useDisburseLoan = (id: string) => {
+  const disburseLoan = async () => {
+    try {
+      const response = await axiosInstance.patch(`/loan/admin/disburse/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return { disburseLoan };
+};

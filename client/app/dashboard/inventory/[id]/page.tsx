@@ -136,7 +136,7 @@ export default function InventoryDetailsPage() {
                     Model
                   </span>
                   <p className="mt-1 text-sm text-gray-900">
-                    {inventory.model || 'N/A'}
+                    {inventory.model_number || 'N/A'}
                   </p>
                 </div>
                 <div>

@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Banknote } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function LoanBalanceCard() {
-  const {user} = useAuth()
+  const { user } = useAuth();
   return (
     <div className="relative bg-white rounded-2xl border border-gray-200 p-4">
       {/* Top-right icon badge */}
@@ -20,7 +21,7 @@ export default function LoanBalanceCard() {
         <div className="mt-[25px]">
           {/* Balance amount */}
           <div className="mt-1 text-raisin text-[32px] font-medium">
-            ₦<span className="text-sm">{user?.loan_balance || 0.00}</span>
+            ₦<span className="text-sm">{user?.loan_balance || 0.0}</span>
           </div>
           {/* Available credit */}
           <p className="text-xs text-[#797979]">
@@ -29,9 +30,12 @@ export default function LoanBalanceCard() {
         </div>
 
         {/* Action button */}
-        <button className="mt-4 w-fit inline-flex justify-center px-4 py-2 bg-[#FFF8E2] text-mikado font-medium rounded-lg hover:bg-[#FFE5B4] transition">
+        <Link
+          href="/dashboard/loans"
+          className="mt-4 w-fit inline-flex justify-center px-4 py-2 bg-[#FFF8E2] text-mikado font-medium rounded-lg hover:bg-[#FFE5B4] transition"
+        >
           Pay Loan
-        </button>
+        </Link>
       </div>
     </div>
   );
