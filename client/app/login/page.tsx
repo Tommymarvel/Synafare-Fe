@@ -59,7 +59,10 @@ export default function LoginPage() {
         localStorage.setItem('authToken', token);
       }
 
-      if (res.data.status === 204) {
+      console.log(res)
+
+      if (res.data.status === 304) {
+        console.log('redirecting...')
         toast.info('Please verify your email.');
 
         router.push('/signup/verify-otp');
