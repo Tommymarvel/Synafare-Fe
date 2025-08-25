@@ -1,15 +1,16 @@
-"use client";
-import PageIntro from "@/components/page-intro";
-import TopCards from "@/components/top-cards";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AllUsers from "./components/allusers";
-import { allUsersData } from "@/data/users.table";
-import VerificationRequests from "./components/verification-requests";
-import UserTableWrapper from "./components/user.table.wrapper";
-import { useState } from "react";
-import ConfirmVerifyUserModal from "./components/modals/confirm-verify-user";
-import ConfirmDeleteUser from "./components/modals/confirm-delete-user";
-import VerifiedUsersTable from "./components/verified-users";
+'use client';
+import PageIntro from '@/components/page-intro';
+import TopCards from '@/components/top-cards';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AllUsers from './components/allusers';
+import VerificationRequests from './components/verification-requests';
+import UserTableWrapper from './components/user.table.wrapper';
+import { useState } from 'react';
+import ConfirmVerifyUserModal from './components/modals/confirm-verify-user';
+import ConfirmDeleteUser from './components/modals/confirm-delete-user';
+import VerifiedUsersTable from './components/verified-users';
+import { useUsers } from '@/hooks/useUsers';
+import { ViewGuard } from '@/components/PermissionGuard';
 const money = (
   <svg
     width="21"
@@ -49,8 +50,38 @@ const UsersPage = () => {
   const [showVerifyModal, setShowVerifyModal] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
+  // Fetch users data
+  const {
+    users,
+    verificationRequests,
+    verifiedUsers,
+    totalUsers,
+    verificationRequestsCount,
+    verifiedUsersCount,
+    loading,
+    error,
+    refresh,
+  } = useUsers({
+    limit: 20, // Adjust as needed
+    revalidateOnFocus: false,
+  });
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">Error loading users: {error.message}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <>
+    <ViewGuard module="users">
       <ConfirmVerifyUserModal
         open={showVerifyModal}
         onOpenChange={setShowVerifyModal}
@@ -62,21 +93,29 @@ const UsersPage = () => {
       />
 
       <div className="space-y-5">
-        <PageIntro>Loan Requests,</PageIntro>
+        <PageIntro>User Management</PageIntro>
         <div className="flex gap-x-[13px]">
-          <TopCards iconbg="bg-[#FFF8E2]" title="Total Users" value={3264}>
+          <TopCards
+            iconbg="bg-[#FFF8E2]"
+            title="Total Users"
+            value={totalUsers || 0}
+          >
             {money}
           </TopCards>
 
           <TopCards
             iconbg="bg-[#FFF8E2]"
             title="Verification Requests"
-            value={264}
+            value={verificationRequestsCount || 0}
           >
             {money}
           </TopCards>
 
-          <TopCards iconbg="bg-[#FFF8E2]" title="Verified Users" value={3000}>
+          <TopCards
+            iconbg="bg-[#FFF8E2]"
+            title="Verified Users"
+            value={verifiedUsersCount || 0}
+          >
             {money}
           </TopCards>
           <div className="flex-1" />
@@ -84,18 +123,22 @@ const UsersPage = () => {
         <Tabs defaultValue="users" className="w-full space-y-5">
           <TabsList className="border-b border-b-gray-200 w-full rounded-none">
             <TabsTrigger className="p-4 cursor-pointer" value="users">
-              All Users
+              All Users ({totalUsers || 0})
             </TabsTrigger>
             <TabsTrigger className="p-4 cursor-pointer" value="requests">
-              Verification Requests
+              Verification Requests ({verificationRequestsCount || 0})
             </TabsTrigger>
             <TabsTrigger className="p-4 cursor-pointer" value="verified">
-              Verified Users
+              Verified Users ({verifiedUsersCount || 0})
             </TabsTrigger>
           </TabsList>
           <TabsContent value="users">
             <UserTableWrapper>
-              <AllUsers data={allUsersData} />
+              <AllUsers
+                data={users}
+                loading={loading}
+                onUserUpdated={refresh}
+              />
             </UserTableWrapper>
           </TabsContent>
           <TabsContent value="requests">
@@ -104,17 +147,25 @@ const UsersPage = () => {
               openVerifyModalfunc={setShowVerifyModal}
               openDeleteModalfunc={setShowDeleteModal}
             >
-              <VerificationRequests data={allUsersData} />
+              <VerificationRequests
+                data={verificationRequests}
+                loading={loading}
+                onUserUpdated={refresh}
+              />
             </UserTableWrapper>
           </TabsContent>
           <TabsContent value="verified">
             <UserTableWrapper>
-              <VerifiedUsersTable data={allUsersData} />
+              <VerifiedUsersTable
+                data={verifiedUsers}
+                loading={loading}
+                onUserUpdated={refresh}
+              />
             </UserTableWrapper>
           </TabsContent>
         </Tabs>
       </div>
-    </>
+    </ViewGuard>
   );
 };
 

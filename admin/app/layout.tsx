@@ -1,6 +1,7 @@
 import { Be_Vietnam_Pro } from 'next/font/google';
 import { DM_Sans } from 'next/font/google';
 import { AuthProvider } from '@/context/AuthContext';
+import { RouteGuard } from '@/components/RouteGuard';
 import { ToastContainer } from 'react-toastify';
 
 import './globals.css';
@@ -31,7 +32,9 @@ export default function RootLayout({
         <body
           className={`${beVietnam.variable}  ${dmSans.variable} antialiased`}
         >
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <RouteGuard>{children}</RouteGuard>
+          </AuthProvider>
         </body>
       </html>
     </>

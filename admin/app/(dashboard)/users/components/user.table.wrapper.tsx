@@ -1,12 +1,15 @@
-import CardWrapper from "@/components/cardWrapper";
+'use client';
+
+import CardWrapper from '@/components/cardWrapper';
+import { ManageGuard } from '@/components/PermissionGuard';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import SearchInput from "@/components/search.input";
+} from '@/components/ui/select';
+import SearchInput from '@/components/search.input';
 
 const UserTableWrapper = ({
   children,
@@ -24,7 +27,7 @@ const UserTableWrapper = ({
       <div className="flex justify-between px-6 py-3">
         <div className="flex gap-x-[10px] grow">
           {verify && (
-            <>
+            <ManageGuard module="users">
               <button
                 onClick={() => openVerifyModalfunc(true)}
                 className="flex gap-x-2 px-3 py-[10px] font-medium bg-gray-4 rounded-md"
@@ -75,7 +78,7 @@ const UserTableWrapper = ({
                 </svg>
                 Delete
               </button>
-            </>
+            </ManageGuard>
           )}
           <div className="max-w-[334px] w-full">
             <SearchInput />

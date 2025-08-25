@@ -1,4 +1,4 @@
-import { STATUSCONST } from "@/lib/constants";
+import { STATUSCONST } from '@/lib/constants';
 
 export type UserStatus =
   | typeof STATUSCONST.PENDINGVERIFICATION
@@ -20,6 +20,58 @@ export type DInventoryStatus =
   | typeof STATUSCONST.PUBLISHED
   | typeof STATUSCONST.OUTOFSTOCK;
 
+// API Response Types
+export interface BankDetails {
+  bank_code: string;
+  bank_name: string;
+  acc_name: string;
+  acc_no: string;
+  set: boolean;
+  _id: string;
+}
+
+export interface APIUser {
+  _id: string;
+  firebaseUid: string;
+  email: string;
+  email_confirmed: boolean;
+  account_status: string;
+  business_document: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  bvn?: string;
+  first_name?: string;
+  id_number?: string;
+  id_type?: string;
+  last_name?: string;
+  nature_of_solar_business?: string;
+  phn_no?: string;
+  wallet_balance?: number;
+  role?: string;
+  loan_agreement?: string;
+  loan_balance?: number;
+  bank_details?: BankDetails;
+  avatar?: string;
+  otp?: string;
+  otpExpiry?: string;
+  business?: string;
+  available_credit?: number;
+}
+
+export interface UsersAPIResponse {
+  data: APIUser[];
+  verify_request: number;
+  verified_users: number;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+// UI Types (transformed from API)
 export type AllUsers = {
   id: string;
   name: string;
@@ -27,6 +79,14 @@ export type AllUsers = {
   userType: string;
   dateAdded: string;
   status: UserStatus;
+  avatar?: string;
+  phoneNumber?: string;
+  walletBalance?: number;
+  loanBalance?: number;
+  businessDocument: string;
+  emailConfirmed: boolean;
+  accountStatus: string;
+  role?: string;
 };
 
 export interface UserLoanRecord {

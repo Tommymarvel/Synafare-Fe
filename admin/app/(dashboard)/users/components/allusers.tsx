@@ -6,18 +6,35 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import Pagination from "@/components/pagination";
-import EmptyList from "../../loan-requests/components/empty-list";
-import Status from "@/components/status";
-import UserActionButton from "./user-action";
-import { AllUsers } from "@/types/usertypes";
-const AllUsersTable = ({ data }: { data: AllUsers[] }) => {
+} from '@/components/ui/table';
+import Pagination from '@/components/pagination';
+import EmptyList from '../../loan-requests/components/empty-list';
+import Status from '@/components/status';
+import UserActionButton from './user-action';
+import { AllUsers } from '@/types/usertypes';
+const AllUsersTable = ({
+  data,
+  loading = false,
+  onUserUpdated,
+}: {
+  data: AllUsers[];
+  loading?: boolean;
+  onUserUpdated?: () => void;
+}) => {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <span className="ml-2">Loading users...</span>
+      </div>
+    );
+  }
+
   if (!data || data.length < 1) {
     return (
       <EmptyList
-        title="No User"
-        message="You do not have any User"
+        title="No Users"
+        message="You do not have any users"
         src="/no-user.svg"
       />
     );
@@ -51,7 +68,11 @@ const AllUsersTable = ({ data }: { data: AllUsers[] }) => {
               <Status status={request.status} />
             </TableCell>
             <TableCell className="p-6">
-              <UserActionButton status={request.status} id={request.id} />
+              <UserActionButton
+                status={request.status}
+                id={request.id}
+                onUserUpdated={onUserUpdated}
+              />
             </TableCell>
           </TableRow>
         ))}

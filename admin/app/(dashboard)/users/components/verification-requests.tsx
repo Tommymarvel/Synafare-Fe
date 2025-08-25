@@ -20,11 +20,28 @@ import ConfirmDeleteUser from './modals/confirm-delete-user';
 import ConfirmVerifyUserModal from './modals/confirm-verify-user';
 import { AllUsers } from '@/types/usertypes';
 
-const VerificationRequests = ({ data }: { data: AllUsers[] }) => {
+const VerificationRequests = ({
+  data,
+  loading = false,
+  onUserUpdated,
+}: {
+  data: AllUsers[];
+  loading?: boolean;
+  onUserUpdated?: () => void;
+}) => {
   const [showDeclineModal, setshowDeclineModal] = useState(false);
   const [showDeleteModal, setshowDeleteModal] = useState(false);
   const [showVerifyModal, setshowVerifyModal] = useState(false);
-  
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <span className="ml-2">Loading verification requests...</span>
+      </div>
+    );
+  }
+
   if (!data || data.length < 1) {
     return (
       <EmptyList
@@ -91,8 +108,7 @@ const VerificationRequests = ({ data }: { data: AllUsers[] }) => {
                   id={request.id}
                   status={request.status}
                   openDeclineModal={setshowDeclineModal}
-                  openDeleteModal={setshowDeleteModal}
-                  openVerifyModal={setshowVerifyModal}
+                  onUserUpdated={onUserUpdated}
                 />
               </TableCell>
             </TableRow>
