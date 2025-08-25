@@ -61,7 +61,9 @@ export default function SignUpPage() {
         localStorage.setItem('authToken', token);
       }
 
-      if (res.data.status === 204) {
+      console.log(res)
+
+      if (res.data.status === 304) {
         router.push('/signup/verify-otp');
         return;
       }
