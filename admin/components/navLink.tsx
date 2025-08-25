@@ -26,7 +26,7 @@ const NavLink = ({
       <Link
         href={nav.href}
         className={cn(
-          `flex gap-x-3 items-center w-full rounded-sm py-3 px-4 border-l-[8px] text-sm cursor-pointer ${
+          `flex gap-x-3 items-center w-full rounded-xs py-3 px-4 border-l-8 text-sm cursor-pointer ${
             active
               ? "bg-[#25433E] border-l-mikado-yellow text-mikado-yellow fill-mikado-yellow"
               : "text-white fill-white border-l-transparent hover:bg-[#25433E]/40"

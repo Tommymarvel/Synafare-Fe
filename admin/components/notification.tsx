@@ -21,7 +21,7 @@ const Notification = () => {
             </svg>
           </div>
         </div>
-        <span className="breaker h-[full] w-[1px] bg-gray-200 block"></span>
+        <span className="breaker h-[full] w-px bg-gray-200 block"></span>
         <div className="flex gap-x-[9px] items-center cursor-pointer">
           <div className="flex gap-x-1 items-center">
             <Image src="/avatar.jpg" alt="Avatar" width={36} height={36} className="rounded-full w-9 h-9" />

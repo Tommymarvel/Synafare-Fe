@@ -46,7 +46,7 @@ const ProductCarousel = ({
 
   return (
     <Carousel setApi={setApi}>
-      <CarouselContent className="w-full aspect-[489/353] bg-black">
+      <CarouselContent className="w-full aspect-489/353 bg-black">
         {urls.map((src, i) => (
           <CarouselItem className="" key={i}>
             <Image

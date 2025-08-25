@@ -23,7 +23,7 @@ const Pagination = () => {
         <li>
           <a
             href=""
-            className="flex items-center justify-center w-10 h-10 bg-secondary-4 rounded-sm"
+            className="flex items-center justify-center w-10 h-10 bg-secondary-4 rounded-xs"
           >
             1
           </a>

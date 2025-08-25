@@ -9,7 +9,7 @@ const GoBack = ({ className }: { className?: string }) => {
       onClick={() => router.back()}
       className={cn("flex gap-x-3 items-center ", className)}
     >
-      <div className="border border-border-gray w-6 h-6 flex items-center justify-center rounded-sm">
+      <div className="border border-border-gray w-6 h-6 flex items-center justify-center rounded-xs">
         <svg
           width="12"
           height="12"

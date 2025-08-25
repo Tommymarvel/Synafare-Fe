@@ -101,7 +101,7 @@ const ViewTransactionReceipt = ({
                     </div>
                   </li>
 
-                  <li className="h-[1px] bg-gray"></li>
+                  <li className="h-px bg-gray"></li>
 
                   <li className="flex justify-between">
                     <div>Ref Code</div>

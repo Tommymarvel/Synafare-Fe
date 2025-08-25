@@ -29,7 +29,7 @@ const RepaymentHistory = () => {
       </h2>
       <ul className="py-5 px-4 text-xs space-y-2">
         {/* This is for overdue */}
-        <li className="flex gap-x-1 last:[&>div>svg]:hidden last:[&>div+div>div]:border-b-0">
+        <li className="flex gap-x-1 [&>div>svg]:last:hidden [&>div+div>div]:last:border-b-0">
           <div className="w-[16px] flex flex-col justify-start items-center gap-y-[6px] shrink-0">
             <div className="w-[18px] h-[18px] flex items-center justify-center rounded-full">
               <span className="block w-[10px] h-[10px] bg-[#797979]  rounded-full"></span>
@@ -62,7 +62,7 @@ const RepaymentHistory = () => {
 
         {/* this is for Pending/Rejected */}
 
-        <li className="flex gap-x-1 last:[&>div>svg]:hidden last:[&>div+div>div]:border-b-0">
+        <li className="flex gap-x-1 [&>div>svg]:last:hidden [&>div+div>div]:last:border-b-0">
           <div className="w-[16px] flex flex-col justify-start items-center gap-y-[6px] shrink-0">
             <div className="w-[18px] h-[18px] flex items-center justify-center rounded-full">
               <span className="block w-[10px] h-[10px] bg-[#797979]  rounded-full"></span>
@@ -94,7 +94,7 @@ const RepaymentHistory = () => {
         </li>
 
         {/* This is for Active/Completed, I no remember again */}
-        <li className="flex gap-x-1 last:[&>div>svg]:hidden last:[&>div+div>div]:border-b-0">
+        <li className="flex gap-x-1 [&>div>svg]:last:hidden [&>div+div>div]:last:border-b-0">
           <div className="w-[16px] flex flex-col justify-start items-center gap-y-[6px] shrink-0">
             <div className="w-[18px] h-[18px] bg-[#CCEDD6] flex items-center justify-center rounded-full">
               <span className="block w-[10px] h-[10px] bg-[#00A331]  rounded-full"></span>
