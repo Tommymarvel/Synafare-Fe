@@ -1,10 +1,10 @@
+'use client'
 import CardWrapper from '../../../components/cardWrapper';
 import CashFlow from '../dashboard/components/cashflow';
 import LoanOverviewChart from '../dashboard/components/loanOverview';
 import PageIntro from '@/components/page-intro';
 import StatusComp from '@/components/status';
 import TopCards from '@/components/top-cards';
-import { CashflowData, LoanOverviewData } from '@/data/dashboardCharts';
 
 import {
   Table,
@@ -16,7 +16,11 @@ import {
 } from '@/components/ui/table';
 
 import Link from 'next/link';
+import { useDashboardData, useRecentTransaction } from '@/hooks/useDashboard';
+import { formatWalletBalance } from '@/lib/utils/userUtils';
 const Dasboard = () => {
+  const {dashboardData} = useDashboardData()
+  const {transactionData} = useRecentTransaction()
   return (
     <div>
       <PageIntro>Welcome Admin,</PageIntro>
@@ -24,10 +28,10 @@ const Dasboard = () => {
         <div className="flex gap-x-[13px]">
           <div className="rounded-[6px] flex-1 bg-cover bg-deep-green text-white bg-[url('/card-green.png')] py-8 px-4 space-y-[6px]">
             <h3 className="text-[13px]">Wallet balance</h3>
-            <p className="text-lg font-medium">₦ 10,863,113.36</p>
+            <p className="text-lg font-medium">{formatWalletBalance(Number(dashboardData.wallet_bal.amount)) }</p>
           </div>
 
-          <TopCards title="Verification Requests" value={246}>
+          <TopCards title="Verification Requests" value={dashboardData.verify_request}>
             <svg
               width="20"
               height="20"
@@ -58,7 +62,7 @@ const Dasboard = () => {
             </svg>
           </TopCards>
 
-          <TopCards title="Total Users" value={3246}>
+          <TopCards title="Total Users" value={dashboardData.total_users}>
             <svg
               width="21"
               height="21"
@@ -97,7 +101,7 @@ const Dasboard = () => {
             </svg>
           </TopCards>
 
-          <TopCards title="Total Loans" value={178}>
+          <TopCards title="Total Loans" value={dashboardData.total_loans}>
             <svg
               width="20"
               height="20"
@@ -126,9 +130,13 @@ const Dasboard = () => {
         </div>
 
         <div className="flex gap-x-4">
-          <CashFlow data={CashflowData} className="grow" />
+          <CashFlow data={dashboardData.cashFlow} className="grow" />
           <LoanOverviewChart
-            data={LoanOverviewData}
+            data={[
+              { name: "Active", value: dashboardData.active_loans, color: "#FCB022" },
+              { name: "Repaid", value: dashboardData.paid_loans, color: "#3D8B40" },
+              { name: "Overdue", value: dashboardData.overdue_loans, color: "#C21A18" },
+            ]}
             className="shrink-0 min-w-[352px] px-5 pt-[26px]"
           />
         </div>
@@ -138,7 +146,7 @@ const Dasboard = () => {
             <h2>Recent Transactions</h2>
             <Link href="#"> View all </Link>
           </div>
-          <Table className="">
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow className="bg-gray-200 py-3 px-6 border-none">
                 <TableHead className="py-[13px] ps-6">#ID</TableHead>
@@ -151,28 +159,26 @@ const Dasboard = () => {
                 <TableHead className="py-[13px] ps-6">Action</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              <TableRow className="border-b border-b-gray-200">
-                <TableCell className="p-6">#ID023005</TableCell>
-                <TableCell className="p-6">Loan Repayment</TableCell>
-                <TableCell className="p-6">₦1,181,675</TableCell>
-                <TableCell className="p-6">Jan 6, 2025</TableCell>
+            {
+              transactionData.length > 0 ? (<TableBody>
+                {
+                  transactionData.map((item,idxx)=> {
+                    return (<TableRow key={idxx} className="border-b border-b-gray-200">
+                <TableCell className="p-6 w-[12ch] truncate">{item.trx_id}</TableCell>
+                <TableCell className="p-6 capitalize">{item.trx_type.replace(/_/g, " ")}</TableCell>
+                <TableCell className="p-6 ">{formatWalletBalance(item.trx_amount)}</TableCell>
+                <TableCell className="p-6">{item.createdAt}</TableCell>
                 <TableCell className="p-6">
-                  <StatusComp status="Pending" />
+                  <StatusComp status={item.trx_status} />
                 </TableCell>
                 <TableCell className="text-[#E2A109] p-6">View</TableCell>
-              </TableRow>
-              <TableRow className="border-b border-b-gray-200">
-                <TableCell className="p-6">#ID023005</TableCell>
-                <TableCell className="p-6">Loan Repayment</TableCell>
-                <TableCell className="p-6">₦1,181,675</TableCell>
-                <TableCell className="p-6">Jan 6, 2025</TableCell>
-                <TableCell className="p-6">
-                  <StatusComp status="Success" />
-                </TableCell>
-                <TableCell className="text-[#E2A109] p-6">View</TableCell>
-              </TableRow>
-            </TableBody>
+              </TableRow>)
+                  })
+                }
+              </TableBody>) : (<div>
+                Recent Transaction not available
+              </div>)
+            }
           </Table>
         </CardWrapper>
       </div>

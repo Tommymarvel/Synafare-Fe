@@ -31,22 +31,21 @@ const LoanOverviewChart: React.FC<LoanOverviewChartProps> = ({
         <div className="relative">
           <ResponsiveContainer width={219} height={219}>
             <PieChart>
-              {data.map((entry, index) => (
-                <Pie
-                  key={index}
-                  data={[entry]}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  startAngle={90}
-                  endAngle={90 + entry.value * 3.6}
-                  cornerRadius={90}
-                  stroke="none"
-                >
-                  <Cell fill={entry.color} />
-                </Pie>
-              ))}
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={90}
+                dataKey="value"
+                startAngle={90}
+                endAngle={-270} // draw clockwise full circle
+                stroke="none"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
             </PieChart>
           </ResponsiveContainer>
 
