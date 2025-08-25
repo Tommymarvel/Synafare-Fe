@@ -162,12 +162,12 @@ const Dasboard = () => {
             {
               transactionData.length > 0 ? (<TableBody>
                 {
-                  transactionData.map((item,idxx)=> {
+                  transactionData.slice(0, 10).map((item,idxx)=> {
                     return (<TableRow key={idxx} className="border-b border-b-gray-200">
                 <TableCell className="p-6 w-[12ch] truncate">{item.trx_id}</TableCell>
                 <TableCell className="p-6 capitalize">{item.trx_type.replace(/_/g, " ")}</TableCell>
                 <TableCell className="p-6 ">{formatWalletBalance(item.trx_amount)}</TableCell>
-                <TableCell className="p-6">{item.createdAt}</TableCell>
+                <TableCell className="p-6">{new Date(item.createdAt).toLocaleString()}</TableCell>
                 <TableCell className="p-6">
                   <StatusComp status={item.trx_status} />
                 </TableCell>
