@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { X, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
+import NegotiateModal from './NegotiateModal';
+import { createPortal } from 'react-dom';
 
 type HistoryItem = {
   id: string;
@@ -12,6 +14,7 @@ type HistoryItem = {
   tone?: 'active' | 'muted'; // green dot vs gray dot
   ctaLabel?: string; // "View Quote"
   onCtaClick?: () => void;
+  onViewQuote?: () => void; // Add this for view quote functionality
 };
 
 type QuoteModalProps = {
@@ -25,15 +28,17 @@ type QuoteModalProps = {
   deliveryAddress: string; // can be multi-line
   customerName: string;
   additionalMessage?: string;
+  requestId?: string; // Add requestId prop
 
   // history & actions
   history?: HistoryItem[];
   onSendQuotation?: () => void; // shown when no history yet
   onAccept?: () => void; // shown when there is history (negotiation)
   onReject?: () => void;
+  onViewQuote?: () => void; // Add this for view quote functionality
 };
 
-export default function QuoteRequestModalV2({
+export default function QuoteRequestModal({
   open,
   onClose,
   quantity,
@@ -42,12 +47,15 @@ export default function QuoteRequestModalV2({
   deliveryAddress,
   customerName,
   additionalMessage,
+  requestId,
   history = [],
   onSendQuotation,
   onAccept,
   onReject,
+  onViewQuote,
 }: QuoteModalProps) {
   const [expanded, setExpanded] = useState(true);
+  const [negotiateOpen, setNegotiateOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -56,14 +64,32 @@ export default function QuoteRequestModalV2({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
+  // Prevent background scroll while modal is open
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (open) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev || '';
+      };
+    }
+  }, [open]);
+
   if (!open) return null;
 
   const hasHistory = history.length > 0;
 
-  return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="absolute inset-0 grid place-items-center px-3">
+  const modalContent = (
+    <div className="fixed inset-0 z-[100000]" aria-hidden={false}>
+      {/* overlay */}
+      <div
+        className="fixed inset-0 bg-black/50 z-[99999] pointer-events-auto"
+        onClick={onClose}
+      />
+
+      {/* container: top-aligned (below app header) */}
+      <div className="fixed inset-0 flex items-start justify-center px-3 pt-20 z-[100000]">
         <div
           className="w-full max-w-2xl rounded-2xl bg-white shadow-xl"
           role="dialog"
@@ -91,7 +117,7 @@ export default function QuoteRequestModalV2({
             </div>
 
             {/* Delivery / Customer */}
-            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <SummaryKV
                 label="Delivery Address"
                 value={deliveryAddress}
@@ -125,7 +151,9 @@ export default function QuoteRequestModalV2({
               {expanded && (
                 <div className="divide-y divide-gray-100">
                   {hasHistory ? (
-                    history.map((h) => <HistoryRow key={h.id} {...h} />)
+                    history.map((h) => (
+                      <HistoryRow key={h.id} {...h} onViewQuote={onViewQuote} />
+                    ))
                   ) : (
                     <div className="px-4 py-4 text-sm text-gray-500">
                       No activity yet.
@@ -149,15 +177,23 @@ export default function QuoteRequestModalV2({
                   <Button
                     variant="secondary"
                     onClick={onReject}
-                    className="w-full sm:w-[48%] rounded-xl py-3 text-sm"
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
                   >
                     Reject
                   </Button>
                   <Button
                     onClick={onAccept}
-                    className="w-full sm:w-[48%] rounded-xl py-3 text-sm"
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
                   >
                     Accept
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setNegotiateOpen(true);
+                    }}
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                  >
+                    Negotiate
                   </Button>
                 </div>
               )}
@@ -165,8 +201,30 @@ export default function QuoteRequestModalV2({
           </div>
         </div>
       </div>
+      {negotiateOpen && (
+        <NegotiateModal
+          onClose={() => setNegotiateOpen(false)}
+          onSuccess={() => {
+            setNegotiateOpen(false);
+            // Refresh the quote status or perform any other action
+          }}
+          amountReceived={
+            quoteSent === '— — — — — —'
+              ? 0
+              : Number(quoteSent.replace(/[^0-9.-]+/g, ''))
+          }
+          requestId={requestId || ''}
+        />
+      )}
     </div>
   );
+
+  // Render modal into document.body to avoid stacking context issues
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }
 
 /* ---------- subcomponents ---------- */
@@ -201,6 +259,7 @@ function HistoryRow({
   tone = 'muted',
   ctaLabel,
   onCtaClick,
+  onViewQuote,
 }: HistoryItem) {
   const dot = tone === 'active' ? 'bg-green-500' : 'bg-gray-400';
 
@@ -223,7 +282,11 @@ function HistoryRow({
             <div className="shrink-0 text-xs text-gray-500">{date}</div>
           </div>
 
-          {note && <div className="mt-0.5 text-xs text-gray-500">{note}</div>}
+          {note && (
+            <div className="mt-0.5 text-xs text-gray-500 whitespace-pre-line">
+              {note}
+            </div>
+          )}
 
           {ctaLabel && onCtaClick && (
             <button
@@ -232,6 +295,16 @@ function HistoryRow({
               className="mt-1 text-xs font-medium text-mikado underline underline-offset-2"
             >
               {ctaLabel}
+            </button>
+          )}
+
+          {onViewQuote && (
+            <button
+              type="button"
+              onClick={onViewQuote}
+              className="mt-1 text-xs font-medium text-mikado underline underline-offset-2 capitalize"
+            >
+              View Quote
             </button>
           )}
         </div>

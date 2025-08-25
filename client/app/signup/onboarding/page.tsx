@@ -47,7 +47,7 @@ const businessOptions: Option[] = [
   { value: '', label: 'Select nature of business' },
   { value: 'installer', label: 'Installer' },
   { value: 'distributor', label: 'Distributor' },
-  { value: 'retailer', label: 'Retailer' },
+  { value: 'supplier', label: 'Supplier' },
 ];
 
 export default function Onboarding() {
@@ -131,7 +131,7 @@ export default function Onboarding() {
           validationSchema={validationSchema}
           onSubmit={onSubmit}
         >
-          {() => (
+          {({ isSubmitting }) => (
             <Form className="mt-6 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -191,6 +191,7 @@ export default function Onboarding() {
                       hasError={meta.touched && !!meta.error}
                       size="lg"
                       className="text-raisin"
+                      type='tel'
                     />
                     <ErrorMessage
                       name="phn_no"
@@ -279,8 +280,8 @@ export default function Onboarding() {
               </Field>
 
               <div className="pt-4">
-                <Button type="submit" variant="default" className="w-full">
-                  Next
+                <Button type="submit" variant="default" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Next'}
                 </Button>
               </div>
             </Form>

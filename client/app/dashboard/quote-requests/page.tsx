@@ -1,25 +1,26 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Search } from 'lucide-react';
 import Pagination from '@/app/components/pagination';
-import axiosInstance from '@/lib/axiosInstance';
-import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
-import { fmtNaira } from '@/lib/format';
+import { fmtDate, fmtNaira } from '@/lib/format';
 import StatusChip from '@/app/components/statusChip';
 import { useRouter } from 'next/navigation';
 import QuotationPreviewModal from './modal/QuotationPreviewModal';
-import QuoteRequestModalV2 from './modal/QuoteStatusModal';
+import { RowActions } from './components/RowActions';
+import type { QuoteRequestStatus } from './components/RowActions';
 import {
-  RowActions,
-  QuoteRequest,
-  QuoteRequestStatus,
-} from './components/RowActions';
+  useQuoteRequests,
+  useUpdateQuoteRequest,
+  transformOfferHistoryForUI,
+} from '@/hooks/useQuoteRequests';
+import type { QuoteRequest } from '@/hooks/useQuoteRequests';
+import { useAuth } from '@/context/AuthContext';
+import QuoteRequestModal from './modal/QuoteStatusModal';
 
 type DateRange = '' | '7' | '30' | '90';
-const PAGE_SIZE = 10;
 
 type RowAction =
   | 'viewRequest'
@@ -29,121 +30,14 @@ type RowAction =
   | 'rejectRequest'
   | 'view';
 
-// Mock data for demonstration
-const mockQuoteRequests: QuoteRequest[] = [
-  {
-    id: '1',
-    customer: 'Mary Thomas',
-    product: '1.5kVa 2.4kWh LT',
-    quantity: 10,
-    quoteSent: null,
-    counterAmount: null,
-    dateRequested: '2025-01-06T00:00:00Z',
-    status: 'PENDING',
-    customerEmail: 'mary.thomas@example.com',
-    supplierName: 'Blue Camel Energy',
-    productCategory: 'Inverter',
-  },
-  {
-    id: '2',
-    customer: 'Mary Thomas',
-    product: '1.5kVa 2.4kWh LT',
-    quantity: 21,
-    quoteSent: null,
-    counterAmount: null,
-    dateRequested: '2025-01-06T00:00:00Z',
-    status: 'QUOTE_SENT',
-    customerEmail: 'mary.thomas@example.com',
-    supplierName: 'Blue Camel Energy',
-    productCategory: 'Inverter',
-  },
-  {
-    id: '3',
-    customer: 'Mary Thomas',
-    product: '1.5kVa 2.4kWh LT',
-    quantity: 10,
-    quoteSent: 1181675,
-    counterAmount: 827172,
-    dateRequested: '2025-01-06T00:00:00Z',
-    status: 'NEGOTIATED',
-    customerEmail: 'mary.thomas@example.com',
-    supplierName: 'Blue Camel Energy',
-    productCategory: 'Inverter',
-  },
-  {
-    id: '4',
-    customer: 'Mary Thomas',
-    product: '1.5kVa 2.4kWh LT',
-    quantity: 20,
-    quoteSent: 1181675,
-    counterAmount: 827172,
-    dateRequested: '2025-01-06T00:00:00Z',
-    status: 'NEGOTIATED',
-    customerEmail: 'mary.thomas@example.com',
-    supplierName: 'Blue Camel Energy',
-    productCategory: 'Inverter',
-  },
-  {
-    id: '5',
-    customer: 'Mary Thomas',
-    product: '1.5kVa 2.4kWh LT',
-    quantity: 10,
-    quoteSent: 1181675,
-    counterAmount: 827172,
-    dateRequested: '2025-01-06T00:00:00Z',
-    status: 'REJECTED',
-    customerEmail: 'mary.thomas@example.com',
-    supplierName: 'Blue Camel Energy',
-    productCategory: 'Inverter',
-  },
-  {
-    id: '6',
-    customer: 'Mary Thomas',
-    product: '1.5kVa 2.4kWh LT',
-    quantity: 8,
-    quoteSent: 1181675,
-    counterAmount: 827172,
-    dateRequested: '2025-01-06T00:00:00Z',
-    status: 'ACCEPTED',
-    customerEmail: 'mary.thomas@example.com',
-    supplierName: 'Blue Camel Energy',
-    productCategory: 'Inverter',
-  },
-  {
-    id: '7',
-    customer: 'Mary Thomas',
-    product: '1.5kVa 2.4kWh LT',
-    quantity: 100,
-    quoteSent: 1181675,
-    counterAmount: 827172,
-    dateRequested: '2025-01-06T00:00:00Z',
-    status: 'ACCEPTED',
-    customerEmail: 'mary.thomas@example.com',
-    supplierName: 'Blue Camel Energy',
-    productCategory: 'Inverter',
-  },
-  {
-    id: '8',
-    customer: 'Mary Thomas',
-    product: '1.5kVa 2.4kWh LT',
-    quantity: 10,
-    quoteSent: 1181675,
-    counterAmount: 827172,
-    dateRequested: '2025-01-06T00:00:00Z',
-    status: 'DELIVERED',
-    customerEmail: 'mary.thomas@example.com',
-    supplierName: 'Blue Camel Energy',
-    productCategory: 'Inverter',
-  },
-];
-
 export default function QuoteRequestsPage() {
   const router = useRouter();
-  const [quoteRequests] = useState<QuoteRequest[]>(mockQuoteRequests);
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<QuoteRequestStatus | ''>('');
   const [dateRange, setDateRange] = useState<DateRange>('');
   const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
 
@@ -153,43 +47,67 @@ export default function QuoteRequestsPage() {
   const [selectedQuoteRequest, setSelectedQuoteRequest] =
     useState<QuoteRequest | null>(null);
 
-  // Compute filtered results
+  // Use SWR hook for data fetching
+  const {
+    data: quoteRequests,
+    meta,
+    error,
+    isLoading,
+    mutate,
+  } = useQuoteRequests({
+    page,
+    limit: pageSize,
+    status: statusFilter || undefined,
+    search: search.trim() || undefined,
+  });
+
+  // Use update hook
+  const { acceptQuote, rejectQuote } = useUpdateQuoteRequest();
+
+  // Show error toast if there's an error
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message);
+    }
+  }, [error]);
+
+  // Reset selection when data changes
+  useEffect(() => {
+    setSelected(new Set());
+  }, [quoteRequests]);
+
+  // Set default tab based on user type when user data loads
+  useEffect(() => {
+    if (user?.nature_of_solar_business) {
+      if (user.nature_of_solar_business === 'supplier') {
+        setActiveTab('received');
+      } else {
+        setActiveTab('sent');
+      }
+    }
+  }, [user?.nature_of_solar_business]);
+
+  // Get totals from meta or fallback to current data
+  const totalPages = meta?.totalPages || 1;
+  const totalRequests = meta?.total_requests || quoteRequests.length;
+
+  // Compute filtered results for client-side date filtering
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    if (!dateRange) return quoteRequests;
+
     const now = new Date();
+    const days = Number(dateRange);
+    const since = new Date(now);
+    since.setDate(now.getDate() - days);
 
     return quoteRequests.filter((req) => {
-      if (
-        q &&
-        !req.customer.toLowerCase().includes(q) &&
-        !req.product.toLowerCase().includes(q)
-      )
-        return false;
-      if (statusFilter && req.status !== statusFilter) return false;
-
-      if (dateRange) {
-        const days = Number(dateRange);
-        const since = new Date(now);
-        since.setDate(now.getDate() - days);
-        const requested = new Date(req.dateRequested);
-        if (requested < since) return false;
-      }
-
-      return true;
+      const requested = new Date(req.dateRequested);
+      return requested >= since;
     });
-  }, [quoteRequests, search, statusFilter, dateRange]);
+  }, [quoteRequests, dateRange]);
 
-  // Reset page & selection when filters change
-  React.useEffect(() => {
-    setPage(1);
-    setSelected(new Set());
-  }, [search, statusFilter, dateRange]);
-
-  // Pagination
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const start = (page - 1) * PAGE_SIZE;
-  const end = Math.min(start + PAGE_SIZE, filtered.length);
-  const pageRows = filtered.slice(start, end);
+  // For client-side pagination display (server handles actual pagination)
+  const pageRows = filtered;
 
   // Row selection (page-scoped "select all")
   const pageIds = pageRows.map((r) => r.id);
@@ -220,6 +138,45 @@ export default function QuoteRequestsPage() {
     });
   };
 
+  // Check if user is a supplier (after all hooks)
+  const isSupplier = user?.nature_of_solar_business === 'supplier';
+  const isDistributorOrInstaller =
+    user?.nature_of_solar_business === 'distributor' ||
+    user?.nature_of_solar_business === 'installer';
+
+  // If user is not a supplier, distributor, or installer, show access denied message
+  if (!isSupplier && !isDistributorOrInstaller) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+          <div className="max-w-md mx-auto">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Access Restricted
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Quote requests are only available for suppliers, distributors, and
+              installers.
+              {user?.nature_of_solar_business && (
+                <span className="block mt-2">
+                  Your account type:{' '}
+                  <strong className="capitalize">
+                    {user.nature_of_solar_business}
+                  </strong>
+                </span>
+              )}
+            </p>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="bg-mikado text-white px-6 py-2 rounded-lg hover:bg-mikado/90 transition-colors"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const handleAction = async (
     action: RowAction,
     quoteRequest: QuoteRequest
@@ -229,7 +186,7 @@ export default function QuoteRequestsPage() {
         case 'viewRequest':
           // Show quote preview modal
           setSelectedQuoteRequest(quoteRequest);
-          setShowQuotePreviewModal(true);
+          setShowQuoteStatusModal(true);
           break;
         case 'sendQuote':
           // Navigate to write-quote page
@@ -243,18 +200,22 @@ export default function QuoteRequestsPage() {
           setShowQuoteStatusModal(true);
           break;
         case 'acceptRequest':
-          // Accept the quote request
-          await axiosInstance.patch(`/quote-requests/${quoteRequest.id}`, {
-            status: 'ACCEPTED',
-          });
-          toast.success('Quote request accepted successfully');
+          // Accept the quote request using API
+          {
+            const res = await acceptQuote(quoteRequest.id);
+            toast.success(res?.message || 'Quote request accepted successfully');
+            // Refresh data
+            await mutate();
+          }
           break;
         case 'rejectRequest':
-          // Reject the quote request
-          await axiosInstance.patch(`/quote-requests/${quoteRequest.id}`, {
-            status: 'REJECTED',
-          });
-          toast.success('Quote request rejected successfully');
+          // Reject the quote request using API
+          {
+            const res = await rejectQuote(quoteRequest.id);
+            toast.success(res?.message || 'Quote request rejected successfully');
+            // Refresh data
+            await mutate();
+          }
           break;
         case 'view':
           // View completed/delivered request
@@ -265,12 +226,9 @@ export default function QuoteRequestsPage() {
           console.log('Unknown action:', action);
       }
     } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      toast.error(
-        axiosError.response?.data?.message ||
-          axiosError.message ||
-          'An error occurred'
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred';
+      toast.error(errorMessage);
     }
   };
 
@@ -300,19 +258,24 @@ export default function QuoteRequestsPage() {
       <div className="bg-white rounded-lg shadow-sm">
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6">
-            <button
-              onClick={() => setActiveTab('received')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'received'
-                  ? 'border-mikado text-mikado'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Received Requests
-              <span className="ml-2 bg-mikado text-white text-xs px-2 py-1 rounded-full">
-                {getReceivedCount()}
-              </span>
-            </button>
+            {/* Show Received Requests tab only for suppliers */}
+            {isSupplier && (
+              <button
+                onClick={() => setActiveTab('received')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'received'
+                    ? 'border-mikado text-mikado'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Received Requests
+                <span className="ml-2 bg-mikado text-white text-xs px-2 py-1 rounded-full">
+                  {getReceivedCount()}
+                </span>
+              </button>
+            )}
+
+            {/* Show Sent Requests tab for all user types */}
             <button
               onClick={() => setActiveTab('sent')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -321,10 +284,19 @@ export default function QuoteRequestsPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Sent Requests
+              {isSupplier ? 'Sent Requests' : 'My Quote Requests'}
               <span className="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">
                 {getSentCount()}
               </span>
+            </button>
+
+            <button
+              onClick={() => mutate()}
+              disabled={isLoading}
+              className="py-4 px-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
+              title="Refresh"
+            >
+              {isLoading ? 'Refreshing...' : 'Refresh'}
             </button>
           </nav>
         </div>
@@ -413,13 +385,24 @@ export default function QuoteRequestsPage() {
                 </thead>
 
                 <tbody>
-                  {pageRows.length === 0 ? (
+                  {isLoading ? (
                     <tr>
                       <td
                         colSpan={9}
                         className="px-6 py-10 text-center text-sm text-[#797979]"
                       >
-                        No quote requests match your filters.
+                        Loading quote requests...
+                      </td>
+                    </tr>
+                  ) : pageRows.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={9}
+                        className="px-6 py-10 text-center text-sm text-[#797979]"
+                      >
+                        {search || statusFilter || dateRange
+                          ? 'No quote requests match your filters.'
+                          : 'No quote requests found.'}
                       </td>
                     </tr>
                   ) : (
@@ -477,10 +460,7 @@ export default function QuoteRequestsPage() {
                         </td>
 
                         <td className="px-6 py-3 text-sm text-center hidden md:table-cell whitespace-nowrap">
-                          {format(
-                            new Date(request.dateRequested),
-                            'MMM d, yyyy'
-                          )}
+                          {fmtDate(request.dateRequested)}
                         </td>
 
                         <td className="px-6 py-3 text-sm text-center hidden lg:table-cell whitespace-nowrap">
@@ -503,11 +483,18 @@ export default function QuoteRequestsPage() {
 
           {/* Footer / Pagination */}
           <div className="py-4 px-6">
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-            />
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Showing {(page - 1) * pageSize + 1} to{' '}
+                {Math.min(page * pageSize, totalRequests)} of {totalRequests}{' '}
+                results
+              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -544,7 +531,7 @@ export default function QuoteRequestsPage() {
 
       {/* Quote Status Modal */}
       {showQuoteStatusModal && selectedQuoteRequest && (
-        <QuoteRequestModalV2
+        <QuoteRequestModal
           open={showQuoteStatusModal}
           onClose={() => {
             setShowQuoteStatusModal(false);
@@ -561,20 +548,17 @@ export default function QuoteRequestsPage() {
               ? fmtNaira(selectedQuoteRequest.counterAmount)
               : '— — — — — —'
           }
-          deliveryAddress="Address not provided"
+          deliveryAddress={
+            selectedQuoteRequest.deliveryLocation || 'Address not provided'
+          }
           customerName={selectedQuoteRequest.customer}
           additionalMessage={selectedQuoteRequest.message}
-          history={[
-            {
-              id: '1',
-              title: `Quote request created for ${selectedQuoteRequest.product}`,
-              date: format(
-                new Date(selectedQuoteRequest.dateRequested),
-                'dd MMM yyyy'
-              ),
-              tone: 'muted' as const,
-            },
-          ]}
+          requestId={selectedQuoteRequest.id}
+          history={
+            selectedQuoteRequest.offerHistory
+              ? transformOfferHistoryForUI(selectedQuoteRequest.offerHistory)
+              : []
+          }
           onSendQuotation={() => {
             setShowQuoteStatusModal(false);
             router.push(
@@ -588,6 +572,10 @@ export default function QuoteRequestsPage() {
           onReject={() => {
             handleAction('rejectRequest', selectedQuoteRequest);
             setShowQuoteStatusModal(false);
+          }}
+          onViewQuote={() => {
+            setShowQuoteStatusModal(false);
+            setShowQuotePreviewModal(true);
           }}
         />
       )}

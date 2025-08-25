@@ -69,7 +69,13 @@ export const RFQProvider: React.FC<RFQProviderProps> = ({ children }) => {
 
       setRfqItems(transformedItems);
     } catch (error) {
-      console.error('Failed to fetch RFQ cart:', error);
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
       setRfqItems([]);
     } finally {
       setLoading(false);
@@ -134,8 +140,13 @@ export const RFQProvider: React.FC<RFQProviderProps> = ({ children }) => {
 
       toast.success('Item removed from cart');
     } catch (error) {
-      console.error('Failed to remove from RFQ:', error);
-      toast.error('Failed to remove item from cart');
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
     }
   };
 
@@ -162,8 +173,13 @@ export const RFQProvider: React.FC<RFQProviderProps> = ({ children }) => {
 
       toast.success('Quantity updated successfully');
     } catch (error) {
-      console.error('Failed to update quantity:', error);
-      toast.error('Failed to update quantity');
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
     }
   };
   const isInRFQ = (productId: string) => {
@@ -193,8 +209,13 @@ export const RFQProvider: React.FC<RFQProviderProps> = ({ children }) => {
       setRfqItems([]);
       toast.success('Cart cleared successfully');
     } catch (error) {
-      console.error('Failed to clear RFQ:', error);
-      toast.error('Failed to clear cart');
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
     }
   };
 

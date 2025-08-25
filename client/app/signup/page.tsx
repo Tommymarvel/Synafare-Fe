@@ -40,6 +40,7 @@ export default function SignUpPage() {
   const [show, setShow] = useState(false);
   const { signup, submitting } = useSignupFlow();
   const router = useRouter();
+  const [isLogin, setIsLogin] = useState(false);
 
   const handleGoogleLogin = async () => {
     let sessionEmail = '';
@@ -50,6 +51,8 @@ export default function SignUpPage() {
       const idToken = await result.user.getIdToken();
       sessionEmail = result.user.email || '';
       sessionStorage.setItem('verifyEmail', sessionEmail);
+
+      setIsLogin(true);
 
       const res = await axiosInstance.post('/auth/login', { idToken });
       const token = res.data.token;
@@ -112,11 +115,22 @@ export default function SignUpPage() {
           );
         }
       }
+    } finally {
+      setIsLogin(false);
     }
   };
 
   return (
     <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
+      {isLogin && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mikado"></div>
+            <p className="text-gray-700 font-medium">Logging you in...</p>
+          </div>
+        </div>
+      )}
+
       <div>
         <h1 className="text-2xl lg:text-[34px] font-medium text-raisin text-center">
           Welcome to Synafare

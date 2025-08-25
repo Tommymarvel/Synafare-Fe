@@ -16,17 +16,18 @@ export type QuoteRequestStatus =
 export interface QuoteRequest {
   id: string;
   customer: string;
+  customerEmail: string;
   product: string;
   quantity: number;
   quoteSent: number | null;
   counterAmount: number | null;
   dateRequested: string;
   status: QuoteRequestStatus;
-  customerEmail?: string;
   supplierName?: string;
   productCategory?: string;
   message?: string;
   supplierResponse?: string;
+  deliveryLocation?: string;
 }
 
 type RowAction =

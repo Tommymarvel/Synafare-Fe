@@ -37,12 +37,15 @@ const LoginSchema = Yup.object<LoginValues>({
 
 export default function LoginPage() {
   const [show, setShow] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const router = useRouter();
   const { refreshUser } = useAuth();
   const { login } = useLoginFlow();
 
   const handleGoogleLogin = async () => {
     let sessionEmail = '';
+
     try {
       sessionStorage.removeItem('verifyEmail');
       const provider = new GoogleAuthProvider();
@@ -50,7 +53,7 @@ export default function LoginPage() {
       const idToken = await result.user.getIdToken();
       sessionEmail = result.user.email || '';
       sessionStorage.setItem('verifyEmail', sessionEmail);
-
+      setIsLogin(true);
       const res = await axiosInstance.post('/auth/login', { idToken });
 
       const token = res.data.token;
@@ -97,7 +100,6 @@ export default function LoginPage() {
             msg = error.message;
         }
         toast.error(msg);
-
         const axiosError = error as AxiosError<{ message?: string }>;
         if (
           axiosError.response?.data.message ===
@@ -117,116 +119,141 @@ export default function LoginPage() {
           );
         }
       }
+    } finally {
+      setIsLoading(false);
+      setIsLogin(false);
+    }
+  };
+
+  const handleLogin = async (values: LoginValues) => {
+    setIsLoading(true);
+    try {
+      await login(values);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
-      <div>
-        <h1 className="text-2xl lg:text-[34px] font-medium text-raisin text-center">
-          Welcome Back
-        </h1>
-        <p className="text-sm text-[#645D5D] mt-2 text-center">
-          Provide your correct details below to log in
-        </p>
-      </div>
-      <Formik
-        initialValues={{ email: '', password: '' }}
-        validationSchema={LoginSchema}
-        onSubmit={(values) => login(values)}
-      >
-        {({ isSubmitting, isValid }) => (
-          <Form className="space-y-4 ">
-            {/* Email */}
-            <div>
-              <Field name="email">
-                {({ field }: FieldProps) => (
-                  <Input
-                    {...field}
-                    label="Email Address"
-                    variant="outline"
-                    type="email"
-                    placeholder="you@email.com"
-                  />
-                )}
-              </Field>
-              <ErrorMessage
-                name="email"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
+    <div className="relative">
+      {/* Loading Overlay */}
+      {isLogin && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mikado"></div>
+            <p className="text-gray-700 font-medium">Logging you in...</p>
+          </div>
+        </div>
+      )}
 
-            {/* Password */}
-            <div>
-              <div className="relative">
-                <Field name="password">
+      <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
+        <div>
+          <h1 className="text-2xl lg:text-[34px] font-medium text-raisin text-center">
+            Welcome Back
+          </h1>
+          <p className="text-sm text-[#645D5D] mt-2 text-center">
+            Provide your correct details below to log in
+          </p>
+        </div>
+        <Formik
+          initialValues={{ email: '', password: '' }}
+          validationSchema={LoginSchema}
+          onSubmit={handleLogin}
+        >
+          {({ isSubmitting, isValid }) => (
+            <Form className="space-y-4 ">
+              {/* Email */}
+              <div>
+                <Field name="email">
                   {({ field }: FieldProps) => (
                     <Input
                       {...field}
-                      label="Password"
+                      label="Email Address"
                       variant="outline"
-                      type={show ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      className="pr-12"
+                      type="email"
+                      placeholder="you@email.com"
                     />
                   )}
                 </Field>
-                <button
-                  type="button"
-                  onClick={() => setShow((s) => !s)}
-                  className="absolute right-4 top-[68%] transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  aria-label={show ? 'Hide password' : 'Show password'}
-                >
-                  {show ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
+                <ErrorMessage
+                  name="email"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
               </div>
 
-              <ErrorMessage
-                name="password"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
+              {/* Password */}
+              <div>
+                <div className="relative">
+                  <Field name="password">
+                    {({ field }: FieldProps) => (
+                      <Input
+                        {...field}
+                        label="Password"
+                        variant="outline"
+                        type={show ? 'text' : 'password'}
+                        placeholder="Enter your password"
+                        className="pr-12"
+                      />
+                    )}
+                  </Field>
+                  <button
+                    type="button"
+                    onClick={() => setShow((s) => !s)}
+                    className="absolute right-4 top-[68%] transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label={show ? 'Hide password' : 'Show password'}
+                  >
+                    {show ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
 
-            {/* Remember + Forgot */}
-            <div className="flex items-center justify-between">
-              <label className="inline-flex items-center text-sm">
-                <input type="checkbox" className="h-4 w-4 rounded" />
-                <span className="ml-2 text-gray-700">Remember me</span>
-              </label>
-              <a href="/forgot-password" className="text-sm text-mikado">
-                Forgot Password?
-              </a>
-            </div>
+                <ErrorMessage
+                  name="password"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
 
-            {/* Submit */}
-            <Button
-              type="submit"
-              variant="default"
-              className="w-full"
-              disabled={!isValid || isSubmitting}
-            >
-              {isSubmitting ? 'Logging in…' : 'Login'}
-            </Button>
-          </Form>
-        )}
-      </Formik>
-      <div className="flex items-center">
-        <hr className="flex-grow border-gray-300" />
-        <span className="px-3 text-gray-500">OR</span>
-        <hr className="flex-grow border-gray-300" />
+              {/* Remember + Forgot */}
+              <div className="flex items-center justify-between">
+                <label className="inline-flex items-center text-sm">
+                  <input type="checkbox" className="h-4 w-4 rounded" />
+                  <span className="ml-2 text-gray-700">Remember me</span>
+                </label>
+                <a href="/forgot-password" className="text-sm text-mikado">
+                  Forgot Password?
+                </a>
+              </div>
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                variant="default"
+                className="w-full"
+                disabled={!isValid || isSubmitting}
+              >
+                {isSubmitting ? 'Logging in…' : 'Login'}
+              </Button>
+            </Form>
+          )}
+        </Formik>
+        <div className="flex items-center">
+          <hr className="flex-grow border-gray-300" />
+          <span className="px-3 text-gray-500">OR</span>
+          <hr className="flex-grow border-gray-300" />
+        </div>
+
+        {/* Google Sign-In */}
+        <Button
+          variant="outline"
+          className="w-full inline-flex items-center justify-center space-x-2"
+          onClick={handleGoogleLogin}
+          disabled={isLoading}
+        >
+          <Image src={Google} alt="Google icon" width={20} height={20} />
+          <span>Continue with Google</span>
+        </Button>
       </div>
-
-      {/* Google Sign-In */}
-      <Button
-        variant="outline"
-        className="w-full inline-flex items-center justify-center space-x-2"
-        onClick={handleGoogleLogin}
-      >
-        <Image src={Google} alt="Google icon" width={20} height={20} />
-        <span>Continue with Google</span>
-      </Button>
     </div>
   );
 }

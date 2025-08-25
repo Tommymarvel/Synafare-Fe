@@ -13,6 +13,7 @@ import quoteSrc from '@/app/assets/quote.svg';
 import invoiceSrc from '@/app/assets/invoice.svg';
 import customerSrc from '@/app/assets/customer.svg';
 import { XIcon } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', src: homeSrc },
@@ -32,6 +33,19 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  // Filter navigation items based on user role
+  const filteredNavItems = navItems.filter((item) => {
+    // Show Quote Requests for suppliers, distributors, and installers
+    if (item.href === '/dashboard/quote-requests') {
+      return ['supplier', 'distributor', 'installer'].includes(
+        user?.nature_of_solar_business || ''
+      );
+    }
+    // Show all other items for everyone
+    return true;
+  });
 
   return (
     <nav className="flex flex-col p-4 space-y-1 bg-raisin h-full">
@@ -48,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </span>
       </div>
       <div className="mt-9 flex flex-col space-y-1">
-        {navItems.map(({ label, href, src }) => {
+        {filteredNavItems.map(({ label, href, src }) => {
           const isActive = pathname === href;
           return (
             <Link
