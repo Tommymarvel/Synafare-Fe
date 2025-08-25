@@ -146,55 +146,56 @@ export default function SendQuotationPage() {
     }
   }, [requestId, user, router]);
 
-  const handleSubmit = async (payload: {
-    items: QuoteItem[];
-    discount: string;
-    tax: string;
-    notes?: string;
-  }) => {
-    try {
-      if (!requestId) {
-        toast.error('No requestId found');
-        return;
-      }
+ const handleSubmit = async (payload: {
+   items: QuoteItem[];
+   discount: string;
+   tax: string;
+   notes?: string;
+ }) => {
+   try {
+     if (!requestId) {
+       toast.error('No requestId found');
+       return;
+     }
 
-      // Transform items for backend schema
-      const formattedItems = payload.items.map((item, idx) => {
-        const baseProductId = quoteRequest?.items[idx]?.product;
-        return {
-          product: baseProductId, // product ID from original request
-          quantity: item.qty,
-          unit_price: parseNairaInput(item.price),
-        };
-      });
+     // Transform items for backend schema
+     const formattedItems = payload.items.map((item, idx) => {
+       const baseProductId = quoteRequest?.items[idx]?.product;
+       return {
+         product: baseProductId, // product ID from original request
+         quantity: item.qty,
+         unit_price: parseNairaInput(item.price),
+       };
+     });
 
-      const body = {
-        items: formattedItems,
-        discount: parseNairaInput(payload.discount),
-        tax: parseNairaInput(payload.tax),
-        additional_information: payload.notes || '',
-      };
+     const body = {
+       items: formattedItems,
+       discount: parseNairaInput(payload.discount),
+       tax: parseNairaInput(payload.tax),
+       additional_information: payload.notes || '',
+     };
 
-      const response = await axiosInstance.post(
-        `/quote/create/${requestId}`,
-        body
-      );
+     const response = await axiosInstance.post(
+       `/quote/create/${requestId}`,
+       body
+     );
 
-      toast.success('Quote sent successfully');
-      console.log('Quote created:', response.data);
+     toast.success('Quote sent successfully');
+     console.log('Quote created:', response.data);
 
-      // Optionally redirect back
-      router.push('/dashboard/quote-requests');
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      toast.error(
-        (axiosError.response && axiosError.response.data
-          ? axiosError.response.data.message || axiosError.response.data
-          : axiosError.message || 'An error occurred'
-        ).toString()
-      );
-    }
-  };
+     // Optionally redirect back
+     router.push('/dashboard/quote-requests');
+   } catch (error) {
+         const axiosError = error as AxiosError<{ message?: string }>;
+         toast.error(
+           (axiosError.response && axiosError.response.data
+             ? axiosError.response.data.message || axiosError.response.data
+             : axiosError.message || 'An error occurred'
+           ).toString()
+         );
+       }
+ };
+
 
   if (loading) {
     return (
@@ -560,6 +561,7 @@ export default function SendQuotationPage() {
     </div>
   );
 }
+
 
 function formatNaira(n: number) {
   return new Intl.NumberFormat('en-NG', { maximumFractionDigits: 0 }).format(

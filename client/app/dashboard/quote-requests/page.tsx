@@ -203,7 +203,9 @@ export default function QuoteRequestsPage() {
           // Accept the quote request using API
           {
             const res = await acceptQuote(quoteRequest.id);
-            toast.success(res?.message || 'Quote request accepted successfully');
+            toast.success(
+              res?.message || 'Quote request accepted successfully'
+            );
             // Refresh data
             await mutate();
           }
@@ -212,7 +214,9 @@ export default function QuoteRequestsPage() {
           // Reject the quote request using API
           {
             const res = await rejectQuote(quoteRequest.id);
-            toast.success(res?.message || 'Quote request rejected successfully');
+            toast.success(
+              res?.message || 'Quote request rejected successfully'
+            );
             // Refresh data
             await mutate();
           }
@@ -565,12 +569,14 @@ export default function QuoteRequestsPage() {
               `/dashboard/quote-requests/write-quote?requestId=${selectedQuoteRequest.id}`
             );
           }}
-          onAccept={() => {
-            handleAction('acceptRequest', selectedQuoteRequest);
+          onAccept={async () => {
+            if (!selectedQuoteRequest) return;
+            await handleAction('acceptRequest', selectedQuoteRequest);
             setShowQuoteStatusModal(false);
           }}
-          onReject={() => {
-            handleAction('rejectRequest', selectedQuoteRequest);
+          onReject={async () => {
+            if (!selectedQuoteRequest) return;
+            await handleAction('rejectRequest', selectedQuoteRequest);
             setShowQuoteStatusModal(false);
           }}
           onViewQuote={() => {

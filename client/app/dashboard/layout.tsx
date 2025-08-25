@@ -6,23 +6,22 @@ import Header from './components/Header';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
-
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-   const { user, loading } = useAuth();
-   const router = useRouter();
-   const path = usePathname();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const path = usePathname();
 
-   useEffect(() => {
-     if (!loading && !user)
-       router.replace(`/login?next=${encodeURIComponent(path)}`);
-   }, [loading, user, path, router]);
+  useEffect(() => {
+    if (!loading && !user)
+      router.replace(`/login?next=${encodeURIComponent(path)}`);
+  }, [loading, user, path, router]);
 
-   if (loading) return <div className="p-6">Loading…</div>;
-   if (!user) return null;
+  if (loading) return <div className="p-6">Loading…</div>;
+  if (!user) return null;
   return (
     <div className="flex h-screen">
       {/* Left nav */}
@@ -45,5 +44,3 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     </div>
   );
 }
-
-
