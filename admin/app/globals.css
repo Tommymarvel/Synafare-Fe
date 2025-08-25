@@ -15,6 +15,10 @@ button {
   .shadow-custom {
     box-shadow: 0px 3px 15px 0px #00000003;
   }
+
+  .cell-size {
+    --cell-size: theme(spacing.8); /* ✅ will compile to 2rem */
+  }
 }
 
 .no-x > button.absolute.right-4.top-4 {
