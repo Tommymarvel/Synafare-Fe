@@ -9,11 +9,14 @@ type Props = {
   artAlt?: string;
 };
 
-export default function ReferralsCard({
-  referralLink,
-  artSrc = '/megaphone.svg',
-  artAlt = 'Share & earn',
-}: Props) {
+// Next's generated PageProps types can be Promise-like; accept any here
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function ReferralsCard(props: any) {
+  const {
+    referralLink,
+    artSrc = '/megaphone.svg',
+    artAlt = 'Share & earn',
+  } = props as Props;
   const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
 

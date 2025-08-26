@@ -52,6 +52,8 @@ const validationSchema = Yup.object({
     .min(1, 'At least one item is required'),
 });
 
+// Allow any here because Next's generated PageProps types expect Promise-like params
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function EditInvoicePage(props: any) {
   const { params } = props as { params: { id: string } };
   const router = useRouter();

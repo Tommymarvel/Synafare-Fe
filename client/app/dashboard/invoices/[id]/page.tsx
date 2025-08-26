@@ -10,11 +10,10 @@ import { useInvoicePreview } from '../hooks/useInvoicePreview';
 import GoBack from '@/app/components/goback';
 import { useInvoiceActions } from '../hooks/useInvoices';
 
-export default function InvoiceDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+// Next's generated PageProps types expect Promise-like params; accept any here
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function InvoiceDetailPage(props: any) {
+  const { params } = props as { params: { id: string } };
   const router = useRouter();
   const [isSending, setIsSending] = useState(false);
   const { invoice, business, bank, isLoading, error, mutate } =
