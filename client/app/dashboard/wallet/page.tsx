@@ -22,6 +22,7 @@ import { AxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { Transaction, useTransactions } from './hooks/useTransactions';
 import { fmtDate, fmtNaira } from '@/lib/format';
+import EmptyState from '@/app/components/EmptyState';
 
 export type BankDetails = {
   bankAccountNumber: string;
@@ -251,7 +252,14 @@ export default function WalletPage() {
               </div>
             </div>
           ) : (
-            <EmptyState />
+            <EmptyState
+              title="No Recent Transactions"
+              description="You haven't made any transactions yet. Add money to your wallet or make a purchase to see transactions here."
+              illustration={CoinStack}
+              illustrationWidth={120}
+              illustrationHeight={120}
+              className="h-64"
+            />
           )}
         </div>
       </section>
@@ -315,14 +323,5 @@ export default function WalletPage() {
         balance={1140675} // your real wallet balance (number)
       />
     </main>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="flex h-64 flex-col items-center justify-center gap-2 text-neutral-500">
-      <Image src={CoinStack} alt="Coin Stack" />
-      <p>No recent transaction</p>
-    </div>
   );
 }

@@ -83,6 +83,8 @@ export interface QuoteRequest {
   message?: string;
   deliveryLocation?: string;
   offerHistory?: OfferHistory[]; // Add raw offer history for detailed views
+  requesterId?: string; // original request owner id
+  supplierId?: string; // supplier id
 }
 
 // Helper function to transform offer history for UI components
@@ -210,6 +212,8 @@ const transformApiResponse = (apiData: ApiQuoteRequest[]): QuoteRequest[] => {
       message: item.additional_message,
       deliveryLocation: item.delivery_location,
       offerHistory: item.offerHistory || [], // Include raw offer history
+      requesterId: item.user?._id,
+      supplierId: item.supplier, // Extract supplier ID from API
     };
   });
 };

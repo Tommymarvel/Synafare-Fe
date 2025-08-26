@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MoreVertical } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { useAuth } from '@/context/AuthContext';
 
 // Types
 export type QuoteRequestStatus =
@@ -28,15 +29,18 @@ export interface QuoteRequest {
   message?: string;
   supplierResponse?: string;
   deliveryLocation?: string;
+  requesterId?: string; // original request owner id
+  supplierId?: string; // supplier id
 }
 
-type RowAction =
+export type RowAction =
   | 'viewRequest'
   | 'sendQuote'
   | 'viewQuote'
   | 'acceptRequest'
   | 'rejectRequest'
-  | 'view';
+  | 'view'
+  | 'pay';
 
 export function RowActions({
   quoteRequest,
@@ -45,6 +49,7 @@ export function RowActions({
   quoteRequest: QuoteRequest;
   onAction?: (action: RowAction, quoteRequest: QuoteRequest) => void;
 }) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(
     null
@@ -114,25 +119,28 @@ export function RowActions({
             style={{ top: coords.top, left: coords.left }}
           >
             <div className="space-y-1">
-              {buildMenuForStatus(quoteRequest.status).map(
-                ({ key, label, tone }) => (
-                  <button
-                    key={key}
-                    role="menuitem"
-                    onMouseDown={() => {
-                      setOpen(false);
-                      onAction?.(key, quoteRequest);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-md text-sm ${
-                      tone === 'danger'
-                        ? 'hover:bg-red-50 text-red-600'
-                        : 'hover:bg-gray-50 text-raisin'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                )
-              )}
+              {buildMenuForStatus(
+                quoteRequest.status,
+                user?._id,
+                quoteRequest.requesterId,
+                quoteRequest.supplierId
+              ).map(({ key, label, tone }) => (
+                <button
+                  key={key}
+                  role="menuitem"
+                  onMouseDown={() => {
+                    setOpen(false);
+                    onAction?.(key, quoteRequest);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm ${
+                    tone === 'danger'
+                      ? 'hover:bg-red-50 text-red-600'
+                      : 'hover:bg-gray-50 text-raisin'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>,
           document.body
@@ -142,14 +150,26 @@ export function RowActions({
 }
 
 function buildMenuForStatus(
-  status: QuoteRequestStatus
+  status: QuoteRequestStatus,
+  currentUserId?: string,
+  requesterId?: string,
+  supplierId?: string
 ): { key: RowAction; label: string; tone?: 'danger' }[] {
+  const isRequester = currentUserId === requesterId;
+  const isSupplier = currentUserId === supplierId;
+
   switch (status) {
     case 'PENDING':
-      return [
-        { key: 'viewRequest', label: 'View Request' },
-        { key: 'sendQuote', label: 'Send Quote' },
-      ];
+      const pendingActions: {
+        key: RowAction;
+        label: string;
+        tone?: 'danger';
+      }[] = [{ key: 'viewRequest', label: 'View Request' }];
+      // Only show "Send Quote" if user is supplier and not the requester
+      if (isSupplier && !isRequester) {
+        pendingActions.push({ key: 'sendQuote', label: 'Send Quote' });
+      }
+      return pendingActions;
     case 'QUOTE_SENT':
       return [{ key: 'viewQuote', label: 'View Quote' }];
     case 'NEGOTIATED':
@@ -159,7 +179,18 @@ function buildMenuForStatus(
         { key: 'rejectRequest', label: 'Reject Request', tone: 'danger' },
       ];
     case 'REJECTED':
+      return [{ key: 'view', label: 'View' }];
     case 'ACCEPTED':
+      const acceptedActions: {
+        key: RowAction;
+        label: string;
+        tone?: 'danger';
+      }[] = [{ key: 'view', label: 'View' }];
+      // Only show "Pay for Quote" if user is the original requester
+      if (isRequester) {
+        acceptedActions.push({ key: 'pay', label: 'Pay for Quote' });
+      }
+      return acceptedActions;
     case 'DELIVERED':
       return [{ key: 'view', label: 'View' }];
     default:

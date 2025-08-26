@@ -6,6 +6,7 @@ import GoBack from '@/app/components/goback';
 import Image from 'next/image';
 import { marketplaceApi, transformApiProduct } from '@/lib/marketplaceApi';
 import { ProductListingType } from '@/types/marketplace.types';
+import EmptyState from '@/app/components/EmptyState';
 
 interface PageProps {
   params: Promise<{
@@ -222,31 +223,12 @@ export default function StorePage({ params }: PageProps) {
             </div>
 
             {products.length === 0 ? (
-              <div className="flex items-center justify-center h-full min-h-[60vh] bg-gray-50 rounded-lg">
-                <div className="space-y-[18px] text-center">
-                  <div className="w-[117px] h-[117px] mx-auto bg-gray-200 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-12 h-12 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                      />
-                    </svg>
-                  </div>
-                  <h1 className="text-gray-500 text-[18px]">
-                    No products available
-                  </h1>
-                  <p className="text-gray-400 text-sm">
-                    This store doesn&apos;t have any products yet.
-                  </p>
-                </div>
-              </div>
+              <EmptyState
+                title="No Products Available"
+                description="This store doesn't have any products yet."
+                illustration="/no-item.svg"
+                className="min-h-[60vh] bg-gray-50 rounded-lg"
+              />
             ) : (
               <div className="grid grid-cols-3 gap-[15px]">
                 {products.map((product) => (

@@ -1,7 +1,6 @@
 'use client';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import { Input } from '@/app/components/form/Input';
 import { Button } from '@/app/components/ui/Button';
 import { X } from 'lucide-react';
 import axiosInstance from '@/lib/axiosInstance';
@@ -57,38 +56,76 @@ export default function RequestQuoteModalSimple({
               );
               toast.success('Request sent successfully');
               onSuccess?.(supplierId);
+              onClose(); // close only on success
             } catch (error) {
-                  const axiosError = error as AxiosError<{ message?: string }>;
-                  toast.error(
-                    (axiosError.response && axiosError.response.data
-                      ? axiosError.response.data.message || axiosError.response.data
-                      : axiosError.message || 'An error occurred'
-                    ).toString()
-                  );
-                } finally {
+              const axiosError = error as AxiosError<{ message?: string }>;
+              toast.error(
+                (
+                  axiosError.response?.data?.message ??
+                  axiosError.message ??
+                  'An error occurred'
+                ).toString()
+              );
+            } finally {
               setSubmitting(false);
-              onClose();
             }
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, touched, errors }) => (
             <Form className="space-y-4">
-              <Input
-                name="delivery_location"
-                label="Delivery Location"
-                placeholder="Enter your delivery address"
-                required
-              />
-
+              {/* Delivery Location */}
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="delivery_location"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Delivery Location
+                </label>
+                <Field
+                  id="delivery_location"
+                  name="delivery_location"
+                  type="text"
+                  placeholder="Enter your delivery address"
+                  className={`w-full rounded-md border p-4 placeholder:text-[#98A2B3] focus:border-mikado focus:ring-2 focus:ring-mikado focus:outline-none text-raisin transition ${
+                    touched.delivery_location && errors.delivery_location
+                      ? 'border-red-500'
+                      : 'border-[#D0D5DD]'
+                  }`}
+                  aria-invalid={
+                    touched.delivery_location && errors.delivery_location
+                      ? 'true'
+                      : undefined
+                  }
+                  aria-describedby={
+                    touched.delivery_location && errors.delivery_location
+                      ? 'delivery_location-error'
+                      : undefined
+                  }
+                />
+                {touched.delivery_location && errors.delivery_location ? (
+                  <p
+                    id="delivery_location-error"
+                    className="text-sm text-red-600"
+                  >
+                    {errors.delivery_location}
+                  </p>
+                ) : null}
+              </div>
+
+              {/* Additional Message */}
+              <div className="space-y-1">
+                <label
+                  htmlFor="additional_message"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Additional Message (optional)
                 </label>
                 <Field
                   as="textarea"
+                  id="additional_message"
                   name="additional_message"
-                  placeholder="Describe your requirements..."
                   rows={3}
+                  placeholder="Describe your requirements..."
                   className="w-full rounded-md border border-[#D0D5DD] p-4 placeholder:text-[#98A2B3] focus:border-mikado focus:ring-2 focus:ring-mikado focus:outline-none text-raisin transition"
                 />
               </div>

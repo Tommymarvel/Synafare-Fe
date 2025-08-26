@@ -6,6 +6,7 @@ import { Search } from 'lucide-react';
 import type { Loan } from '../types';
 import { fmtDate, fmtNaira } from '@/lib/format';
 import Pagination from '@/app/components/pagination';
+import EmptyState from '@/app/components/EmptyState';
 
 type DateRange = '' | '7' | '30' | '90';
 
@@ -154,11 +155,13 @@ export default function PaidLoans({ loans }: { loans: Loan[] }) {
             <tbody>
               {pageRows.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={9}
-                    className="px-6 py-10 text-center text-sm text-[#797979]"
-                  >
-                    No loans match your filters.
+                  <td colSpan={9} className="p-0">
+                    <EmptyState
+                      title="No Paid Loans Found"
+                      description="You don't have any paid loans matching your current filters."
+                      illustration="/empty-loan.svg"
+                      className="border-0 py-10"
+                    />
                   </td>
                 </tr>
               ) : (

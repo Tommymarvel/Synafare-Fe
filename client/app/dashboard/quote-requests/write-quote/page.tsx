@@ -107,6 +107,7 @@ export default function SendQuotationPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [quoteRequest, setQuoteRequest] = useState<QuoteRequest | null>(null);
+  const [isRequester, setIsRequester] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const requestId = searchParams.get('requestId');
@@ -146,61 +147,92 @@ export default function SendQuotationPage() {
     }
   }, [requestId, user, router]);
 
- const handleSubmit = async (payload: {
-   items: QuoteItem[];
-   discount: string;
-   tax: string;
-   notes?: string;
- }) => {
-   try {
-     if (!requestId) {
-       toast.error('No requestId found');
-       return;
-     }
+  // Determine if the authenticated user is the same as the request owner
+  useEffect(() => {
+    if (!quoteRequest || !user) {
+      setIsRequester(false);
+      return;
+    }
+    setIsRequester(user._id === quoteRequest.user._id);
+  }, [quoteRequest, user]);
 
-     // Transform items for backend schema
-     const formattedItems = payload.items.map((item, idx) => {
-       const baseProductId = quoteRequest?.items[idx]?.product;
-       return {
-         product: baseProductId, // product ID from original request
-         quantity: item.qty,
-         unit_price: parseNairaInput(item.price),
-       };
-     });
+  const handleSubmit = async (payload: {
+    items: QuoteItem[];
+    discount: string;
+    tax: string;
+    notes?: string;
+  }) => {
+    try {
+      if (!requestId) {
+        toast.error('No requestId found');
+        return;
+      }
 
-     const body = {
-       items: formattedItems,
-       discount: parseNairaInput(payload.discount),
-       tax: parseNairaInput(payload.tax),
-       additional_information: payload.notes || '',
-     };
+      // Transform items for backend schema
+      const formattedItems = payload.items.map((item, idx) => {
+        const baseProductId = quoteRequest?.items[idx]?.product;
+        return {
+          product: baseProductId, // product ID from original request
+          quantity: item.qty,
+          unit_price: parseNairaInput(item.price),
+        };
+      });
 
-     const response = await axiosInstance.post(
-       `/quote/create/${requestId}`,
-       body
-     );
+      const body = {
+        items: formattedItems,
+        discount: parseNairaInput(payload.discount),
+        tax: parseNairaInput(payload.tax),
+        additional_information: payload.notes || '',
+      };
 
-     toast.success('Quote sent successfully');
-     console.log('Quote created:', response.data);
+      const response = await axiosInstance.post(
+        `/quote/create/${requestId}`,
+        body
+      );
 
-     // Optionally redirect back
-     router.push('/dashboard/quote-requests');
-   } catch (error) {
-         const axiosError = error as AxiosError<{ message?: string }>;
-         toast.error(
-           (axiosError.response && axiosError.response.data
-             ? axiosError.response.data.message || axiosError.response.data
-             : axiosError.message || 'An error occurred'
-           ).toString()
-         );
-       }
- };
+      toast.success('Quote sent successfully');
+      console.log('Quote created:', response.data);
 
+      // Optionally redirect back
+      router.push('/dashboard/quote-requests');
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(
+        (axiosError.response && axiosError.response.data
+          ? axiosError.response.data.message || axiosError.response.data
+          : axiosError.message || 'An error occurred'
+        ).toString()
+      );
+    }
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-lg">Loading quote request...</div>
+      </div>
+    );
+  }
+
+  // If the authenticated user created this request, they must not send a quote to themselves
+  if (isRequester) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Access Restricted
+          </h2>
+          <p className="text-gray-600 mb-4">
+            You created this quote request — you cannot send a quote to your own
+            request.
+          </p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="bg-mikado text-white px-4 py-2 rounded-lg hover:bg-mikado/90"
+          >
+            Go to Dashboard
+          </button>
+        </div>
       </div>
     );
   }
@@ -561,7 +593,6 @@ export default function SendQuotationPage() {
     </div>
   );
 }
-
 
 function formatNaira(n: number) {
   return new Intl.NumberFormat('en-NG', { maximumFractionDigits: 0 }).format(

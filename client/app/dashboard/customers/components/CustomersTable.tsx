@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Eye, Pencil, Trash2, Search } from 'lucide-react';
 import { Customer } from '../types';
 import { Input } from '@/app/components/form/Input';
+import EmptyState from '@/app/components/EmptyState';
 
 export default function CustomersTable({
   customers,
@@ -98,11 +99,13 @@ export default function CustomersTable({
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td
-                  colSpan={6}
-                  className="px-6 py-8 text-center text-sm text-raisin/60"
-                >
-                  No customers found.
+                <td colSpan={6} className="p-0">
+                  <EmptyState
+                    title="No Customers Found"
+                    description="No customers match your search criteria. Try adjusting your search terms."
+                    illustration="/no-user.svg"
+                    className="border-0 py-8"
+                  />
                 </td>
               </tr>
             )}

@@ -12,6 +12,9 @@ export type QuoteRequestStatus =
   | 'REJECTED'
   | 'DELIVERED';
 
+// Invoice status type
+export type InvoiceStatus = 'DRAFT' | 'PENDING' | 'PAID' | 'OVERDUE';
+
 // Helper function to convert LoanStatus to StatusType
 function loanStatusToStatusType(loanStatus: LoanStatus): StatusType {
   switch (loanStatus) {
@@ -56,6 +59,22 @@ function quoteRequestStatusToStatusType(
   }
 }
 
+// Helper function to convert InvoiceStatus to StatusType
+function invoiceStatusToStatusType(invoiceStatus: InvoiceStatus): StatusType {
+  switch (invoiceStatus) {
+    case 'DRAFT':
+      return STATUSCONST.DRAFT;
+    case 'PENDING':
+      return STATUSCONST.PENDING;
+    case 'PAID':
+      return STATUSCONST.PAID;
+    case 'OVERDUE':
+      return STATUSCONST.OVERDUE;
+    default:
+      return STATUSCONST.PENDING;
+  }
+}
+
 // Helper function to convert generic string status to StatusType for inventory
 function inventoryStatusToStatusType(status: string): StatusType {
   const upperStatus = status.toUpperCase();
@@ -87,12 +106,12 @@ function inventoryStatusToStatusType(status: string): StatusType {
   }
 }
 
-// Generic status chip that works with any status from STATUSCONST, LoanStatus, QuoteRequestStatus, or string
+// Generic status chip that works with any status from STATUSCONST, LoanStatus, QuoteRequestStatus, InvoiceStatus, or string
 export default function StatusChip({
   status,
   className,
 }: {
-  status: StatusType | LoanStatus | QuoteRequestStatus | string;
+  status: StatusType | LoanStatus | QuoteRequestStatus | InvoiceStatus | string;
   className?: string;
 }) {
   // Convert different status types to StatusType
@@ -117,6 +136,8 @@ export default function StatusChip({
             'DELIVERED',
           ].includes(status)
         ? quoteRequestStatusToStatusType(status as QuoteRequestStatus)
+        : ['DRAFT', 'PENDING', 'PAID', 'OVERDUE'].includes(status)
+        ? invoiceStatusToStatusType(status as InvoiceStatus)
         : inventoryStatusToStatusType(status)
       : (status as StatusType);
 

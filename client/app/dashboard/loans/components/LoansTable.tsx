@@ -13,6 +13,7 @@ import { KeyedMutator } from 'swr';
 import FinancingOfferModal from './FinancingOfferModal';
 import { fmtNaira } from '@/lib/format';
 import StatusChip from '@/app/components/statusChip';
+import EmptyState from '@/app/components/EmptyState';
 // import AcceptLoanAgreement from './AcceptLoanAgreement';
 
 type DateRange = '' | '7' | '30' | '90';
@@ -374,11 +375,13 @@ export default function LoansTable({
             <tbody>
               {pageRows.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={9}
-                    className="px-6 py-10 text-center text-sm text-[#797979]"
-                  >
-                    No loans match your filters.
+                  <td colSpan={9} className="p-0">
+                    <EmptyState
+                      title="No Loans Found"
+                      description="No loans match your current filters. Try adjusting your search criteria."
+                      illustration="/empty-loan.svg"
+                      className="border-0 py-10"
+                    />
                   </td>
                 </tr>
               ) : (

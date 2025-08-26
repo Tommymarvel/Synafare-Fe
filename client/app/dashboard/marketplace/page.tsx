@@ -13,6 +13,7 @@ import {
 import ProductsListings from '@/app/components/marketplace/products-listings';
 import { marketplaceApi, transformApiProduct } from '@/lib/marketplaceApi';
 import { ProductListingType } from '@/types/marketplace.types';
+import { useRouter } from 'next/navigation';
 
 const MarketPlace = () => {
   const [products, setProducts] = useState<ProductListingType[]>([]);
@@ -22,6 +23,8 @@ const MarketPlace = () => {
   const [sortBy, setSortBy] = useState<
     'popular' | 'newest' | 'price_asc' | 'price_desc'
   >('popular');
+    const router = useRouter();
+  
   const [filters, setFilters] = useState({
     category: [] as string[],
     minPrice: undefined as number | undefined,
@@ -113,8 +116,31 @@ const MarketPlace = () => {
 
   return (
     <div>
-      <PageIntro>Market Place</PageIntro>
-
+      <div className='flex justify-between'>
+        <PageIntro>Market Place</PageIntro>
+        <span
+          className="bg-gray-4 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer"
+          onClick={() => router.push('/dashboard/rfq')}
+          title='Go to Request for Quote (RFQ)'
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19.24 5.58055H18.84L15.46 2.20055C15.19 1.93055 14.75 1.93055 14.47 2.20055C14.2 2.47055 14.2 2.91055 14.47 3.19055L16.86 5.58055H7.14L9.53 3.19055C9.8 2.92055 9.8 2.48055 9.53 2.20055C9.26 1.93055 8.82 1.93055 8.54 2.20055L5.17 5.58055H4.77C3.87 5.58055 2 5.58055 2 8.14055C2 9.11055 2.2 9.75055 2.62 10.1705C2.86 10.4205 3.15 10.5505 3.46 10.6205C3.75 10.6905 4.06 10.7005 4.36 10.7005H19.64C19.95 10.7005 20.24 10.6805 20.52 10.6205C21.36 10.4205 22 9.82055 22 8.14055C22 5.58055 20.13 5.58055 19.24 5.58055Z"
+              fill="#1D1C1D"
+            />
+            <path
+              d="M19.0497 12H4.86967C4.24967 12 3.77967 12.55 3.87967 13.16L4.71967 18.3C4.99967 20.02 5.74967 22 9.07967 22H14.6897C18.0597 22 18.6597 20.31 19.0197 18.42L20.0297 13.19C20.1497 12.57 19.6797 12 19.0497 12ZM11.9997 19.5C9.65967 19.5 7.74967 17.59 7.74967 15.25C7.74967 14.84 8.08967 14.5 8.49967 14.5C8.90967 14.5 9.24967 14.84 9.24967 15.25C9.24967 16.77 10.4797 18 11.9997 18C13.5197 18 14.7497 16.77 14.7497 15.25C14.7497 14.84 15.0897 14.5 15.4997 14.5C15.9097 14.5 16.2497 14.84 16.2497 15.25C16.2497 17.59 14.3397 19.5 11.9997 19.5Z"
+              fill="#1D1C1D"
+            />
+          </svg>
+        </span>
+      </div>
       <div className="flex gap-x-[18px] ">
         <MarketPlaceFilter
           filters={filters}

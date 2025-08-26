@@ -5,9 +5,10 @@ import { useRFQ } from '@/context/RFQContext';
 import { marketplaceApi, transformApiProduct } from '@/lib/marketplaceApi';
 import type { ProductListingType } from '@/types/marketplace.types';
 import Image from 'next/image';
-import Link from 'next/link';
 import { ChevronDown, ChevronUp, Minus, Plus, Trash2 } from 'lucide-react';
 import RequestQuoteModalSimple from '../marketplace/modal/RequestQuoteModal';
+import EmptyState from '@/app/components/EmptyState';
+import EmptyIllustration from '@/app/assets/empty-customers.svg'
 
 export default function RFQPage() {
   const { rfqItems, removeFromRFQ, clearRFQ, updateQuantity } = useRFQ();
@@ -114,21 +115,12 @@ export default function RFQPage() {
   if (!rfqItems.length) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-5xl mx-auto px-4">
-          <h1 className="text-2xl font-semibold mb-6">Quote Requests</h1>
-          <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
-            <h3 className="text-lg font-medium mb-1">No items in RFQ</h3>
-            <p className="text-gray-500 mb-6">
-              Add products to request quotes from suppliers.
-            </p>
-            <Link
-              href="/dashboard/marketplace"
-              className="inline-flex items-center rounded-xl bg-mikado text-white px-5 py-3 hover:brightness-95"
-            >
-              Browse Marketplace
-            </Link>
-          </div>
-        </div>
+        <EmptyState
+          title="No items in RFQ"
+          description="Add products to request quotes from suppliers."
+          actionLabel="Browse Marketplace"
+        illustration={EmptyIllustration}
+        />
       </div>
     );
   }

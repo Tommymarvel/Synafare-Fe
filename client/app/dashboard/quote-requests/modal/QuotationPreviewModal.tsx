@@ -58,12 +58,15 @@ export default function QuotationPreviewModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0  z-[100000]">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-black/50 z-[99999] pointer-events-auto"
+        onClick={onClose}
+      />
 
       {/* Dialog */}
-      <div className="absolute inset-0 grid place-items-center px-3">
+      <div className="absolute inset-0 grid place-items-center px-3  z-[100000]">
         <div
           className={[
             'w-full max-w-4xl rounded-2xl bg-white shadow-xl',
@@ -208,12 +211,12 @@ export default function QuotationPreviewModal({
                 <div className="border-b border-gray-200 px-4 py-2 text-sm font-medium text-gray-600">
                   Additional information
                 </div>
-                <input className="px-4 py-3 text-sm text-gray-700 input" value={additionalInfo || '—'}/>
-                  
+                <input
+                  className="px-4 py-3 text-sm text-gray-700 input"
+                  value={additionalInfo || '—'}
+                />
               </div>
             )}
-
-           
           </div>
         </div>
       </div>

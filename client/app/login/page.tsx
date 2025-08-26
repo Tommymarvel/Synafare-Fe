@@ -103,24 +103,27 @@ export default function LoginPage() {
             msg = error.message;
         }
         toast.error(msg);
-        const axiosError = error as AxiosError<{ message?: string }>;
-        if (
-          axiosError.response?.data.message ===
-          'Looks like we sent you one recently, kindly check for that and input in the fields'
-        ) {
-          toast.error(
-            'Looks like we sent you one recently, kindly check for that and input in the fields'
-          );
+        
+      }
 
-          router.push('/signup/verify-otp');
-        } else {
-          toast.error(
-            (axiosError.response && axiosError.response.data
-              ? axiosError.response.data.message || axiosError.response.data
-              : axiosError.message || 'An error occurred'
-            ).toString()
-          );
-        }
+
+      const axiosError = error as AxiosError<{ message?: string }>;
+      if (
+        axiosError.response?.data.message ===
+        'Looks like we sent you one recently, kindly check for that and input in the fields'
+      ) {
+        toast.error(
+          'Looks like we sent you one recently, kindly check for that and input in the fields'
+        );
+
+        router.push('/signup/verify-otp');
+      } else {
+        toast.error(
+          (axiosError.response && axiosError.response.data
+            ? axiosError.response.data.message || axiosError.response.data
+            : axiosError.message || 'An error occurred'
+          ).toString()
+        );
       }
     } finally {
       setIsLoading(false);

@@ -11,6 +11,15 @@ import React, {
 import axios, { AxiosError } from 'axios';
 import axiosInstance from '@/lib/axiosInstance';
 
+interface BankDetails {
+  bank_code: string;
+  bank_name: string;
+  acc_name: string;
+  acc_no: string;
+  set: boolean;
+  _id: string;
+}
+
 interface User {
   _id: string;
   __v: number;
@@ -31,6 +40,24 @@ interface User {
   updatedAt: string;
   wallet_balance: number; // e.g. 10000
   loan_balance: number; // e.g. 10000
+  role: string;
+  bank_details?: BankDetails;
+  business?: {
+    _id: string;
+    business_name: string;
+    reg_number: string;
+    cac_certificate: string;
+    bank_statement: string;
+    business_address: string;
+    city: string;
+    state: string;
+    country: string;
+    user: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+    business_logo?: string; // Optional business logo field
+  };
 }
 
 interface WhoAmIResponse {

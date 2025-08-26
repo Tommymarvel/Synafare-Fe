@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { ArrowLeft, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import Image from 'next/image';
-import Empty from '@/app/assets/repayHistory-empty.png';
 import BankSlip from '@/app/assets/bankslip.svg';
 import { useParams, useRouter } from 'next/navigation';
 import { useLoanById, useRepayById } from '../hooks/useLoans';
 import StatusChip from '@/app/components/statusChip';
+import EmptyState from '@/app/components/EmptyState';
 
 const currency = (n: number) => `₦${n.toLocaleString('en-NG')}`;
 
@@ -187,15 +187,14 @@ export default function LoanDetailsPage() {
           </header>
           <div className="p-6 flex items-center justify-center">
             {repayData?.result?.length === 0 ? (
-              <div className="text-center h-fit text-sm text-[#797979]">
-                <Image
-                  src={Empty}
-                  alt="No Repayment History"
-                  width={100}
-                  height={100}
-                />
-                <p>No repayment history</p>
-              </div>
+              <EmptyState
+                title="No Repayment History"
+                description="This loan doesn't have any repayment history yet."
+                illustration="/empty-loan.svg"
+                illustrationWidth={100}
+                illustrationHeight={100}
+                className="text-center h-fit text-sm text-[#797979]"
+              />
             ) : (
               <ul className="w-full space-y-3">
                 {repayData?.result.map((r, i) => (

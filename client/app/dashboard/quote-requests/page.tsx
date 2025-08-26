@@ -10,7 +10,7 @@ import StatusChip from '@/app/components/statusChip';
 import { useRouter } from 'next/navigation';
 import QuotationPreviewModal from './modal/QuotationPreviewModal';
 import { RowActions } from './components/RowActions';
-import type { QuoteRequestStatus } from './components/RowActions';
+import type { QuoteRequestStatus, RowAction } from './components/RowActions';
 import {
   useQuoteRequests,
   useUpdateQuoteRequest,
@@ -19,16 +19,9 @@ import {
 import type { QuoteRequest } from '@/hooks/useQuoteRequests';
 import { useAuth } from '@/context/AuthContext';
 import QuoteRequestModal from './modal/QuoteStatusModal';
+import EmptyState from '@/app/components/EmptyState';
 
 type DateRange = '' | '7' | '30' | '90';
-
-type RowAction =
-  | 'viewRequest'
-  | 'sendQuote'
-  | 'viewQuote'
-  | 'acceptRequest'
-  | 'rejectRequest'
-  | 'view';
 
 export default function QuoteRequestsPage() {
   const router = useRouter();
@@ -226,6 +219,10 @@ export default function QuoteRequestsPage() {
           setSelectedQuoteRequest(quoteRequest);
           setShowQuotePreviewModal(true);
           break;
+        case 'pay':
+          // Navigate to pay page for accepted quotes
+          router.push(`/dashboard/quote-requests/${quoteRequest.id}/pay`);
+          break;
         default:
           console.log('Unknown action:', action);
       }
@@ -292,15 +289,6 @@ export default function QuoteRequestsPage() {
               <span className="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">
                 {getSentCount()}
               </span>
-            </button>
-
-            <button
-              onClick={() => mutate()}
-              disabled={isLoading}
-              className="py-4 px-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
-              title="Refresh"
-            >
-              {isLoading ? 'Refreshing...' : 'Refresh'}
             </button>
           </nav>
         </div>
@@ -400,13 +388,40 @@ export default function QuoteRequestsPage() {
                     </tr>
                   ) : pageRows.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan={9}
-                        className="px-6 py-10 text-center text-sm text-[#797979]"
-                      >
-                        {search || statusFilter || dateRange
-                          ? 'No quote requests match your filters.'
-                          : 'No quote requests found.'}
+                      <td colSpan={9} className="p-0">
+                        <EmptyState
+                          title={
+                            search || statusFilter || dateRange
+                              ? 'No Quote Requests Match Filters'
+                              : 'No Quote Requests Found'
+                          }
+                          description={
+                            search || statusFilter || dateRange
+                              ? 'No quote requests match your current filters. Try adjusting your search criteria.'
+                              : "You haven't created any quote requests yet. Start by creating your first quote request."
+                          }
+                          actionLabel={
+                            search || statusFilter || dateRange
+                              ? 'Clear Filters'
+                              : 'Create Quote Request'
+                          }
+                          actionUrl={
+                            search || statusFilter || dateRange
+                              ? undefined
+                              : '/dashboard/marketplace'
+                          }
+                          onAction={
+                            search || statusFilter || dateRange
+                              ? () => {
+                                  setSearch('');
+                                  setStatusFilter('');
+                                  setDateRange('');
+                                }
+                              : undefined
+                          }
+                          illustration="/no-item.svg"
+                          className="border-0"
+                        />
                       </td>
                     </tr>
                   ) : (

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { EmptyState } from './components/EmptyState';
+import { LoansEmptyState } from './components/EmptyState';
 import LoanAgreementModal from './components/LoanAgreeementModal';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -125,7 +125,7 @@ export default function LoansPage() {
 
       {Array.isArray(loans) && loans.length === 0 && !isLoading ? (
         <div className="mt-5">
-          <EmptyState />
+          <LoansEmptyState />
         </div>
       ) : (
         <div className="mt-5">{renderTabContent()}</div>
