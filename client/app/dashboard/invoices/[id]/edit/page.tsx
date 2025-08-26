@@ -52,11 +52,8 @@ const validationSchema = Yup.object({
     .min(1, 'At least one item is required'),
 });
 
-export default function EditInvoicePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function EditInvoicePage(props: any) {
+  const { params } = props as { params: { id: string } };
   const router = useRouter();
 
   const { invoice, isLoading, error } = useInvoicePreview(params.id);
