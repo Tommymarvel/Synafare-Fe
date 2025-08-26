@@ -1,9 +1,9 @@
 'use client';
 
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { X, Upload, CheckCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { Button } from '@/app/components/ui/Button';
@@ -21,6 +21,15 @@ export default function SetupInvoiceModal({
   const [isUploading, setIsUploading] = useState(false);
   const { user, refreshUser } = useAuth();
   const router = useRouter();
+
+  // Close on ESC
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -60,227 +69,274 @@ export default function SetupInvoiceModal({
   });
 
   return (
-    <div className="fixed inset-0 z-[100000]" aria-hidden={false}>
+    <div
+      className="fixed inset-0 z-[100000]"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="setup-invoice-title"
+    >
+      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 z-[99999] pointer-events-auto"
         onClick={onClose}
       />
-       <div className="fixed inset-0 flex items-start justify-center px-3 pt-20 z-[100000]"><div className="w-full max-w-2xl rounded-2xl bg-white shadow-lg">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <div>
-            <h2 className="text-xl font-semibold">Set up Invoice</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X size={18} />
-          </button>
-        </div>
 
-        <Formik
-          initialValues={{
-            businessName: user?.business?.business_name || '',
-            rcNumber: user?.business?.reg_number || '',
-            address: user?.business?.business_address || '',
-            phoneCode: '+234',
-            phoneNumber: user?.phn_no?.replace('+234', '') || '',
-          }}
-          validationSchema={validationSchema}
-          onSubmit={async (values, { setSubmitting }) => {
-            if (!logoFile) {
-              toast.error('Please select a business logo');
-              return;
-            }
-
-            setIsUploading(true);
-            setSubmitting(true);
-
-            try {
-              const formData = new FormData();
-              formData.append('business-logo', logoFile);
-              formData.append('business_name', values.businessName);
-              formData.append('reg_number', values.rcNumber);
-              formData.append('business_address', values.address);
-
-              // Upload logo and update business information in single API call
-              await axiosInstance.patch(
-                `/auth/edit-business/${user?.business?._id}`,
-                formData,
-                {
-                  headers: {
-                    'Content-Type': 'multipart/form-data',
-                  },
-                }
-              );
-
-              toast.success('Business setup completed successfully!');
-              await refreshUser(); // Refresh user data to get updated business info
-
-              // Navigate to create invoice
-              router.push('/dashboard/invoices/create');
-              onClose();
-            } catch (error: unknown) {
-              console.error('Error setting up business:', error);
-
-              let errorMessage = 'Failed to setup business. Please try again.';
-              if (error instanceof Error) {
-                errorMessage = error.message;
-              } else if (
-                typeof error === 'object' &&
-                error !== null &&
-                'response' in error
-              ) {
-                const axiosError = error as {
-                  response?: { data?: { message?: string } };
-                };
-                errorMessage =
-                  axiosError.response?.data?.message || errorMessage;
-              }
-
-              toast.error(errorMessage);
-            } finally {
-              setIsUploading(false);
-              setSubmitting(false);
-            }
-          }}
+      {/* Scrollable overlay container with safe-area padding */}
+      <div className="fixed inset-0 z-[100000] overflow-y-auto">
+        <div
+          className="flex min-h-full items-start justify-center p-3 sm:p-6
+                     pt-[max(1rem,env(safe-area-inset-top))]
+                     pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
-          {({ isSubmitting, isValid }) => (
-            <Form className="space-y-5 px-6 py-5">
-              {/* Business Logo */}
-              <div className=" flex flex-col lg:flex-row items-start space-y-5 justify-between gap-6">
-                {' '}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Business Logo <span className="text-red-500">*</span>
-                  </label>
+          {/* Modal panel with capped height and internal scroll */}
+          <div
+            className="w-full max-w-2xl rounded-2xl bg-white shadow-lg ring-1 ring-black/5
+                       max-h-[90svh] overflow-y-auto"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+              <h2 id="setup-invoice-title" className="text-xl font-semibold">
+                Set up Invoice
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-                  {logoFile ? (
-                    // File selected state
-                    <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="bg-green-100 p-2 rounded-full">
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {logoFile.name}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {(logoFile.size / (1024 * 1024)).toFixed(2)} MB
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleRemoveFile}
-                          className="p-1 hover:bg-gray-200 rounded transition-colors"
-                          disabled={isUploading}
-                        >
-                          <X className="w-4 h-4 text-gray-400" />
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    // Upload dropzone
-                    <div
-                      {...getRootProps()}
-                      className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                        isDragActive
-                          ? 'border-mikado bg-mikado/5'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <input {...getInputProps()} />
-                      <div className="space-y-3">
-                        <div className="bg-gray-100 p-3 rounded-full inline-block">
-                          <Upload className="w-6 h-6 text-gray-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {isDragActive
-                              ? 'Drop your logo here'
-                              : 'Upload business logo'}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            JPG, PNG, GIF, WebP • Max 5MB
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-5">
-                  {/* Business Name */}
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">
-                      Business Name *
-                    </label>
-                    <Field as={Input} name="businessName" />
-                  </div>
+            <Formik
+              initialValues={{
+                businessName: user?.business?.business_name || '',
+                rcNumber: user?.business?.reg_number || '',
+                address: user?.business?.business_address || '',
+                phoneCode: '+234',
+                phoneNumber: user?.phn_no?.replace?.('+234', '') || '',
+              }}
+              validationSchema={validationSchema}
+              onSubmit={async (values, { setSubmitting }) => {
+                if (!logoFile) {
+                  toast.error('Please select a business logo');
+                  return;
+                }
 
-                  {/* RC Number */}
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">
-                      RC Number *
-                    </label>
-                    <Field as={Input} name="rcNumber" />
-                  </div>
+                setIsUploading(true);
+                setSubmitting(true);
 
-                  {/* Business Address */}
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">
-                      Business Address *
-                    </label>
-                    <Field as={Input} name="address" />
-                  </div>
+                try {
+                  const formData = new FormData();
+                  formData.append('business-logo', logoFile);
+                  formData.append('business_name', values.businessName);
+                  formData.append('reg_number', values.rcNumber);
+                  formData.append('business_address', values.address);
 
-                  {/* Phone Number */}
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">
-                      Phone Number *
-                    </label>
-                    <div className="flex gap-2">
-                      <Field
-                        as="select"
-                        name="phoneCode"
-                        className="border rounded-lg p-2 max-w-1/6"
-                      >
-                        <option value="+234">+234</option>
-                        <option value="+233">+233</option>
-                      </Field>
-                      <Field as={Input} name="phoneNumber" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+                  // Upload logo and update business information in single API call
+                  await axiosInstance.patch(
+                    `/auth/edit-business/${user?.business?._id}`,
+                    formData,
+                    {
+                      headers: {
+                        'Content-Type': 'multipart/form-data',
+                      },
+                    }
+                  );
 
-              {/* Actions */}
-              <div className="flex justify-end gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={onClose}
-                  disabled={isUploading}
-                >
-                  Cancel{' '}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    isSubmitting || isUploading || !logoFile || !isValid
+                  toast.success('Business setup completed successfully!');
+                  await refreshUser();
+
+                  // Navigate to create invoice
+                  router.push('/dashboard/invoices/create');
+                  onClose();
+                } catch (error: unknown) {
+                  console.error('Error setting up business:', error);
+
+                  let errorMessage =
+                    'Failed to setup business. Please try again.';
+                  if (error instanceof Error) {
+                    errorMessage = error.message;
+                  } else if (
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'response' in error
+                  ) {
+                    const axiosError = error as {
+                      response?: { data?: { message?: string } };
+                    };
+                    errorMessage =
+                      axiosError.response?.data?.message || errorMessage;
                   }
-                >
-                  {isUploading ? 'Setting up...' : 'Continue'}
-                </Button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-      </div></div>
-      
+
+                  toast.error(errorMessage);
+                } finally {
+                  setIsUploading(false);
+                  setSubmitting(false);
+                }
+              }}
+            >
+              {({ isSubmitting, isValid }) => (
+                <Form className="space-y-5 px-6 py-5">
+                  {/* Business Logo + Fields */}
+                  <div className="flex flex-col lg:flex-row items-start gap-6">
+                    {/* Logo uploader */}
+                    <div className="w-full lg:w-auto">
+                      <label className="text-sm font-medium mb-2 block">
+                        Business Logo <span className="text-red-500">*</span>
+                      </label>
+
+                      {logoFile ? (
+                        <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="bg-green-100 p-2 rounded-full shrink-0">
+                                <CheckCircle className="w-5 h-5 text-green-600" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-medium text-gray-900 truncate">
+                                  {logoFile.name}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  {(logoFile.size / (1024 * 1024)).toFixed(2)}{' '}
+                                  MB
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleRemoveFile}
+                              className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0"
+                              disabled={isUploading}
+                              aria-label="Remove file"
+                            >
+                              <X className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          {...getRootProps()}
+                          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
+                          ${
+                            isDragActive
+                              ? 'border-mikado bg-mikado/5'
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                        >
+                          <input {...getInputProps()} />
+                          <div className="space-y-3">
+                            <div className="bg-gray-100 p-3 rounded-full inline-block">
+                              <Upload className="w-6 h-6 text-gray-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                {isDragActive
+                                  ? 'Drop your logo here'
+                                  : 'Upload business logo'}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                JPG, PNG, GIF, WebP • Max 5MB
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right column fields */}
+                    <div className="w-full space-y-5">
+                      {/* Business Name */}
+                      <div>
+                        <label className="text-sm font-medium mb-1 block">
+                          Business Name *
+                        </label>
+                        <Field as={Input} name="businessName" />
+                        <ErrorMessage
+                          name="businessName"
+                          component="p"
+                          className="mt-1 text-xs text-red-600"
+                        />
+                      </div>
+
+                      {/* RC Number */}
+                      <div>
+                        <label className="text-sm font-medium mb-1 block">
+                          RC Number *
+                        </label>
+                        <Field as={Input} name="rcNumber" />
+                        <ErrorMessage
+                          name="rcNumber"
+                          component="p"
+                          className="mt-1 text-xs text-red-600"
+                        />
+                      </div>
+
+                      {/* Business Address */}
+                      <div>
+                        <label className="text-sm font-medium mb-1 block">
+                          Business Address *
+                        </label>
+                        <Field as={Input} name="address" />
+                        <ErrorMessage
+                          name="address"
+                          component="p"
+                          className="mt-1 text-xs text-red-600"
+                        />
+                      </div>
+
+                      {/* Phone Number */}
+                      <div>
+                        <label className="text-sm font-medium mb-1 block">
+                          Phone Number *
+                        </label>
+                        <div className="flex gap-2">
+                          {/* Fixed narrow width + prevent shrinking on tiny screens */}
+                          <Field
+                            as="select"
+                            name="phoneCode"
+                            className="border rounded-lg p-2 w-24 shrink-0"
+                          >
+                            <option value="+234">+234</option>
+                            <option value="+233">+233</option>
+                          </Field>
+                          <Field as={Input} name="phoneNumber" />
+                        </div>
+                        <ErrorMessage
+                          name="phoneNumber"
+                          component="p"
+                          className="mt-1 text-xs text-red-600"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sticky footer actions */}
+                  <div className="sticky bottom-0 -mx-6 border-t bg-white px-6 py-4">
+                    <div className="flex justify-end gap-3">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={onClose}
+                        disabled={isUploading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={
+                          isSubmitting || isUploading || !logoFile || !isValid
+                        }
+                      >
+                        {isUploading ? 'Setting up...' : 'Continue'}
+                      </Button>
+                    </div>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
