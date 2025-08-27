@@ -1,11 +1,17 @@
-import Button from "@/components/button";
+'use client';
+import Button from '@/components/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogClose,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import axiosInstance from '@/lib/axiosInstance';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 const EditProfileMdoal = ({
   open,
   onOpenChange,
@@ -13,6 +19,71 @@ const EditProfileMdoal = ({
   open: boolean;
   onOpenChange: (x: boolean) => void;
 }) => {
+  const { user, refreshUser } = useAuth();
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [saving, setSaving] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (open) {
+      setFirstName(user?.first_name ?? '');
+      setLastName(user?.last_name ?? '');
+      setPhone(user?.phn_no ?? '');
+    }
+  }, [open, user?.first_name, user?.last_name, user?.phn_no]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      // Required fields minimal validation
+      if (!firstName.trim() || !lastName.trim() || !phone.trim()) {
+        toast.error('Please fill all required fields');
+        return;
+      }
+      // Build payload with only valid, non-empty string fields
+      const payload: Record<string, string> = {};
+      const fn = (firstName ?? '').trim();
+      const ln = (lastName ?? '').trim();
+      const pn = String(phone ?? '').trim();
+      if (fn) payload.first_name = fn;
+      if (ln) payload.last_name = ln;
+      if (pn) payload.phn_no = pn;
+      if (typeof user?.nature_of_solar_business === 'string') {
+        const v = user.nature_of_solar_business.trim();
+        if (v) payload.nature_of_solar_business = v;
+      }
+      if (typeof user?.id_type === 'string') {
+        const v = user.id_type.trim();
+        if (v) payload.id_type = v;
+      }
+      if (typeof user?.id_number === 'string') {
+        const v = user.id_number.trim();
+        if (v) payload.id_number = v;
+      }
+      if (typeof user?.bvn === 'string') {
+        const v = user.bvn.trim();
+        if (v) payload.bvn = v;
+      }
+      const { data } = await axiosInstance.patch('/auth/setup', payload);
+      const successMsg =
+        (data as { message?: string })?.message ||
+        'Profile updated successfully';
+      toast.success(successMsg);
+      await refreshUser();
+      onOpenChange(false);
+    } catch (e) {
+      const err = e as AxiosError<{ message?: string } | string>;
+      const resp = err.response?.data;
+      const msg =
+        (typeof resp === 'string' ? resp : resp?.message) ||
+        err.message ||
+        'Failed to update profile';
+      toast.error(msg);
+    } finally {
+      setSaving(false);
+    }
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="px-[27px] bg-white no-x py-0 max-w-[555px] pb-[17px] border-0 rounded-xl">
@@ -42,7 +113,8 @@ const EditProfileMdoal = ({
               <input
                 type="text"
                 className="border border-gray-300 p-4 rounded-md w-full"
-                defaultValue="Davide"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
               />
             </div>
             <div className="flex-1">
@@ -52,7 +124,8 @@ const EditProfileMdoal = ({
               <input
                 type="text"
                 className="border border-gray-300 p-4 rounded-md w-full"
-                defaultValue="Smith"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
               />
             </div>
           </div>
@@ -63,7 +136,7 @@ const EditProfileMdoal = ({
                 type="text"
                 className="border border-gray-300 p-4 rounded-md w-full bg-[#F0F2F5]"
                 disabled
-                defaultValue="₦875,000"
+                value={user?.role ?? ''}
               />
               <span className="absolute right-5 top-1/2 -translate-y-1/2">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -83,7 +156,7 @@ const EditProfileMdoal = ({
               type="email"
               className="border border-gray-300 p-4 rounded-md w-full bg-[#F0F2F5]"
               disabled
-              defaultValue="something@gmail.com"
+              value={user?.email ?? ''}
             />
           </div>
 
@@ -94,7 +167,8 @@ const EditProfileMdoal = ({
             <input
               type="text"
               className="border border-gray-300 p-4 rounded-md w-full "
-              defaultValue="+2348108XXXXXXX"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
 
@@ -105,7 +179,13 @@ const EditProfileMdoal = ({
               </Button>
             </DialogClose>
 
-            <Button className="px-[64px] py-4">Save</Button>
+            <Button
+              className="px-[64px] py-4"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              Save
+            </Button>
           </div>
         </div>
       </DialogContent>

@@ -6,12 +6,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import EmptyList from "./empty-list";
-import Status from "@/components/status";
-import Pagination from "@/components/pagination";
-import { Loan } from "../../loans/types";
-import { fmtDate, fmtNaira } from "@/lib/format";
+} from '@/components/ui/table';
+import EmptyList from './empty-list';
+import Status from '@/components/status';
+import Pagination from '@/components/pagination';
+import { Loan } from '../../loans/types';
+import { fmtDate, fmtNaira } from '@/lib/format';
 
 const DeclinedRequests = ({ data }: { data: Loan[] }) => {
   if (!data || data.length < 1)
@@ -50,7 +50,7 @@ const DeclinedRequests = ({ data }: { data: Loan[] }) => {
                   ? request.customerName
                   : request.userFirstName && request.userLastName
                   ? `${request.userFirstName} ${request.userLastName}`
-                  : 'N/A'}
+                  : '---'}
               </p>
               <p className="text-gray-500">{request.id.slice(0, 8)}...</p>{' '}
             </TableCell>

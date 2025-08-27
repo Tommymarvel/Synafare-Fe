@@ -1,8 +1,33 @@
-import CardWrapper from "@/components/cardWrapper";
-import UserInforCol from "./user.info.col";
-import Document from "@/components/document";
+import CardWrapper from '@/components/cardWrapper';
+import UserInforCol from './user.info.col';
+import Document from '@/components/document';
+import { APIUser } from '@/types/usertypes';
 
-const OverviewComponents = () => {
+type Props = {
+  user?: APIUser;
+};
+
+const OverviewComponents = ({ user }: Props) => {
+  const safe = (val?: unknown) =>
+    val === undefined || val === null || val === '' ? '---' : String(val);
+
+  const formatNGN = (n?: number) => {
+    const num = n ?? 0;
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+      .format(num)
+      .replace(/\u00A0/g, ' ');
+  };
+
+  const walletFmt = formatNGN(user?.wallet_balance);
+  const loanFmt = formatNGN(user?.loan_balance);
+  const [walletMajor, walletMinor] = walletFmt.split('.');
+  const [loanMajor, loanMinor] = loanFmt.split('.');
+
   return (
     <div className="flex gap-x-5 w-full">
       <div className="space-y-5 grow">
@@ -11,21 +36,22 @@ const OverviewComponents = () => {
             User Information
           </h2>
           <div className="pt-[27px] pb-[18px] px-[18px] grid grid-cols-4 gap-5 justify-between ">
-            <UserInforCol title="First Name" value="David" />
-            <UserInforCol title="Last Name" value="Smith" />
-            <UserInforCol title="Bvn" value="2227123456" />
-            <UserInforCol title="Nature of Business" value="Installer" />
-            <UserInforCol title="Business Name" value="David & Sons Ltd" />
-            <UserInforCol title="Registration No." value="RC3466789" />
-            <UserInforCol title="ID Type" value="Voters Card" />
-            <UserInforCol title="ID Number" value="234567905432" />
+            <UserInforCol title="First Name" value={safe(user?.first_name)} />
+            <UserInforCol title="Last Name" value={safe(user?.last_name)} />
+            <UserInforCol title="Bvn" value={safe(user?.bvn)} />
             <UserInforCol
-              title="Address"
-              value="21b brook street, Lekki, Lagos"
+              title="Nature of Business"
+              
+              value={safe(user?.nature_of_solar_business)}
             />
-            <UserInforCol title="City" value="Lagos" />
-            <UserInforCol title="State" value="Lagos" />
-            <UserInforCol title="Country" value="Nigeria" />
+            <UserInforCol title="Business Name" value={safe(user?.business?.business_name)} />
+            <UserInforCol title="Registration No." value={safe(user?.business?.reg_number)} />
+            <UserInforCol title="ID Type" value={safe(user?.id_type)} />
+            <UserInforCol title="ID Number" value={safe(user?.id_number)} />
+            <UserInforCol title="Address" value={safe(user?.business?.business_address)} />
+            <UserInforCol title="City" value={safe(user?.business?.city)} />
+            <UserInforCol title="State" value={safe(user?.business?.state)} />
+            <UserInforCol title="Country" value={safe(user?.business?.country)} />
           </div>
         </CardWrapper>
 
@@ -33,15 +59,15 @@ const OverviewComponents = () => {
           <h2 className="border-b border-b-gray-4 p-4 pb-[10px] font-medium text-[16px]">
             Documents
           </h2>
-          <ul>
-            <Document name="Bank Statement.pdf" />
-            <Document name="Invoice.pdf" />
+          <ul>                        
+            <Document name="CAC Statement" url={safe(user?.business?.cac_certificate)} />
+            <Document name="Bank Statement" url={safe(user?.business?.bank_statement)} />
           </ul>
         </CardWrapper>
       </div>
 
       <div className="space-y-5 shrink-0">
-        <div className="border border-border-gray bg-resin-black rounded-2xl p-[14px] pb-[39px] space-y-[10px] w-[316px] bg-[url('/card-backgrround.png')] bg-contain bg-no-repeat bg-bottom-right ">
+        <div className="border border-border-gray bg-raisin rounded-2xl p-[14px] pb-[39px] space-y-[10px] w-[316px] bg-[url('/card-backgrround.png')] bg-contain bg-no-repeat bg-bottom-right ">
           <div className="flex items-center justify-between">
             <p className="text-xs text-[#D0D5DD]">Wallet Balance</p>
             <span className="w-10 h-10 flex items-center justify-center bg-mikado-yellow rounded-full">
@@ -63,7 +89,10 @@ const OverviewComponents = () => {
           </div>
           <div>
             <h1 className="text-[32px] font-medium text-white">
-              ₦0<span className="text-xl text-gray-400">.00</span>
+              {walletMajor || '₦0'}
+              <span className="text-xl text-gray-400">
+                .{walletMinor || '00'}
+              </span>
             </h1>
           </div>
         </div>
@@ -98,11 +127,12 @@ const OverviewComponents = () => {
             </span>
           </div>
           <div>
-            <h1 className="text-[32px] font-medium">
-              ₦0<span className="text-xl">.00</span>
+            <h1 className="text-[32px] font-medium ">
+              {loanMajor || '₦0'}
+              <span className="text-xl">.{loanMinor || '00'}</span>
             </h1>
             <p className="text-xs text-gray-3">
-              Available Credit: ₦ 5,000,000.00
+              Available Credit: {formatNGN(user?.available_credit)}
             </p>
           </div>
         </div>

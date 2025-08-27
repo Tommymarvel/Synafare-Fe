@@ -106,6 +106,7 @@ const VerificationRequests = ({
               <TableCell className="p-6">
                 <UserActionButton
                   id={request.id}
+                  firebaseUid={request.firebaseUid}
                   status={request.status}
                   openDeclineModal={setshowDeclineModal}
                   onUserUpdated={onUserUpdated}

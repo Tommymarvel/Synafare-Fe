@@ -1,13 +1,26 @@
-import SearchInput from "@/components/search.input";
+'use client';
+import SearchInput from '@/components/search.input';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
+} from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
 
-const MarketPlaceFilter = () => {
+type FilterProps = {
+  selectedCategories: string[];
+  selectedBrands: string[];
+  onToggleCategory: (value: string, checked: boolean) => void;
+  onToggleBrand: (value: string, checked: boolean) => void;
+};
+
+const MarketPlaceFilter = ({
+  selectedCategories,
+  selectedBrands,
+  onToggleCategory,
+  onToggleBrand,
+}: FilterProps) => {
   return (
     <div className="shrink-0 space-y-5 w-[250px] border border-gray rounded-[6px] py-5 px-[10px]">
       <div className="flex justify-between">
@@ -22,7 +35,7 @@ const MarketPlaceFilter = () => {
       <div>
         <Accordion
           type="multiple"
-          defaultValue={["category", "price", "brand", "company"]}
+          defaultValue={['category', 'price', 'brand', 'company']}
         >
           <AccordionItem value="category">
             <AccordionTrigger className="hover:no-underline text-[16px] font-semibold">
@@ -33,6 +46,10 @@ const MarketPlaceFilter = () => {
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
                   id="inverter"
+                  checked={selectedCategories.includes('Inverter')}
+                  onCheckedChange={(v) =>
+                    onToggleCategory('Inverter', Boolean(v))
+                  }
                 />
                 <p>Inverter</p>
               </div>
@@ -40,20 +57,30 @@ const MarketPlaceFilter = () => {
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
                   id="battery"
+                  checked={selectedCategories.includes('Battery')}
+                  onCheckedChange={(v) =>
+                    onToggleCategory('Battery', Boolean(v))
+                  }
                 />
                 <p>Battery</p>
               </div>
               <div className="flex items-center gap-3">
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
-                  id="battery"
+                  id="panel"
+                  checked={selectedCategories.includes('Panel')}
+                  onCheckedChange={(v) => onToggleCategory('Panel', Boolean(v))}
                 />
                 <p>Panel</p>
               </div>
               <div className="flex items-center gap-3">
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
-                  id="battery"
+                  id="accessory"
+                  checked={selectedCategories.includes('Accessory')}
+                  onCheckedChange={(v) =>
+                    onToggleCategory('Accessory', Boolean(v))
+                  }
                 />
                 <p>Accessory</p>
               </div>
@@ -89,6 +116,8 @@ const MarketPlaceFilter = () => {
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
                   id="bluegate"
+                  checked={selectedBrands.includes('Bluegate')}
+                  onCheckedChange={(v) => onToggleBrand('Bluegate', Boolean(v))}
                 />
                 <p>Bluegate</p>
               </div>
@@ -96,6 +125,8 @@ const MarketPlaceFilter = () => {
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
                   id="Luminous"
+                  checked={selectedBrands.includes('Luminous')}
+                  onCheckedChange={(v) => onToggleBrand('Luminous', Boolean(v))}
                 />
                 <p>Luminous</p>
               </div>
@@ -103,6 +134,8 @@ const MarketPlaceFilter = () => {
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
                   id="pag"
+                  checked={selectedBrands.includes('Prag')}
+                  onCheckedChange={(v) => onToggleBrand('Prag', Boolean(v))}
                 />
                 <p>Prag (12)</p>
               </div>
@@ -110,6 +143,8 @@ const MarketPlaceFilter = () => {
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
                   id="logn"
+                  checked={selectedBrands.includes('LONGi')}
+                  onCheckedChange={(v) => onToggleBrand('LONGi', Boolean(v))}
                 />
                 <p>LONGi (12)</p>
               </div>
@@ -117,6 +152,8 @@ const MarketPlaceFilter = () => {
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
                   id="sunpower"
+                  checked={selectedBrands.includes('SunPower')}
+                  onCheckedChange={(v) => onToggleBrand('SunPower', Boolean(v))}
                 />
                 <p>SunPower (0)</p>
               </div>
@@ -124,6 +161,8 @@ const MarketPlaceFilter = () => {
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:bg-mikado-yellow data-[state=checked]:text-white data-[state=checked]:border-mikado-yellow "
                   id="huwaei"
+                  checked={selectedBrands.includes('Huwaei')}
+                  onCheckedChange={(v) => onToggleBrand('Huwaei', Boolean(v))}
                 />
                 <p>Huwaei (12)</p>
               </div>

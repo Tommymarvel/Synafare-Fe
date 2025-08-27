@@ -1,15 +1,16 @@
-"use client";
+'use client';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogClose,
-} from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { useEffect, useState } from "react";
-import Button from "@/components/button";
-import ToastDivComponent from "@/components/toast.component";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import { useEffect, useState } from 'react';
+import Button from '@/components/button';
+import ToastDivComponent from '@/components/toast.component';
+import { toast } from 'sonner';
+import { updateCategory } from '@/lib/services/categoryService';
 
 type EditCategoryType = {
   name: string;
@@ -24,7 +25,7 @@ const UpdateCatgory = ({
   data: EditCategoryType | null;
   onOpenChange: (x: boolean) => void;
 }) => {
-  const [categoryName, setCategoryName] = useState<string>("");
+  const [categoryName, setCategoryName] = useState<string>('');
 
   useEffect(
     function () {
@@ -41,25 +42,38 @@ const UpdateCatgory = ({
   }
 
   const handleAddNewCategory = async function () {
-    // Add New Category
-
-    console.log("this is the updated category name", categoryName);
-    console.log("this is the category id", data.id);
-
-    toast.custom(
-      (id) => (
-        <ToastDivComponent
-          title="Category Name Updated"
-          sub="Your category has been updated in the inventory"
-          id={id}
-        />
-      ),
-      {
-        position: "top-right",
-        unstyled: true,
-      }
-    );
-    onOpenChange(false);
+    if (!data) return;
+    if (!categoryName.trim()) {
+      toast.error('Category name is required');
+      return;
+    }
+    try {
+      await updateCategory(data.id, { name: categoryName.trim() });
+      toast.custom(
+        (id) => (
+          <ToastDivComponent
+            title="Category Name Updated"
+            sub="Your category has been updated in the inventory"
+            id={id}
+          />
+        ),
+        {
+          position: 'top-right',
+          unstyled: true,
+        }
+      );
+      onOpenChange(false);
+    } catch (e: unknown) {
+      const err = e as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      toast.error(
+        err?.response?.data?.message ||
+          err?.message ||
+          'Failed to update category'
+      );
+    }
   };
   return (
     <>

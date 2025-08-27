@@ -18,6 +18,7 @@ import {
 import Link from 'next/link';
 import { useDashboardData, useRecentTransaction } from '@/hooks/useDashboard';
 import { formatWalletBalance } from '@/lib/utils/userUtils';
+import { fmtNaira } from '@/lib/format';
 const Dasboard = () => {
   const {dashboardData} = useDashboardData()
   const {transactionData} = useRecentTransaction()
@@ -28,7 +29,7 @@ const Dasboard = () => {
         <div className="flex gap-x-[13px]">
           <div className="rounded-[6px] flex-1 bg-cover bg-deep-green text-white bg-[url('/card-green.png')] py-8 px-4 space-y-[6px]">
             <h3 className="text-[13px]">Wallet balance</h3>
-            <p className="text-lg font-medium">{formatWalletBalance(Number(dashboardData.wallet_bal.amount)) }</p>
+            <p className="text-lg font-medium">{fmtNaira(Number(dashboardData?.wallet_bal?.amount ?? 0))}</p>
           </div>
 
           <TopCards title="Verification Requests" value={dashboardData.verify_request}>

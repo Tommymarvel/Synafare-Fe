@@ -16,8 +16,6 @@ import { Loan } from '../types';
 import EmptyList from '../../loan-requests/components/empty-list';
 import { fmtDate, fmtNaira } from '@/lib/format';
 
-
-
 type Props = { data: Loan[] };
 
 export default function AllLoansTable({ data }: Props) {
@@ -54,16 +52,16 @@ export default function AllLoansTable({ data }: Props) {
           >
             <TableCell className="p-6">
               <p className="text-gray-900 font-medium">
-              {loan.customerName?.trim() && loan.customerName !== '-'
-                ? loan.customerName
-                : loan.userFirstName && loan.userLastName
-                ? `${loan.userFirstName} ${loan.userLastName}`
-                : 'N/A'}
+                {loan.customerName?.trim() && loan.customerName !== '-'
+                  ? loan.customerName
+                  : loan.userFirstName && loan.userLastName
+                  ? `${loan.userFirstName} ${loan.userLastName}`
+                  : '---'}
               </p>
               <p className="text-gray-500">
-              {loan.customerEmail?.trim() && loan.customerEmail !== '-'
-                ? loan.userEmail
-                : 'N/A'}
+                {loan.customerEmail?.trim() && loan.customerEmail !== '-'
+                  ? loan.userEmail
+                  : '---'}
               </p>
             </TableCell>
 
@@ -76,7 +74,7 @@ export default function AllLoansTable({ data }: Props) {
               {loan.loanDurationInMonths} months
             </TableCell>
             <TableCell className="p-6">
-              {loan.nextPaymentDate ? fmtDate(loan.nextPaymentDate) : 'N/A'}
+              {loan.nextPaymentDate ? fmtDate(loan.nextPaymentDate) : '---'}
             </TableCell>
             <TableCell className="p-6">
               <Status status={loan.loanStatus} />

@@ -17,11 +17,13 @@ const nullfunc = () => null;
 
 const UserActionButton = ({
   id,
+  firebaseUid,
   status,
   openDeclineModal = nullfunc,
   onUserUpdated,
 }: {
   id: string;
+  firebaseUid?: string;
   status: UserStatus;
   openDeclineModal?: booleanSetFunc;
   onUserUpdated?: () => void;
@@ -88,11 +90,12 @@ const UserActionButton = ({
   };
 
   const handleDeleteUser = () => {
+    const targetId = firebaseUid || id; // prefer firebaseUid for delete as backend expects it
     confirmAction(
       'delete',
       'Delete User',
       'Are you sure you want to delete this user? This action cannot be undone and will permanently remove all user data.',
-      () => deleteUser(id)
+      () => deleteUser(targetId)
     );
   };
   return (
@@ -154,12 +157,8 @@ const UserActionButton = ({
 
           {status == STATUSCONST.VERIFIED && (
             <>
-              <DropdownMenuItem className="border-b border-b-border-gray py-3 px-5 rounded-none">
-                Login as User
-              </DropdownMenuItem>
-              <DropdownMenuItem className="border-b border-b-border-gray py-3 px-5 rounded-none">
-                Account Config.
-              </DropdownMenuItem>
+             
+              
               <ManageGuard module="users">
                 <DropdownMenuItem
                   onClick={handleBlockUser}

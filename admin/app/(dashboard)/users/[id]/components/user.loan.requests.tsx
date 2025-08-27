@@ -59,7 +59,7 @@ const UserLoanRequests = ({ data }: { data: UserLoanRecord[] }) => {
               <TableCell className="p-6">{request.dateRequested}</TableCell>
               <TableCell className="p-6">{request.duration}</TableCell>
               <TableCell className="p-6">
-                {request.nextPayment ?? 'N/A'}
+                {request.nextPayment ?? '---'}
               </TableCell>
               <TableCell className="p-6">
                 <Status status={request.status} />

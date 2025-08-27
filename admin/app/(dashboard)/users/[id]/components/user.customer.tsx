@@ -1,7 +1,7 @@
-import EmptyList from "@/app/(dashboard)/loan-requests/components/empty-list";
-import CardWrapper from "@/components/cardWrapper";
-import Pagination from "@/components/pagination";
-import SearchInput from "@/components/search.input";
+import EmptyList from '@/app/(dashboard)/loan-requests/components/empty-list';
+import CardWrapper from '@/components/cardWrapper';
+import Pagination from '@/components/pagination';
+import SearchInput from '@/components/search.input';
 
 import {
   Table,
@@ -11,10 +11,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { UserCustomer } from "@/types/usertypes";
+} from '@/components/ui/table';
+import { UserCustomer } from '@/types/usertypes';
 
-const UserCustomerTable = ({ data }: { data: UserCustomer[] }) => {
+const UserCustomerTable = ({
+  data,
+  ownerUserId,
+}: {
+  data: UserCustomer[];
+  ownerUserId?: string;
+}) => {
   if (!data || data.length < 1) {
     return (
       <CardWrapper className="px-[23px] py-3 rounded-lg">
@@ -55,7 +61,13 @@ const UserCustomerTable = ({ data }: { data: UserCustomer[] }) => {
               <TableCell className="p-6">{request.phoneNumber}</TableCell>
               <TableCell className="p-6">{request.dateAdded}</TableCell>
               <TableCell className="p-6 text-[#E2A109] ">
-                <a href={"/customer/" + request.id}>View</a>
+                <a
+                  href={`/users/customer/${request.id}${
+                    ownerUserId ? `?owner=${ownerUserId}` : ''
+                  }`}
+                >
+                  View
+                </a>
               </TableCell>
             </TableRow>
           ))}

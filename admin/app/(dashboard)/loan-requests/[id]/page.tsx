@@ -1,4 +1,3 @@
-
 'use client';
 
 import PageIntro from '@/components/page-intro';
@@ -17,7 +16,6 @@ import Document from '@/components/document';
 import { fmtDate, formatPhoneNumber } from '@/lib/format';
 import Image from 'next/image';
 import Empty from '@/app/assets/repayHistory-empty.png';
-
 
 const fmtNaira = (n: number) =>
   new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
@@ -108,7 +106,7 @@ export default function LoanRequestDetail() {
         </div>
       </div>
 
-      <div className="bg-resin-black text-gray-4 rounded-4 p-10 flex justify-between rounded-2xl">
+      <div className="bg-raisin text-gray-4 rounded-4 p-10 flex justify-between rounded-2xl">
         <div className="space-y-[10px]">
           <p className="text-sm">Outstanding Balance</p>
           <h3 className="font-bold text-[28px]/[100%]">
@@ -171,7 +169,7 @@ export default function LoanRequestDetail() {
                       ? new Date(loan.nextPaymentDate).toLocaleDateString(
                           'en-NG'
                         )
-                      : 'N/A'
+                      : '---'
                   }
                 />
                 <InfoDetail title="Status" value="">
@@ -198,7 +196,7 @@ export default function LoanRequestDetail() {
                     ? loan.customerName
                     : loan.userFirstName && loan.userLastName
                     ? `${loan.userFirstName} ${loan.userLastName}`
-                    : 'N/A'
+                    : '---'
                 }
               />
               <InfoDetail
@@ -206,7 +204,7 @@ export default function LoanRequestDetail() {
                 value={
                   loan.customerEmail?.trim() && loan.customerEmail !== '-'
                     ? loan.userEmail
-                    : 'N/A'
+                    : '---'
                 }
               />
               <InfoDetail
@@ -216,7 +214,7 @@ export default function LoanRequestDetail() {
                     ? formatPhoneNumber(loan.customerPhone)
                     : loan.userPhnNo?.trim() && loan.userPhnNo !== '-'
                     ? formatPhoneNumber(loan.userPhnNo)
-                    : 'N/A'
+                    : '---'
                 }
               />
             </div>
@@ -278,8 +276,7 @@ export default function LoanRequestDetail() {
                         {fmtNaira(r.amount)}
                       </h4>
                       <p>
-                        Repayment:{' '}
-                        {fmtDate(r?.repayment_date?.toISOString())}
+                        Repayment: {fmtDate(r?.repayment_date?.toISOString())}
                       </p>
                     </div>
                   </li>

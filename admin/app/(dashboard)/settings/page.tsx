@@ -1,11 +1,22 @@
-"use client";
-import Image from "next/image";
-import InfoDetail from "../loan-requests/[id]/components/detail";
-import EditProfileMdoal from "./components/modals/edit-profile";
-import { useState } from "react";
+'use client';
+import Image from 'next/image';
+import InfoDetail from '../loan-requests/[id]/components/detail';
+import EditProfileMdoal from './components/modals/edit-profile';
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 const ProfileSettings = () => {
   const [editProfileModal, setEditProfileModal] = useState(false);
+  const { user } = useAuth();
+
+  const Fallback = '---';
+  const firstName = user?.first_name || Fallback;
+  const lastName = user?.last_name || Fallback;
+  const role = user?.role || Fallback;
+  const email = user?.email || Fallback;
+  const phone = user?.phn_no || Fallback;
+  const displayName =
+    [user?.first_name, user?.last_name].filter(Boolean).join(' ') || Fallback;
   return (
     <>
       <EditProfileMdoal
@@ -18,6 +29,8 @@ const ProfileSettings = () => {
           <div className="flex gap-x-[13px] items-center">
             <div className="relative">
               <Image
+                width={73}
+                height={73}
                 src="/avatar.jpg"
                 className="rounded-full w-[73px] aspect-square "
                 alt="Your profile picture"
@@ -32,8 +45,8 @@ const ProfileSettings = () => {
               </span>
             </div>
             <div className="space-y-1">
-              <h4 className="font-medium text-lg">David Smith</h4>
-              <p className="text-mikado-yellow">Admin</p>
+              <h4 className="font-medium text-lg">{displayName}</h4>
+              <p className="text-mikado-yellow">{role}</p>
             </div>
           </div>
         </div>
@@ -62,11 +75,11 @@ const ProfileSettings = () => {
             </button>
           </div>
           <div className="p-5 grid grid-cols-3 gap-y-[30px] justify-between">
-            <InfoDetail title="First Name" value="David" />
-            <InfoDetail title="Last Name" value="Smith" />
-            <InfoDetail title="Role" value="Admin" />
-            <InfoDetail title="Email Address" value="something@gmail.com" />
-            <InfoDetail title="Phone Number" value="+2343902438904092" />
+            <InfoDetail title="First Name" value={firstName} />
+            <InfoDetail title="Last Name" value={lastName} />
+            <InfoDetail title="Role" value={role} />
+            <InfoDetail title="Email Address" value={email} />
+            <InfoDetail title="Phone Number" value={phone} />
           </div>
         </div>
         <div className="rounded-lg border border-gray w-full">

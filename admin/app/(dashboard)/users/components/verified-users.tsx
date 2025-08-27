@@ -105,6 +105,7 @@ const VerifiedUsersTable = ({
                 <UserActionButton
                   id={request.id}
                   status={request.status}
+                  firebaseUid={request.firebaseUid}
                   openDeclineModal={setshowDeclineModal}
                   onUserUpdated={onUserUpdated}
                 />

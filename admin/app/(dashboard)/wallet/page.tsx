@@ -1,7 +1,7 @@
-"use client";
-import CalenderComp from "@/components/calender-comp";
-import CardWrapper from "@/components/cardWrapper";
-import PageIntro from "@/components/page-intro";
+'use client';
+import CalenderComp from '@/components/calender-comp';
+import CardWrapper from '@/components/cardWrapper';
+import PageIntro from '@/components/page-intro';
 
 import {
   Select,
@@ -9,29 +9,24 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import TransactionTable from "./components/transaction.table";
-import { walletTransactions } from "@/data/marketplace";
-import { useEffect, useState } from "react";
-import { TRANSACTIONTYPE } from "@/lib/constants";
-import Image from "next/image";
+} from '@/components/ui/select';
+import TransactionTable from './components/transaction.table';
+import { useTransactions } from '@/hooks/useTransactions';
+import { useMemo, useState } from 'react';
+import { TRANSACTIONTYPE } from '@/lib/constants';
+import Image from 'next/image';
+import { useDashboardData } from '@/hooks/useDashboard';
+import { fmtNaira } from '@/lib/format';
 
 const Wallet = () => {
-  const transactions = walletTransactions;
-  const [status, setStatus] = useState("*");
-  const [filteredTransactions, setFilteredTransactions] =
-    useState(transactions);
+  const { items: transactions } = useTransactions(1, 10);
+  const [status, setStatus] = useState('*');
+  const { dashboardData } = useDashboardData();
 
-  useEffect(
-    function () {
-      if (status == "*") setFilteredTransactions(transactions);
-      else
-        setFilteredTransactions(
-          transactions.filter((t) => t.transactionType == status)
-        );
-    },
-    [status, transactions]
-  );
+  const filteredTransactions = useMemo(() => {
+    if (status === '*') return transactions;
+    return transactions.filter((t) => t.transactionType === status);
+  }, [status, transactions]);
   return (
     <div className="space-y-6">
       <PageIntro>Wallet</PageIntro>
@@ -61,11 +56,24 @@ const Wallet = () => {
         </span>
         <div className="space-y-6 pb-[72px]">
           <p className="text-xs text-[#D0D5DD]">Wallet Balance</p>
-          <h1 className="text-[36px] font-medium text-white">
-            ₦10,863,113<span className="text-gray-400 text-sm">.36</span>
-          </h1>
+          {(() => {
+            const formatted = String(fmtNaira(Number(dashboardData?.wallet_bal?.amount ?? 0)));
+            const [whole, fraction] = formatted.split('.');
+            return (
+              <h1 className="text-[36px] font-medium text-white">
+                {whole}
+                <span className="text-gray-400 text-sm">.{fraction ?? '00'}</span>
+              </h1>
+            );
+          })()}
         </div>
-        <Image src="/wallet.svg" className="absolute right-0 top-5" alt="" />
+        <Image
+          src="/wallet.svg"
+          width="32"
+          height="32"
+          className="absolute right-0 top-5"
+          alt=""
+        />
       </div>
       <CardWrapper className="p-0 ">
         <div className="flex justify-between items-center px-6 py-2 border-b border-b-gray-4">

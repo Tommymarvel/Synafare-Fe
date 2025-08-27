@@ -1,40 +1,77 @@
-import CardWrapper from "@/components/cardWrapper";
-import GoBack from "@/components/goback";
-import Status from "@/components/status";
+'use client';
+import CardWrapper from '@/components/cardWrapper';
+import GoBack from '@/components/goback';
+import Status from '@/components/status';
 import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { customerInvoices } from "@/data/users.table";
-import { Invoice } from "@/types/usertypes";
+} from '@/components/ui/table';
+import { useCustomerDetail } from '@/hooks/useCustomerDetail';
+import { STATUSCONST } from '@/lib/constants';
+import { useParams, useSearchParams } from 'next/navigation';
+import ViewOfferModal from '../../[id]/components/modals/view-offer';
+import { useState } from 'react';
+import Pagination from '@/components/pagination';
+import { useCustomerLoans } from '@/hooks/useCustomerLoans';
+import { useCustomerInvoices } from '@/hooks/useCustomerInvoices';
+import InvoicePreviewModal from '../../[id]/components/user.invoice.preview';
+
+function safe(val?: unknown) {
+  return val === undefined || val === null || val === '' ? '---' : String(val);
+}
+
 const UserCustomerPage = () => {
-  const data: Invoice[] = customerInvoices;
+  const params = useParams();
+  const search = useSearchParams();
+  const customerId = params?.id as string;
+  const ownerId = (search?.get('owner') as string) || '';
+  const [openOffer, setOpenOffer] = useState(false);
+  const [openPreview, setOpenPreview] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(
+    null
+  );
+  const { detail } = useCustomerDetail(ownerId, customerId);
+  const { loans } = useCustomerLoans(ownerId, customerId);
+  const { invoices } = useCustomerInvoices(customerId);
+
+  const initial = safe(detail?.name?.charAt(0));
+  const since = detail?.dateJoined || '---';
+
   return (
     <div>
+      <InvoicePreviewModal
+        open={openPreview}
+        onOpenChange={setOpenPreview}
+        userId={ownerId}
+        invoiceId={selectedInvoiceId}
+      />
+      <ViewOfferModal open={openOffer} onOpenChange={setOpenOffer} />
+
       <GoBack className="mt-5 mb-3" />
       <div className="space-y-6">
         <CardWrapper className="p-[26px] flex items-center my-5">
           <div className="gap-x-4 flex items-center shrink-0">
             <div className="text-[30px] font-medium text-gray-3 w-[72px] h-[72px] rounded-full bg-gray-4 flex items-center justify-center">
-              M
+              {initial}
             </div>
             <div>
-              <h2 className="font-medium text-xl">Mary Thomas</h2>
-              <p className="text-gray-3">Customer since: January 06, 2025</p>
+              <h2 className="font-medium text-xl">{safe(detail?.name)}</h2>
+              <p className="text-gray-3">Customer since: {since}</p>
             </div>
           </div>
           <div className="grow flex justify-around">
             <div className="space-y-[11px]">
               <p className="text-xs text-gray-3">Email Address</p>
-              <p className="text-[16px]">jon_doe2345@gmail.com</p>
+              <p className="text-[16px]">{safe(detail?.email)}</p>
             </div>
             <div className="space-y-[11px]">
               <p className="text-xs text-gray-3">Phone Number</p>
-              <p className="text-[16px]">+2348123456789</p>
+              <p className="text-[16px]">{safe(detail?.phoneNumber)}</p>
             </div>
           </div>
         </CardWrapper>
@@ -55,9 +92,64 @@ const UserCustomerPage = () => {
               />
             </svg>
           </div>
-          <div className="py-[30px] text-center italic text-gray-3">
+          {/* <div className="py-[30px] text-center italic text-gray-3">
             No recent loan activity
-          </div>
+          </div> */}
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-200 py-3 px-6 border-none">
+                <TableHead className="py-[13px] ps-6">Customer</TableHead>
+                <TableHead className="py-[13px] ps-6">
+                  Transaction Cost
+                </TableHead>
+                <TableHead className="py-[13px] ps-6">Loan Amount</TableHead>
+                <TableHead className="py-[13px] ps-6">Date Requested</TableHead>
+                <TableHead className="py-[13px] ps-6">Duration</TableHead>
+                <TableHead className="py-[13px] ps-6">Next Payment</TableHead>
+                <TableHead className="py-[13px] ps-6">Status</TableHead>
+                <TableHead className="py-[13px] ps-6">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loans.map((request) => (
+                <TableRow
+                  className="border-b border-b-gray-200 text-resin-black"
+                  key={request.id}
+                >
+                  <TableCell className="p-6">
+                    <p className="text-gray-900 font-medium">{request.name}</p>
+                    <p className="text-gray-500">{request.email}</p>
+                  </TableCell>
+                  <TableCell className="p-6">
+                    {request.transactionCost}
+                  </TableCell>
+                  <TableCell className="p-6">{request.loanAmount}</TableCell>
+                  <TableCell className="p-6">{request.dateRequested}</TableCell>
+                  <TableCell className="p-6">{request.duration}</TableCell>
+                  <TableCell className="p-6">
+                    {request.nextPayment ?? '---'}
+                  </TableCell>
+                  <TableCell className="p-6">
+                    <Status status={request.status} />
+                  </TableCell>
+                  <TableCell className="text-[#E2A109] p-6">
+                    {request.status == STATUSCONST.OFFER_RECEIVED ? (
+                      <button onClick={() => setOpenOffer(true)}>View</button>
+                    ) : (
+                      <a href={'/loan-requests/' + request.id}>View</a>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            <TableFooter className="border-t border-t-gray-200">
+              <TableRow>
+                <TableCell colSpan={8} className="p-6">
+                  <Pagination />
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
         </CardWrapper>
         <CardWrapper className="p-0  my-5 rounded-lg">
           <h1 className="font-medium p-[18px] bg-gray-4 border-b border-b-border-gray">
@@ -77,7 +169,7 @@ const UserCustomerPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((request) => (
+              {invoices.map((request) => (
                 <TableRow
                   className="border-b border-b-gray-200 text-resin-black"
                   key={request.invoiceId}
@@ -92,9 +184,9 @@ const UserCustomerPage = () => {
                   <TableCell className="p-6">{request.issueDate}</TableCell>
                   <TableCell className="p-6">{request.dueDate}</TableCell>
                   <TableCell className="p-6">
-                    {request.amount.toLocaleString("en-NG", {
-                      style: "currency",
-                      currency: "NGN",
+                    {request.amount.toLocaleString('en-NG', {
+                      style: 'currency',
+                      currency: 'NGN',
                     })}
                   </TableCell>
                   <TableCell className="p-6">
@@ -102,7 +194,14 @@ const UserCustomerPage = () => {
                   </TableCell>
 
                   <TableCell className="text-[#E2A109] p-6">
-                    <a href={"/loan-requests/" + request.invoiceId}>View</a>
+                    <button
+                      onClick={() => {
+                        setSelectedInvoiceId(request._id || request.invoiceId);
+                        setOpenPreview(true);
+                      }}
+                    >
+                      View
+                    </button>
                   </TableCell>
                 </TableRow>
               ))}

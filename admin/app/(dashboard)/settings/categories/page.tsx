@@ -1,5 +1,5 @@
-"use client";
-import CardWrapper from "@/components/cardWrapper";
+'use client';
+import CardWrapper from '@/components/cardWrapper';
 import {
   Table,
   TableBody,
@@ -7,12 +7,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { AdminInvItems } from "@/data/marketplace";
-import { format } from "date-fns";
-import { useState } from "react";
-import AddNewCategory from "../components/modals/new-category";
-import UpdateCatgory from "../components/modals/edit-category";
+} from '@/components/ui/table';
+import { AdminInvItems } from '@/data/marketplace';
+import { format } from 'date-fns';
+import { useState } from 'react';
+import AddNewCategory from '../components/modals/new-category';
+import UpdateCatgory from '../components/modals/edit-category';
+import { deleteCategory } from '@/lib/services/categoryService';
+import { toast } from 'sonner';
+import ToastDivComponent from '@/components/toast.component';
 
 type categoryType = { name: string; id: string };
 const SettingsCategory = () => {
@@ -25,9 +28,35 @@ const SettingsCategory = () => {
     setOpenNewCatModal(true);
   };
   const handleUpdatedCat = function (cat: categoryType) {
-    console.log("this is the data to be updated ", cat);
+    console.log('this is the data to be updated ', cat);
     setSelectedCat(cat);
     setEditCatModal(true);
+  };
+  const handleDeleteCat = async function (cat: categoryType) {
+    try {
+      await deleteCategory(cat.id);
+      toast.custom(
+        (id) => (
+          <ToastDivComponent
+            title="Category Deleted"
+            sub="The category has been removed from the inventory"
+            id={id}
+          />
+        ),
+        { position: 'top-right', unstyled: true }
+      );
+      // TODO: Replace with refetch once list API is provided
+    } catch (e: unknown) {
+      const err = e as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      toast.error(
+        err?.response?.data?.message ||
+          err?.message ||
+          'Failed to delete category'
+      );
+    }
   };
   return (
     <>
@@ -92,7 +121,7 @@ const SettingsCategory = () => {
                 </TableCell>
                 <TableCell className="p-6 font-medium">
                   <span className="bg-[#F2F4F7] text-[#344054] text-xs py-[2px] px-2 rounded-full">
-                    {format(new Date(inv.dateAdded), "MMM dd, yyyy")}
+                    {format(new Date(inv.dateAdded), 'MMM dd, yyyy')}
                   </span>
                 </TableCell>
                 <TableCell className="p-6 font-medium">
@@ -123,7 +152,12 @@ const SettingsCategory = () => {
                         />
                       </svg>
                     </button>
-                    <button className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-4">
+                    <button
+                      onClick={() =>
+                        handleDeleteCat({ name: inv.name, id: inv.id })
+                      }
+                      className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-4"
+                    >
                       <svg
                         width="20"
                         height="20"

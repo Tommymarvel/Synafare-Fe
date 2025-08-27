@@ -1,4 +1,5 @@
-import CardWrapper from "@/components/cardWrapper";
+'use client';
+import CardWrapper from '@/components/cardWrapper';
 import {
   Table,
   TableBody,
@@ -6,13 +7,35 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { TeamMembersData } from "@/data/users.table";
-import { format } from "date-fns";
-import Link from "next/link";
+} from '@/components/ui/table';
+import { TeamMembersData } from '@/data/users.table';
+import { format } from 'date-fns';
+import Link from 'next/link';
+import { useAdmins } from '@/hooks/useAdmins';
 
 const TeamMembers = () => {
-  const data = TeamMembersData;
+  const { admins } = useAdmins();
+  const Fallback = '---';
+  const data = (
+    admins?.length
+      ? admins.map((a) => ({
+          id: a._id,
+          name:
+            [a.first_name, a.last_name].filter(Boolean).join(' ') ||
+            a.email ||
+            Fallback,
+          email: a.email || Fallback,
+          role: a.role || Fallback,
+          dateAdded: a.createdAt || new Date().toISOString(),
+        }))
+      : TeamMembersData
+  ) as Array<{
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    dateAdded: string;
+  }>;
   return (
     <>
       <h1 className="text-lg font-medium ">Team Members</h1>
@@ -64,7 +87,7 @@ const TeamMembers = () => {
                   </span>
                 </TableCell>
                 <TableCell className="p-6 font-medium">
-                  {format(new Date(request.dateAdded), "MMM dd, yyyy")}
+                  {format(new Date(request.dateAdded), 'MMM dd, yyyy')}
                 </TableCell>
                 <TableCell className="p-6 font-medium">
                   <svg width="5" height="16" viewBox="0 0 5 16" fill="none">

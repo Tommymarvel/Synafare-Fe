@@ -9,7 +9,10 @@ export function transformUserData(apiUser: APIUser): AllUsers {
   // Determine user status based on account_status and business_document
   let status: AllUsers['status'];
 
-  if (apiUser.account_status === 'active') {
+  if (
+    apiUser.account_status === 'active' ||
+    apiUser.account_status === 'verified'
+  ) {
     status = STATUSCONST.VERIFIED;
   } else if (
     apiUser.account_status === 'pending' ||
@@ -33,13 +36,14 @@ export function transformUserData(apiUser: APIUser): AllUsers {
   // Format the name
   const firstName = apiUser.first_name || '';
   const lastName = apiUser.last_name || '';
-  const name = `${firstName} ${lastName}`.trim() || 'N/A';
+  const name = `${firstName} ${lastName}`.trim() || '---';
 
   // Format date
   const dateAdded = format(new Date(apiUser.createdAt), 'MMM dd, yyyy');
 
   return {
     id: apiUser._id,
+    firebaseUid: apiUser.firebaseUid,
     name,
     email: apiUser.email,
     userType,
@@ -67,7 +71,7 @@ export function transformUsersData(apiUsers: APIUser[]): AllUsers[] {
  * Get user status display text
  */
 export function getUserStatusText(user: APIUser): string {
-  if (user.account_status === 'active') {
+  if (user.account_status === 'active' || user.account_status === 'verified') {
     return 'Active';
   } else if (user.account_status === 'pending') {
     return 'Pending Verification';
@@ -108,7 +112,7 @@ export function userNeedsVerification(user: APIUser): boolean {
  */
 export function isUserVerified(user: APIUser): boolean {
   return (
-    user.account_status === 'active' &&
+    (user.account_status === 'active' || user.account_status === 'verified') &&
     user.email_confirmed &&
     user.business_document === 'submitted'
   );
@@ -144,7 +148,7 @@ export function filterUsersByVerificationStatus(
  * Format wallet balance
  */
 export function formatWalletBalance(balance?: number): string {
-  if (balance === undefined || balance === null) return 'N/A';
+  if (balance === undefined || balance === null) return '---';
   return new Intl.NumberFormat('en-NG', {
     style: 'currency',
     currency: 'NGN',
@@ -155,7 +159,7 @@ export function formatWalletBalance(balance?: number): string {
  * Format loan balance
  */
 export function formatLoanBalance(balance?: number): string {
-  if (balance === undefined || balance === null) return 'N/A';
+  if (balance === undefined || balance === null) return '---';
   return new Intl.NumberFormat('en-NG', {
     style: 'currency',
     currency: 'NGN',

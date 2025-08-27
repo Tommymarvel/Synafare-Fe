@@ -1,4 +1,5 @@
-import PageIntro from "@/components/page-intro";
+'use client';
+import PageIntro from '@/components/page-intro';
 
 import {
   Select,
@@ -6,13 +7,20 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ProductListingData } from "@/data/marketplace";
-import ProductsListings from "../../components/products-listings";
-import GoBack from "@/components/goback";
-import Image from "next/image";
+} from '@/components/ui/select';
+import { ProductListingData } from '@/data/marketplace';
+import ProductsListings from '../../components/products-listings';
+import GoBack from '@/components/goback';
+import Image from 'next/image';
+import { useMarketplace } from '@/hooks/useMarketplace';
+import { useParams } from 'next/navigation';
+import { useMemo } from 'react';
 
 const Store = () => {
+  const { id } = useParams<{ id: string }>();
+  const { products } = useMarketplace({ page: 1, limit: 50, company: [id] });
+  const storeProducts = useMemo(() => products, [products]);
+  const header = storeProducts[0];
   return (
     <div>
       <div className="flex justify-between items-center pb-6">
@@ -41,11 +49,13 @@ const Store = () => {
         <div className="self-start items-center justify-center shrink-0 py-8 w-[250px] border border-gray rounded-[6px] px-[10px]">
           <div className="border-b-2 pb-[29px]  border-b-gray-4 mx-auto w-fit space-y-[6px] text-center">
             <Image
+              width={80}
+              height={80}
               src="/product-avatar.png"
               className="max-w-20 mx-auto"
               alt="profile of supplier"
             />
-            <h4 className="text-[18px]">Blue Camel Energy</h4>
+            <h4 className="text-[18px]">{header?.supplier_name || '---'}</h4>
           </div>
           <div className="mt-[29px] text-[13px] space-y-[6px] text-gray-3">
             <div className="flex gap-x-[6px]">
@@ -110,7 +120,9 @@ const Store = () => {
               </Select>
             </div>
           </div>
-          <ProductsListings products={ProductListingData} />
+          <ProductsListings
+            products={storeProducts.length ? storeProducts : ProductListingData}
+          />
         </div>
       </div>
     </div>

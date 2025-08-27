@@ -3,18 +3,20 @@ import {
   DialogContent,
   DialogHeader,
   DialogClose,
-} from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { useState } from "react";
-import Button from "@/components/button";
-import ConfirmDeclineUser from "./confirm-decline-user";
+} from '@/components/ui/dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import { useState } from 'react';
+import Button from '@/components/button';
+import ConfirmDeclineUser from './confirm-decline-user';
 
 const DeclineUserModal = ({
   open,
   onOpenChange,
+  userId,
 }: {
   open: boolean;
   onOpenChange: (x: boolean) => void;
+  userId?: string;
 }) => {
   const [confirmDeclineModal, setConfirmDeclineModal] = useState(false);
 
@@ -28,6 +30,7 @@ const DeclineUserModal = ({
       <ConfirmDeclineUser
         onOpenChange={setConfirmDeclineModal}
         open={confirmDeclineModal}
+        userId={userId}
       />
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="px-[27px] bg-white no-x py-0 max-w-[555px] pb-[17px] border-0 rounded-xl">

@@ -32,12 +32,7 @@ const navs = [
     startsWith: true,
     permission: { module: 'users' as const, action: 'view' as const },
   },
-  {
-    name: 'Inventory Management',
-    href: '/inventory-management',
-    icon: SideNavIcons.Inventory,
-    permission: { module: 'marketplace' as const, action: 'view' as const },
-  },
+
   {
     name: 'Marketplace',
     href: '/marketplace',
@@ -122,7 +117,7 @@ const SideNav = () => {
 
   return (
     <div className=" h-screen bg-deep-green">
-      <div className="bg-deep-green z-10 shrink-0 h-screen fixed top-0 left-0 ">
+      <div className="bg-deep-green z-10 shrink-0 h-screen fixed top-0 left-0  w-64">
         <div className="ps-6 py-2 mt-[41px] mb-9">
           <Image
             src="/synafare-yellow.svg"
@@ -154,12 +149,11 @@ const SideNav = () => {
             {renderNavItem(navs[2])}
             {renderNavItem(navs[3])}
             {renderNavItem(navs[4])}
-            {renderNavItem(navs[5])}
           </ul>
           <span className="bg-[#797979]/50 h-px w-full block"></span>
           <ul className="space-y-1">
+            {renderNavItem(navs[5])}
             {renderNavItem(navs[6])}
-            {renderNavItem(navs[7])}
           </ul>
         </div>
       </div>

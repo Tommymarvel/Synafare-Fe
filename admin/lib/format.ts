@@ -4,7 +4,16 @@ export const fmtNaira = (n: number) =>
   );
 
 export const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString('en-NG') : '—';
+  iso
+    ? new Date(iso).toLocaleString('en-NG', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      })
+    : '---';
 
 export const formatPhoneNumber = (phone: string): string => {
   const cleaned = phone.replace(/\D/g, ''); // Remove non-numeric characters

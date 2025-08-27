@@ -10,7 +10,11 @@ type Props = {
 };
 
 export default function Status({ status, className }: Props) {
-  if (status === STATUSCONST.PENDING || status === STATUSCONST.OFFER_RECEIVED) {
+  if (
+    status === STATUSCONST.PENDING ||
+    status === STATUSCONST.OFFER_RECEIVED ||
+    status === STATUSCONST.PENDINGVERIFICATION
+  ) {
     return (
       <span
         className={cn(
@@ -42,13 +46,16 @@ export default function Status({ status, className }: Props) {
   if (
     status === STATUSCONST.SUCCESS ||
     status === STATUSCONST.PAID ||
+    status === STATUSCONST.VERIFIED ||
     status === STATUSCONST.ACTIVE ||
-    status === STATUSCONST.COMPLETED
+    status === STATUSCONST.COMPLETED ||
+    status === STATUSCONST.ACCEPTED ||
+    status === STATUSCONST.PUBLISHED
   ) {
     return (
       <span
         className={cn(
-          'bg-success-50/50 text-success text-xs py-[2px] px-2 rounded-full',
+          'bg-[#ECFDF3] text-[#027A48] text-xs py-[2px] px-2 rounded-full',
           className
         )}
       >

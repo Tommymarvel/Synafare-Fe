@@ -1,41 +1,59 @@
-"use client";
+'use client';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { STATUSCONST } from "@/lib/constants";
-import { UserStatus } from "@/types/usertypes";
-import ConfirmBlockUser from "../../components/modals/block-user";
-import { useState } from "react";
-import ConfirmDeclineUser from "../../components/modals/confirm-decline-user";
-import ConfirmDeleteUser from "../../components/modals/confirm-delete-user";
-import ConfirmVerifyUserModal from "../../components/modals/confirm-verify-user";
-import DeclineUserModal from "../../components/modals/decline-user";
+} from '@/components/ui/dropdown-menu';
+import { STATUSCONST } from '@/lib/constants';
+import { UserStatus } from '@/types/usertypes';
+import ConfirmBlockUser from '../../components/modals/block-user';
+import { useState } from 'react';
+// import ConfirmDeclineUser from '../../components/modals/confirm-decline-user';
+import ConfirmDeleteUser from '../../components/modals/confirm-delete-user';
+import ConfirmVerifyUserModal from '../../components/modals/confirm-verify-user';
+import DeclineUserModal from '../../components/modals/decline-user';
+import { useParams } from 'next/navigation';
 
-const ChooseAction = ({ status }: { status: UserStatus }) => {
+const ChooseAction = ({
+  status,
+  userId,
+  firebaseUid,
+}: {
+  status: UserStatus;
+  userId?: string;
+  firebaseUid?: string;
+}) => {
+  const params = useParams();
+  const currentUserId = userId || (params?.id as string);
   const [showBlockUser, setShowBlockUser] = useState(false);
-  const [showDeclineUser, setShowDeclineUser] = useState(false);
+  // const [showDeclineUser, setShowDeclineUser] = useState(false);
   const [showDeleteUser, setShowDeleteUser] = useState(false);
   const [showVerifyUser, setShowVerifyUser] = useState(false);
   const [showDecline, setShowDecline] = useState(false);
   return (
     <>
-      <ConfirmBlockUser open={showBlockUser} onOpenChange={setShowBlockUser} />
-      <ConfirmDeclineUser
-        open={showDeclineUser}
-        onOpenChange={setShowDeclineUser}
+      <ConfirmBlockUser
+        open={showBlockUser}
+        onOpenChange={setShowBlockUser}
+        userId={currentUserId}
       />
+      {/** ConfirmDeclineUser is opened from DeclineUserModal; no need to mount here */}
       <ConfirmDeleteUser
         open={showDeleteUser}
         onOpenChange={setShowDeleteUser}
+        firebaseUid={firebaseUid}
       />
       <ConfirmVerifyUserModal
         open={showVerifyUser}
         onOpenChange={setShowVerifyUser}
+        userId={currentUserId}
       />
-      <DeclineUserModal open={showDecline} onOpenChange={setShowDecline} />
+      <DeclineUserModal
+        open={showDecline}
+        onOpenChange={setShowDecline}
+        userId={currentUserId}
+      />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -71,9 +89,7 @@ const ChooseAction = ({ status }: { status: UserStatus }) => {
               <DropdownMenuItem className="border-b border-b-border-gray py-3 px-5 rounded-none">
                 Edit User
               </DropdownMenuItem>
-              <DropdownMenuItem className="border-b border-b-border-gray py-3 px-5 rounded-none">
-                Account Config.
-              </DropdownMenuItem>
+
               <DropdownMenuItem
                 onClick={() => setShowBlockUser(true)}
                 className="border-b border-b-border-gray py-3 px-5 rounded-none"

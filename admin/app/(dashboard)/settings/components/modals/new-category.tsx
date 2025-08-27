@@ -3,11 +3,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogClose,
-} from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import Button from "@/components/button";
-import ToastDivComponent from "@/components/toast.component";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import Button from '@/components/button';
+import ToastDivComponent from '@/components/toast.component';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { createCategory } from '@/lib/services/categoryService';
 
 const AddNewCategory = ({
   open,
@@ -16,23 +18,41 @@ const AddNewCategory = ({
   open: boolean;
   onOpenChange: (x: boolean) => void;
 }) => {
-  const handleAddNewCategory = async function () {
-    // Add New Category
+  const [name, setName] = useState('');
 
-    toast.custom(
-      (id) => (
-        <ToastDivComponent
-          title="New category created"
-          sub="Your category has been added to inventory"
-          id={id}
-        />
-      ),
-      {
-        position: "top-right",
-        unstyled: true,
-      }
-    );
-    onOpenChange(false);
+  const handleAddNewCategory = async function () {
+    if (!name.trim()) {
+      toast.error('Category name is required');
+      return;
+    }
+    try {
+      await createCategory({ name: name.trim() });
+      toast.custom(
+        (id) => (
+          <ToastDivComponent
+            title="New category created"
+            sub="Your category has been added to inventory"
+            id={id}
+          />
+        ),
+        {
+          position: 'top-right',
+          unstyled: true,
+        }
+      );
+      onOpenChange(false);
+      setName('');
+    } catch (e: unknown) {
+      const err = e as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      toast.error(
+        err?.response?.data?.message ||
+          err?.message ||
+          'Failed to create category'
+      );
+    }
   };
   return (
     <>
@@ -64,6 +84,8 @@ const AddNewCategory = ({
                 type="text"
                 className="placeholder:text-gray-3 border border-gray-300 p-4 rounded-md w-full "
                 required
+                value={name}
+                onChange={(e) => setName(e.currentTarget.value)}
               />
             </div>
 

@@ -51,14 +51,16 @@ const LoanOffers = ({ data }: { data: Loan[] }) => {
                   ? request.customerName
                   : request.userFirstName && request.userLastName
                   ? `${request.userFirstName} ${request.userLastName}`
-                  : 'N/A'}
+                  : '---'}
               </p>
               <p className="text-gray-500">{request.id.slice(0, 8)}...</p>{' '}
             </TableCell>
             <TableCell className="p-6">
               {fmtNaira(request.loanAmount)}
             </TableCell>
-            <TableCell className="p-6">{fmtNaira(request.equityAmount)}</TableCell>
+            <TableCell className="p-6">
+              {fmtNaira(request.equityAmount)}
+            </TableCell>
             <TableCell className="p-6">{request.customerName}</TableCell>
             <TableCell className="p-6">
               {fmtDate(request.datePaid ?? '')}
@@ -67,7 +69,8 @@ const LoanOffers = ({ data }: { data: Loan[] }) => {
               <Status status={request.loanStatus} />
             </TableCell>
             <TableCell className="p-6 text-[#E2A109]">
-              <a href={'/loan-requests/' + request.id}>View</a></TableCell>
+              <a href={'/loan-requests/' + request.id}>View</a>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

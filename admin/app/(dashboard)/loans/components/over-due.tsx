@@ -69,12 +69,12 @@ export default function OverdueTable({ data }: Props) {
                   ? loan.customerName
                   : loan.userFirstName && loan.userLastName
                   ? `${loan.userFirstName} ${loan.userLastName}`
-                  : 'N/A'}
+                  : '---'}
               </p>
               <p className="text-gray-500">
                 {loan.customerEmail?.trim() && loan.customerEmail !== '-'
                   ? loan.userEmail
-                  : 'N/A'}
+                  : '---'}
               </p>
             </TableCell>
             <TableCell className="p-6">{fmtNaira(loan.loanAmount)}</TableCell>
@@ -86,7 +86,7 @@ export default function OverdueTable({ data }: Props) {
               {loan.loanDurationInMonths} months
             </TableCell>
             <TableCell className="p-6">
-              {fmtDate(loan.nextPaymentDate) || 'N/A'}
+              {fmtDate(loan.nextPaymentDate) || '---'}
             </TableCell>
             <TableCell className="p-6">
               <Status status={loan.loanStatus} />

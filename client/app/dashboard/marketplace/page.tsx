@@ -23,8 +23,9 @@ const MarketPlace = () => {
   const [sortBy, setSortBy] = useState<
     'popular' | 'newest' | 'price_asc' | 'price_desc'
   >('popular');
-    const router = useRouter();
-  
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const router = useRouter();
+
   const [filters, setFilters] = useState({
     category: [] as string[],
     minPrice: undefined as number | undefined,
@@ -58,14 +59,10 @@ const MarketPlace = () => {
         Object.entries(apiFilters).filter(([, value]) => value !== undefined)
       );
 
-      console.log('Fetching products with filters:', cleanFilters); // Debug log
-
       const response = await marketplaceApi.getProducts(cleanFilters);
-      console.log('API response:', response); // Debug log
 
       // Transform API products to our component format
       const transformedProducts = response.data.map(transformApiProduct);
-      console.log('Transformed products:', transformedProducts); // Debug log
 
       setProducts(transformedProducts);
       setTotalResults(response.meta.total_products);
@@ -116,12 +113,12 @@ const MarketPlace = () => {
 
   return (
     <div>
-      <div className='flex justify-between'>
+      <div className="flex justify-between">
         <PageIntro>Market Place</PageIntro>
         <span
           className="bg-gray-4 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer"
           onClick={() => router.push('/dashboard/rfq')}
-          title='Go to Request for Quote (RFQ)'
+          title="Go to Request for Quote (RFQ)"
         >
           <svg
             width="24"
@@ -141,12 +138,27 @@ const MarketPlace = () => {
           </svg>
         </span>
       </div>
+
+      {/* Mobile: filter button */}
+      <div className="mt-4 md:hidden px-2">
+        <button
+          aria-label="Open filters"
+          className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm bg-white"
+          onClick={() => setShowMobileFilters(true)}
+        >
+          Filters
+        </button>
+      </div>
+
       <div className="flex gap-x-[18px] ">
-        <MarketPlaceFilter
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          onReset={handleResetFilters}
-        />
+        {/* Desktop filter */}
+        <div className="hidden md:block">
+          <MarketPlaceFilter
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            onReset={handleResetFilters}
+          />
+        </div>
 
         <div className="space-y-[15px] grow">
           <div className="flex justify-between items-center border-y border-y-gray-4 py-3">
@@ -181,8 +193,41 @@ const MarketPlace = () => {
           />
         </div>
       </div>
+
+      {/* Mobile sliding panel for filters */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowMobileFilters(false)}
+          />
+
+          <aside className="absolute left-0 top-0 bottom-0 w-[86%] max-w-xs bg-white p-4 shadow-xl transform transition-transform duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">Filters</h3>
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                aria-label="Close filters"
+                className="text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            <MarketPlaceFilter
+              filters={filters}
+              onFiltersChange={(f) => {
+                handleFiltersChange(f);
+                // keep panel open to allow more adjustments
+              }}
+              onReset={() => {
+                handleResetFilters();
+              }}
+            />
+          </aside>
+        </div>
+      )}
     </div>
   );
 };
 
-export default MarketPlace;
+export default MarketPlace

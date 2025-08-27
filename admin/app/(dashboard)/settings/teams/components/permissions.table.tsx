@@ -5,22 +5,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Switch } from "@/components/ui/switch";
-import { Control, Controller } from "react-hook-form";
-import { NewUserFormTypes } from "../../validations/formvalidations";
+} from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
+import { Control, Controller } from 'react-hook-form';
+import { NewUserFormTypes } from '../../validations/formvalidations';
 
 type PermissionType =
-  | "adminPermissions"
-  | "customPermissions"
-  | "financePermissions"
-  | "operationsPermissions";
+  | 'adminPermissions'
+  | 'customPermissions'
+  | 'financePermissions'
+  | 'operationsPermissions';
 const PermissionsTable = ({
   pType,
   control,
+  disabled = false,
 }: {
   pType: PermissionType;
   control: Control<NewUserFormTypes>;
+  disabled?: boolean;
 }) => {
   return (
     <div className="space-y-8 mb-8">
@@ -45,7 +47,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -57,7 +60,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -75,7 +79,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -87,7 +92,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -105,7 +111,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -117,7 +124,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -137,7 +145,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -149,7 +158,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -169,7 +179,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />
@@ -181,7 +192,8 @@ const PermissionsTable = ({
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={disabled ? () => {} : field.onChange}
+                    disabled={disabled}
                   />
                 )}
               />

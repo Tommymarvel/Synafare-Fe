@@ -3,16 +3,34 @@ import {
   DialogContent,
   DialogHeader,
   DialogClose,
-} from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import Button from "@/components/button";
+} from '@/components/ui/dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import Button from '@/components/button';
+import { useUserActions } from '@/hooks/useUserActions';
+import { useRouter } from 'next/navigation';
 const ConfirmDeleteUser = ({
   open,
   onOpenChange,
+  firebaseUid,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  firebaseUid?: string;
 }) => {
+  const { deleteUser, deleting } = useUserActions();
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    if (!firebaseUid) return;
+    try {
+      const ok = await deleteUser(firebaseUid);
+      if (ok) {
+        onOpenChange(false);
+        // Navigate back to users list
+        router.push('/users');
+      }
+    } catch {}
+  };
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,8 +81,12 @@ const ConfirmDeleteUser = ({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button className="px-[64px] py-4 rounded-lg bg-[#F9E8E8] text-[#C21A18] hover:bg-[#C21A18]/30">
-                Yes, Delete
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-[64px] py-4 rounded-lg bg-[#F9E8E8] text-[#C21A18] hover:bg-[#C21A18]/30"
+              >
+                {deleting ? 'Deleting...' : 'Yes, Delete'}
               </Button>
             </div>
           </div>

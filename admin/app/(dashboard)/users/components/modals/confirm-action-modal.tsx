@@ -45,7 +45,7 @@ export default function ConfirmActionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white">
         <DialogHeader>
           <DialogTitle className={destructive ? 'text-red-600' : ''}>
             {title}

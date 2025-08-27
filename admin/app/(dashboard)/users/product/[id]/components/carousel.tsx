@@ -6,9 +6,9 @@ import {
   CarouselNext,
   CarouselPrevious,
   CarouselApi,
-} from "@/components/ui/carousel";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+} from '@/components/ui/carousel';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface ProductCarouselProps {
   urls: string[];
@@ -37,10 +37,10 @@ const ProductCarousel = ({
       onSlideChange?.(currentIndex);
     };
 
-    api.on("select", onSelect);
+    api.on('select', onSelect);
 
     return () => {
-      api.off("select", onSelect);
+      api.off('select', onSelect);
     };
   }, [api, onSlideChange]);
 
@@ -51,8 +51,12 @@ const ProductCarousel = ({
           <CarouselItem className="" key={i}>
             <Image
               src={src}
-              className="w-full h-full object-cover object-center"
               alt="Product image"
+              width={489}
+              height={353}
+              sizes="(max-width: 768px) 100vw, 489px"
+              className="w-full h-full object-cover object-center"
+              priority={i === 0}
             />
           </CarouselItem>
         ))}

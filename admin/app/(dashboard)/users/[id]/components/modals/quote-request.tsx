@@ -1,20 +1,49 @@
-"use client";
-import InfoDetail from "@/app/(dashboard)/loan-requests/[id]/components/detail";
+'use client';
+import InfoDetail from '@/app/(dashboard)/loan-requests/[id]/components/detail';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogClose,
-} from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+} from '@/components/ui/dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import { RawQuoteRequest } from '@/lib/services/quotesService';
 
 const QuoteRequestModal = ({
   open,
   onOpenChange,
+  quote,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  quote?: RawQuoteRequest;
 }) => {
+  const safe = (val?: unknown) =>
+    val === undefined || val === null || val === '' ? '---' : String(val);
+  const fmt = (iso?: string) => {
+    if (!iso) return '---';
+    try {
+      return new Date(iso).toLocaleDateString();
+    } catch {
+      return '---';
+    }
+  };
+
+  const customerName =
+    `${quote?.user?.first_name || ''} ${quote?.user?.last_name || ''}`.trim() ||
+    quote?.user?.email ||
+    '---';
+  const quantity =
+    quote?.items?.reduce((s, it) => s + (it.quantity || 0), 0) || 0;
+  const quoteSent = quote?.offerHistory?.find(
+    (h) => typeof h.amount_recieved === 'number'
+  )?.amount_recieved;
+  const counterAmount = quote?.offerHistory
+    ?.slice()
+    .reverse()
+    .find((h) => typeof h.counter_amount === 'number')?.counter_amount;
+  const delivery = quote?.delivery_location;
+  const additional = quote?.additional_message;
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -37,22 +66,27 @@ const QuoteRequestModal = ({
           </div>
 
           <div className="grid grid-cols-3  gap-[10px] justify-between">
-            <InfoDetail title="Quantity" value=" 10" />
-            <InfoDetail title="Quote Sent" value=" ₦900,000" />
-            <InfoDetail title="Counter Amount" value=" ₦875,000" />
+            <InfoDetail title="Quantity" value={` ${quantity}`} />
             <InfoDetail
-              title="Delivery Address"
-              value="15b, Brook Street, Lekki,Lagos"
+              title="Quote Sent"
+              value={
+                quoteSent ? ` ₦${Number(quoteSent).toLocaleString()}` : ' ---'
+              }
             />
-            <InfoDetail title="Customer" value=" Mary Smith" />
+            <InfoDetail
+              title="Counter Amount"
+              value={
+                counterAmount
+                  ? ` ₦${Number(counterAmount).toLocaleString()}`
+                  : ' ---'
+              }
+            />
+            <InfoDetail title="Delivery Address" value={safe(delivery)} />
+            <InfoDetail title="Customer" value={` ${safe(customerName)}`} />
           </div>
           <div className="border-b-4 border-b-gray-4 pb-4">
             <span className="text-xs text-gray-3">Additional Messages</span>
-            <p>
-              Lorem ipsum dolor sit amet consectetur. Neque amet egestas nunc
-              elementum mauris lorem erat egestas mauris. Eros eleifend eget ut
-              rhoncus sit.
-            </p>
+            <p>{safe(additional)}</p>
           </div>
           <div>
             <div className="flex justify-between">
@@ -65,63 +99,54 @@ const QuoteRequestModal = ({
               </svg>
             </div>
             <ul className="mt-3">
-              <li className="flex gap-x-1 [&>div>svg]:last:hidden [&>div+div>div]:last:border-b-0">
-                <div className="w-[16px] flex flex-col justify-start items-center gap-y-[6px] shrink-0">
-                  <div className="w-[18px] h-[18px] flex items-center justify-center rounded-full">
-                    <span className="block w-[10px] h-[10px] bg-[#797979]  rounded-full"></span>
-                  </div>
-                  <svg width="1" height="46" viewBox="0 0 1 46" fill="none">
-                    <line
-                      x1="0.5"
-                      y1="2.18557e-08"
-                      x2="0.499998"
-                      y2="46"
-                      stroke="#797979"
-                      strokeDasharray="3 3"
-                    />
-                  </svg>
-                </div>
-                <div className="grow w-full flex gap-x-1 text-gray-3">
-                  <div className="border-b-[0.5px] border-b-[#E6E6E6] self-start pb-4 grow ">
-                    <h4 className="text-sm text-resin-black">
-                      Mary Smith negotiated amount to ₦875,000
-                    </h4>
-                    <p>Repayment: 12 May 2025</p>
-                  </div>
-                  <span className="shrink-0 self-cente text-gray-3 ">
-                    12 Mar 2024
-                  </span>
-                </div>
-              </li>
-
-              <li className="flex gap-x-1 [&>div>svg]:last:hidden [&>div+div>div]:last:border-b-0">
-                <div className="w-[16px] flex flex-col justify-start items-center gap-y-[6px] shrink-0">
-                  <div className="w-[18px] h-[18px] bg-[#CCEDD6] flex items-center justify-center rounded-full">
-                    <span className="block w-[10px] h-[10px] bg-[#00A331]  rounded-full"></span>
-                  </div>
-                  <svg width="1" height="46" viewBox="0 0 1 46" fill="none">
-                    <line
-                      x1="0.5"
-                      y1="2.18557e-08"
-                      x2="0.499998"
-                      y2="46"
-                      stroke="#797979"
-                      strokeDasharray="3 3"
-                    />
-                  </svg>
-                </div>
-                <div className="grow w-full flex gap-x-1">
-                  <div className="border-b-[0.5px] border-b-[#E6E6E6] self-start pb-4 grow ">
-                    <h4 className="text-sm">₦900,000 Quotation Sent</h4>
-                    <p className="text-[#E2A109] font-normal text-xs underline">
-                      View Quote
-                    </p>
-                  </div>
-                  <span className="shrink-0 self-center  text-gray-3">
-                    12 Mar 2024
-                  </span>
-                </div>
-              </li>
+              {(quote?.offerHistory || []).map((h, idx) => {
+                const isQuoteSent = typeof h.amount_recieved === 'number';
+                return (
+                  <li
+                    key={h._id || idx}
+                    className="flex gap-x-1 [&>div>svg]:last:hidden [&>div+div>div]:last:border-b-0"
+                  >
+                    <div className="w-[16px] flex flex-col justify-start items-center gap-y-[6px] shrink-0">
+                      <div
+                        className={`w-[18px] h-[18px] ${
+                          isQuoteSent ? 'bg-[#CCEDD6]' : ''
+                        } flex items-center justify-center rounded-full`}
+                      >
+                        <span
+                          className={`block w-[10px] h-[10px] rounded-full ${
+                            isQuoteSent ? 'bg-[#00A331]' : 'bg-[#797979]'
+                          }`}
+                        ></span>
+                      </div>
+                      <svg width="1" height="46" viewBox="0 0 1 46" fill="none">
+                        <line
+                          x1="0.5"
+                          y1="2.18557e-08"
+                          x2="0.499998"
+                          y2="46"
+                          stroke="#797979"
+                          strokeDasharray="3 3"
+                        />
+                      </svg>
+                    </div>
+                    <div className="grow w-full flex gap-x-1 text-gray-3">
+                      <div className="border-b-[0.5px] border-b-[#E6E6E6] self-start pb-4 grow ">
+                        <h4 className="text-sm text-resin-black">
+                          {h.title || '---'}
+                        </h4>
+                        {isQuoteSent && (
+                          <p className="text-[#E2A109] font-normal text-xs underline">
+                            View Quote
+                          </p>
+                        )}
+                      </div>
+                      <span className="shrink-0 self-center text-gray-3">
+                        {fmt(h.date_sent)}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </DialogContent>

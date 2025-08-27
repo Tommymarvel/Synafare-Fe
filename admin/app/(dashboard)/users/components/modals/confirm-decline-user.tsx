@@ -3,16 +3,31 @@ import {
   DialogContent,
   DialogHeader,
   DialogClose,
-} from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import Button from "@/components/button";
+} from '@/components/ui/dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import Button from '@/components/button';
+import { useUserActions } from '@/hooks/useUserActions';
+import { useRouter } from 'next/navigation';
 const ConfirmDeclineUser = ({
   open,
   onOpenChange,
+  userId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  userId?: string;
 }) => {
+  const { declineUser, declining } = useUserActions();
+  const router = useRouter();
+
+  const handleDecline = async () => {
+    if (!userId) return;
+    try {
+      await declineUser(userId);
+      onOpenChange(false);
+      router.refresh();
+    } catch {}
+  };
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,7 +71,13 @@ const ConfirmDeclineUser = ({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button className="px-[64px] py-4 rounded-lg">Confirm</Button>
+              <Button
+                onClick={handleDecline}
+                disabled={declining}
+                className="px-[64px] py-4 rounded-lg"
+              >
+                {declining ? 'Declining...' : 'Confirm'}
+              </Button>
             </div>
           </div>
         </DialogContent>

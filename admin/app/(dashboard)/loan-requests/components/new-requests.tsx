@@ -111,7 +111,7 @@ const NewRequests = ({ data }: Props) => {
                   ? customerName
                   : userFirstName && userLastName
                   ? `${userFirstName} ${userLastName}`
-                  : 'N/A'}
+                  : '---'}
               </TableCell>
 
               <TableCell className="p-6">{fmtNaira(loanAmount)}</TableCell>

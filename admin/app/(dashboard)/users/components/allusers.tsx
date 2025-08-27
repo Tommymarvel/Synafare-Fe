@@ -71,6 +71,7 @@ const AllUsersTable = ({
               <UserActionButton
                 status={request.status}
                 id={request.id}
+                firebaseUid={request.firebaseUid}
                 onUserUpdated={onUserUpdated}
               />
             </TableCell>

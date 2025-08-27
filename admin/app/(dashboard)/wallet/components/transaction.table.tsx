@@ -14,8 +14,8 @@ import Status from '@/components/status';
 import { WalletTransactions } from '@/types/market.place.types';
 import ViewTransactionReceipt from './modals/view-transaction';
 import { useState } from 'react';
-import { format } from 'date-fns';
 import Image from 'next/image';
+import { fmtDate } from '@/lib/format';
 const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
   const [openModal, setOpenModal] = useState(true);
   const [currentReceipt, setCurrentReceipt] = useState<
@@ -27,6 +27,8 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="space-y-[10px]">
           <Image
+            width={132}
+            height={132}
             src="/coins.svg"
             className="mx-auto block"
             alt="No recent transactions"
@@ -71,14 +73,14 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
               key={request.id}
             >
               <TableCell className="p-6 font-medium">
-                {format(new Date(request.date), 'MMM dd, yyyy')}
+                {fmtDate(request.date)}
               </TableCell>
               <TableCell className="p-6 font-medium">{request.name}</TableCell>
               <TableCell className="p-6 font-medium">
                 {request.transactionType}
               </TableCell>
               <TableCell className="p-6 font-medium">
-                {request.transactionRef}
+                {request.transactionRef.length > 15 ? `${request.transactionRef.slice(0, 15)}...` : request.transactionRef}
               </TableCell>
               <TableCell className="p-6 font-medium">
                 {request.amount.toLocaleString('en-NG', {
@@ -93,7 +95,7 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
                 onClick={() => handleShowReceipt(request.id)}
                 className="cursor-pointer p-6 font-medium text-[#E2A109]"
               >
-                View all
+                View
               </TableCell>
             </TableRow>
           ))}

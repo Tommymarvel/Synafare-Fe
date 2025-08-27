@@ -8,7 +8,11 @@ export type UserLoanReqStatus =
   | typeof STATUSCONST.OFFER_RECEIVED
   | typeof STATUSCONST.ACTIVE
   | typeof STATUSCONST.COMPLETED
-  | typeof STATUSCONST.REJECTED;
+  | typeof STATUSCONST.REJECTED
+  | typeof STATUSCONST.PENDING
+  | typeof STATUSCONST.OVERDUE
+  | typeof STATUSCONST.AWAITING_DOWNPAYMENT
+  | typeof STATUSCONST.AWAITING_LOAN_DISBURSEMENT;
 
 export type InvoiceStatus =
   | typeof STATUSCONST.PENDING
@@ -28,6 +32,23 @@ export interface BankDetails {
   acc_no: string;
   set: boolean;
   _id: string;
+}
+
+export interface BusinessInfo {
+  _id: string;
+  business_name: string;
+  reg_number: string;
+  cac_certificate: string;
+  bank_statement: string;
+  business_address: string;
+  city: string;
+  state: string;
+  country: string;
+  user: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  business_logo?: string;
 }
 
 export interface APIUser {
@@ -55,7 +76,7 @@ export interface APIUser {
   avatar?: string;
   otp?: string;
   otpExpiry?: string;
-  business?: string;
+  business?: BusinessInfo;
   available_credit?: number;
 }
 
@@ -74,6 +95,7 @@ export interface UsersAPIResponse {
 // UI Types (transformed from API)
 export type AllUsers = {
   id: string;
+  firebaseUid?: string;
   name: string;
   email: string;
   userType: string;
@@ -117,6 +139,7 @@ export type UserCustomer = {
 };
 
 export interface Invoice {
+  _id: string;
   invoiceId: string;
   customerName: string;
   customerEmail: string;

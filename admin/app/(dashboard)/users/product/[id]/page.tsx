@@ -1,14 +1,28 @@
-import CardWrapper from "@/components/cardWrapper";
-import GoBack from "@/components/goback";
-import Status from "@/components/status";
-import InfoDetail from "../../../loan-requests/[id]/components/detail";
-import ProductCarousel from "./components/carousel";
-import OrderHistor from "./components/order.history";
-import { customerInvoices } from "@/data/users.table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ProductActivity from "./components/product.activity";
+'use client';
+import CardWrapper from '@/components/cardWrapper';
+import GoBack from '@/components/goback';
+import Status from '@/components/status';
+import { STATUSCONST } from '@/lib/constants';
+import InfoDetail from '../../../loan-requests/[id]/components/detail';
+import ProductCarousel from './components/carousel';
+import OrderHistor from './components/order.history';
+import { customerInvoices } from '@/data/users.table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProductActivity from './components/product.activity';
+import { useParams, useSearchParams } from 'next/navigation';
+import { useInventoryItem } from '@/hooks/useInventoryItem';
+
+function safe(val?: unknown) {
+  return val === undefined || val === null || val === '' ? '---' : String(val);
+}
 
 const ProductInformation = ({}) => {
+  const params = useParams();
+  const search = useSearchParams();
+  const itemId = params?.id as string;
+  const ownerId = (search?.get('owner') as string) || '';
+  const { detail } = useInventoryItem(ownerId, itemId);
+
   return (
     <div className="">
       <div className="flex justify-between">
@@ -68,42 +82,53 @@ const ProductInformation = ({}) => {
       <CardWrapper className="p-0 mt-[10px] mb-6">
         <div className="flex justify-between items-center px-4  border-b-2 border-b-gray-100">
           <h2 className="text-[16px] font-medium py-4">Product Information</h2>
-          <Status status="Published" />
+          <Status
+            status={
+              detail?.status?.toLowerCase() === 'published'
+                ? STATUSCONST.PUBLISHED
+                : detail?.status?.toLowerCase() === 'unpublished'
+                ? STATUSCONST.UNPUBLISHED
+                : detail?.status?.toLowerCase() === 'draft'
+                ? STATUSCONST.DRAFT
+                : STATUSCONST.PUBLISHED
+            }
+          />
         </div>
         <div className="grid grid-cols-2 px-4 gap-x-4">
           <div className="border-r border-gray-100">
             <div className="py-4 border-b-2 border-b-gray-4 ">
-              <h1 className="font-medium text-lg">1.5kVa Inverter Battery</h1>
-              <p className="text-[#475367]">SKU-1234-SL</p>
+              <h1 className="font-medium text-lg">{safe(detail?.name)}</h1>
+              <p className="text-[#475367]">{safe(detail?.sku)}</p>
             </div>
             <div className="grid grid-cols-4 gap-4 py-4 border-b-2 border-gray-100">
-              <InfoDetail title="Category" value="Inverter" />
-              <InfoDetail title="In stock" value="50" />
-              <InfoDetail title="MOQ" value="50" />
-              <InfoDetail title="Brand" value="Luminous" />
-              <InfoDetail title="Model" value="Inverter" />
-              <InfoDetail title="Items Sold" value="4" />
-              <InfoDetail title="Last Update" value="Jan 5,2025" />
+              <InfoDetail title="Category" value={safe(detail?.category)} />
+              <InfoDetail title="In stock" value={safe(detail?.inStock)} />
+              <InfoDetail title="MOQ" value={safe(undefined)} />
+              <InfoDetail title="Brand" value={safe(detail?.brand)} />
+              <InfoDetail title="Model" value={safe(detail?.model)} />
+              <InfoDetail title="Items Sold" value={safe(detail?.orderCount)} />
+              <InfoDetail
+                title="Last Update"
+                value={safe(detail?.lastUpdated)}
+              />
             </div>
             <div className="py-4">
               <span className="text-xs text-gray-3">Description</span>
-              <p className="text-sm/[24px] ">
-                Luminous 1.5 kVA inverter and battery combo is specially
-                designed to cater today&apos;s need keeping future aspiration in
-                mind, The inverter set powers all home appliances except home
-                air-conditioners and 1 HP water motor, rest everything will be
-                running for 4-6 hours whenever there is power outage such as led
-                lights, fans, television, refrigerator, washing machine, mixer
-                and laptop. This is a solar ready inverter that could be
-                connected too solar panels in future to run all home appliances.
-              </p>
+              <p className="text-sm/[24px] ">{safe(detail?.desc)}</p>
             </div>
           </div>
           <div className="py-4 space-y-6">
-            <ProductCarousel urls={["/carousel-1.png", "/carousel-2.png"]} />
+            <ProductCarousel urls={detail?.images || ['/product-img.png']} />
             <div className="flex justify-between">
               <p className="font-medium text-[16px]">Unit Price</p>
-              <h4 className="text-2xl font-semibold">₦980,000</h4>
+              <h4 className="text-2xl font-semibold">
+                {typeof detail?.price === 'number'
+                  ? detail.price.toLocaleString('en-NG', {
+                      style: 'currency',
+                      currency: 'NGN',
+                    })
+                  : '---'}
+              </h4>
             </div>
           </div>
         </div>

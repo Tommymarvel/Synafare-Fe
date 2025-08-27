@@ -3,35 +3,19 @@ import CardWrapper from '@/components/cardWrapper';
 import GoBack from '@/components/goback';
 import ProductList from '../../components/product-list';
 import { ProductListingData } from '@/data/marketplace';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ProductCarouselThumbNailIncluded from '../../components/carousel-thumbnails';
 import Image from 'next/image';
+import { useMarketplaceItem } from '@/hooks/useMarketplace';
+import { useParams } from 'next/navigation';
 
-// Mock function - replace with actual implementation
-const getProductById = (id: string) => {
-  return (
-    ProductListingData.find((product) => product.id === id) ||
-    ProductListingData[0]
-  );
-};
-
-interface PageProps {
-  params: Promise<{
-    id: string;
-  }>;
-}
-
-const MPProductDetails = ({ params }: PageProps) => {
+const MPProductDetails = () => {
   const [activeCarousel, setActiveCarousel] = useState<number>(0);
-  const [product, setProduct] = useState(ProductListingData[0]);
+  const { id } = useParams<{ id: string }>();
+  const { item, related } = useMarketplaceItem(id);
+  const product = item ?? ProductListingData[0];
 
-  useEffect(() => {
-    params.then((resolvedParams) => {
-      setProduct(getProductById(resolvedParams.id));
-    });
-  }, [params]);
-
-  // For admin, we'll use some default images since the data structure is simpler
+  // For admin, we'll use some default images since API returns array we can ignore here
   const productImages = ['/carousel-1.png', '/carousel-2.png'];
 
   const handleThumbnailClick = (index: number) => {
@@ -92,7 +76,7 @@ const MPProductDetails = ({ params }: PageProps) => {
                   height={20}
                 />
                 <a
-                  href={`/dashboard/marketplace/store/${product.supplier_id}`}
+                  href={`/marketplace/store/${product.supplier_id}`}
                   className="text-mikado-yellow underline"
                 >
                   {product.supplier_name}
@@ -137,9 +121,11 @@ const MPProductDetails = ({ params }: PageProps) => {
         <h2 className="font-semibold text-xl">Related Products</h2>
 
         <div className="grid grid-cols-4 gap-x-[15px]">
-          {ProductListingData.slice(0, 4).map((relatedProduct) => (
-            <ProductList key={relatedProduct.id} product={relatedProduct} />
-          ))}
+          {(related.length ? related : ProductListingData.slice(0, 4)).map(
+            (relatedProduct) => (
+              <ProductList key={relatedProduct.id} product={relatedProduct} />
+            )
+          )}
         </div>
       </div>
     </div>

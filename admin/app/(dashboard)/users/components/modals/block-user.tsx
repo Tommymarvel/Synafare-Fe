@@ -3,16 +3,31 @@ import {
   DialogContent,
   DialogHeader,
   DialogClose,
-} from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import Button from "@/components/button";
+} from '@/components/ui/dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import Button from '@/components/button';
+import { useUserActions } from '@/hooks/useUserActions';
+import { useRouter } from 'next/navigation';
 const ConfirmBlockUser = ({
   open,
   onOpenChange,
+  userId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  userId?: string;
 }) => {
+  const { blockUser, blocking } = useUserActions();
+  const router = useRouter();
+
+  const handleBlock = async () => {
+    if (!userId) return;
+    try {
+      await blockUser(userId);
+      onOpenChange(false);
+      router.refresh();
+    } catch {}
+  };
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,8 +71,12 @@ const ConfirmBlockUser = ({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button className="px-[64px] py-4 rounded-lg bg-[#F9E8E8] text-[#C21A18] hover:bg-[#C21A18]/30">
-                Yes, Block
+              <Button
+                onClick={handleBlock}
+                disabled={blocking}
+                className="px-[64px] py-4 rounded-lg bg-[#F9E8E8] text-[#C21A18] hover:bg-[#C21A18]/30"
+              >
+                {blocking ? 'Blocking...' : 'Yes, Block'}
               </Button>
             </div>
           </div>

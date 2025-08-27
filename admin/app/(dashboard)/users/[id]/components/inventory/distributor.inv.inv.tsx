@@ -1,15 +1,15 @@
-import EmptyList from "@/app/(dashboard)/loan-requests/components/empty-list";
-import CardWrapper from "@/components/cardWrapper";
-import Pagination from "@/components/pagination";
-import SearchInput from "@/components/search.input";
-import Status from "@/components/status";
+import EmptyList from '@/app/(dashboard)/loan-requests/components/empty-list';
+import CardWrapper from '@/components/cardWrapper';
+import Pagination from '@/components/pagination';
+import SearchInput from '@/components/search.input';
+import Status from '@/components/status';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 import {
   Table,
@@ -19,11 +19,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { DInventoryDataType } from "@/types/usertypes";
-import Image from "next/image";
+} from '@/components/ui/table';
+import { DInventoryDataType } from '@/types/usertypes';
+import Image from 'next/image';
 
-const DistEmbededInventory = ({ data }: { data: DInventoryDataType[] }) => {
+const DistEmbededInventory = ({
+  data,
+  ownerUserId,
+}: {
+  data: DInventoryDataType[];
+  ownerUserId: string;
+}) => {
   if (!data || data.length < 1)
     return (
       <CardWrapper className="px-[23px] py-3 rounded-lg">
@@ -102,6 +108,8 @@ const DistEmbededInventory = ({ data }: { data: DInventoryDataType[] }) => {
               <TableCell className="p-6">
                 <div className="flex gap-x-3 items-center">
                   <Image
+                    height={32}
+                    width={32}
                     src={request.url}
                     alt={request.productName}
                     className="w-8 h-8"
@@ -125,7 +133,9 @@ const DistEmbededInventory = ({ data }: { data: DInventoryDataType[] }) => {
                 <Status status={request.status} />
               </TableCell>
               <TableCell className="p-6 text-[#E2A109] font-semibold">
-                <a href={'/users/product/' + request.id}>View</a>
+                <a href={`/users/product/${request.id}?owner=${ownerUserId}`}>
+                  View
+                </a>
               </TableCell>
             </TableRow>
           ))}

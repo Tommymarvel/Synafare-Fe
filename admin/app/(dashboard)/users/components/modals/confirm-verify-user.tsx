@@ -3,34 +3,40 @@ import {
   DialogContent,
   DialogHeader,
   DialogClose,
-} from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import Button from "@/components/button";
-import { toast } from "sonner";
-import ToastDivComponent from "@/components/toast.component";
+} from '@/components/ui/dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import Button from '@/components/button';
+import { toast } from 'sonner';
+import { useUserActions } from '@/hooks/useUserActions';
+import { useRouter } from 'next/navigation';
+
 const ConfirmVerifyUserModal = ({
   open,
   onOpenChange,
+  userId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  userId?: string;
 }) => {
-  const handleVerifyUser = function () {
-    onOpenChange(false);
+  const { verifyUser, verifying } = useUserActions();
+  const router = useRouter();
 
-    toast.custom(
-      (id) => (
-        <ToastDivComponent
-          title="New category created"
-          sub="Your category has been added to inventory"
-          id={id}
-        />
-      ),
-      {
-        position: "top-right",
-        unstyled: true,
-      }
-    );
+  const handleVerifyUser = async function () {
+    if (!userId) {
+      toast.error('User ID is required');
+      return;
+    }
+
+    try {
+      await verifyUser(userId);
+      onOpenChange(false);
+      // Refresh the page to show updated user status
+      router.refresh();
+    } catch (error) {
+      // Error handling is done in useUserActions
+      console.error('Failed to verify user:', error);
+    }
   };
   return (
     <>
@@ -77,9 +83,10 @@ const ConfirmVerifyUserModal = ({
               </DialogClose>
               <Button
                 onClick={handleVerifyUser}
+                disabled={verifying}
                 className="px-[64px] py-4 rounded-lg"
               >
-                Confirm
+                {verifying ? 'Verifying...' : 'Confirm'}
               </Button>
             </div>
           </div>

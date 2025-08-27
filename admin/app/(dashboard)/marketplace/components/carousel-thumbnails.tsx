@@ -52,6 +52,8 @@ const ProductCarouselThumbNailIncluded = ({
               src={src}
               className="w-full h-full object-cover object-center"
               alt="Product image"
+              width={489}
+              height={353}
             />
           </CarouselItem>
         ))}
