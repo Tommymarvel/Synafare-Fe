@@ -40,8 +40,7 @@ const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="relative">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm"
-            >
+              className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
               <span className="font-medium text-gray-900">
                 {currentPage?.label || 'Settings'}
               </span>
