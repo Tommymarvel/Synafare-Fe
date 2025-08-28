@@ -7,7 +7,6 @@ import React, {
   useEffect,
   KeyboardEvent,
   useId,
-  FocusEvent,
 } from 'react';
 import { useField } from 'formik';
 import clsx from 'clsx';
@@ -88,8 +87,20 @@ export function CustomSelect({
 
   const selectOption = (opt: Option) => {
     setValue(opt.value, true); // immediate validation
-    setTouched(true, true);
+    setTouched(true, true); // mark as touched
     setIsOpen(false);
+
+    // Force validation update to clear any existing errors
+    setTimeout(() => {
+      if (opt.value) {
+        // Clear any existing error for this field if a valid option is selected
+        const currentError = meta.error;
+        if (currentError && opt.value !== '') {
+          // Trigger revalidation to clear the error
+          setValue(opt.value, true);
+        }
+      }
+    }, 0);
   };
 
   const onButtonKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
@@ -118,7 +129,9 @@ export function CustomSelect({
           return;
         }
         const opt = options[highlightedIndex];
-        if (opt) selectOption(opt);
+        if (opt) {
+          selectOption(opt);
+        }
         break;
       case 'Escape':
         e.preventDefault();
@@ -129,9 +142,8 @@ export function CustomSelect({
     }
   };
 
-  const handleBlur = (e: FocusEvent<HTMLDivElement>) => {
+  const handleBlur = () => {
     // allow internal interactions; defer closing slightly
-    console.log(e)
     setTimeout(() => {
       if (
         containerRef.current &&
@@ -165,8 +177,16 @@ export function CustomSelect({
         aria-label={label}
         value={value || ''}
         onChange={(e) => {
-          setValue(e.target.value, true);
+          const newValue = e.target.value;
+          setValue(newValue, true);
           setTouched(true, true);
+
+          // Force validation update
+          setTimeout(() => {
+            if (newValue && newValue !== '') {
+              setValue(newValue, true);
+            }
+          }, 0);
         }}
         onBlur={() => setTouched(true, true)}
         className="absolute inset-0 w-full h-full text-raisin opacity-0 pointer-events-none"

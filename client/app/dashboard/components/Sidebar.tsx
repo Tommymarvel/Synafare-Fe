@@ -35,15 +35,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  // Filter navigation items based on user role
+  // Check if user account is verified
+  const isVerified = user?.account_status === 'verified';
+
+  // Filter navigation items based on verification status and user role
   const filteredNavItems = navItems.filter((item) => {
+    // If user is not verified, only show Dashboard
+    if (!isVerified) {
+      return item.href === '/dashboard';
+    }
+
+    // For verified users, apply role-based filtering
     // Show Quote Requests for suppliers, distributors, and installers
     if (item.href === '/dashboard/quote-requests') {
       return ['supplier', 'distributor', 'installer'].includes(
         user?.nature_of_solar_business || ''
       );
     }
-    // Show all other items for everyone
+    // Show all other items for verified users
     return true;
   });
 

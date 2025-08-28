@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import BellIcon from '@/app/assets/bell.svg';
+// import BellIcon from '@/app/assets/bell.svg';
 import Avatar from '@/app/assets/Avatar.png';
 import ArrowDown from '@/app/assets/arrow-down.svg';
 import { Settings, Headset, LogOut, Menu } from 'lucide-react';
@@ -54,13 +54,13 @@ export default function Header() {
       {/* Right-side actions */}
       <div className="flex-1 flex justify-end items-center space-x-4">
         {/* Notifications */}
-        <button
+        {/* <button
           className="relative bg-gray-100 p-2 rounded-full hover:bg-gray-200"
           aria-label="Notifications"
         >
           <Image src={BellIcon} alt="bell" width={24} height={24} />
           <span className="absolute top-0 right-0 inline-flex h-2 w-2 rounded-full bg-mikado" />
-        </button>
+        </button> */}
 
         {/* Divider */}
         <div className="h-6 w-px bg-gray-300 mx-4" />

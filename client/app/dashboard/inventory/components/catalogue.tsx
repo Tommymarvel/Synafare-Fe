@@ -131,14 +131,14 @@ const Catalogue = ({ data, onEdit, onRefresh }: CatalogueProps) => {
           You do not have any item in your inventory. click “Add to Inventory”
           to add a product
         </p>
-        <button
+        {/* <button
           // onClick={() => router.push('/dashboard/loans/request')}
           className="px-6 py-3 bg-mikado text-white rounded-md hover:bg-yellow-600
                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                    focus-visible:ring-mikado"
         >
           Request Loan
-        </button>
+        </button> */}
       </div>
     );
   }

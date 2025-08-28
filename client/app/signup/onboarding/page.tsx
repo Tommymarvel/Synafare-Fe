@@ -7,7 +7,6 @@ import { Button } from '@/app/components/ui/Button';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
-import { CustomSelect, Option } from '@/app/components/form/CustomSelect';
 import { useRouter } from 'next/navigation';
 
 interface AccountSetupValues {
@@ -31,14 +30,14 @@ const validationSchema = Yup.object({
   bvn: Yup.string().required('BVN is required'),
 });
 
-const idOptions: Option[] = [
+const idOptions = [
   { value: '', label: 'Select ID Type' },
   { value: 'vin', label: "Voter's ID" },
   { value: 'dl', label: 'Driver License' },
   { value: 'nin', label: 'National ID' },
 ];
 
-const businessOptions: Option[] = [
+const businessOptions = [
   { value: '', label: 'Select nature of business' },
   { value: 'installer', label: 'Installer' },
   { value: 'distributor', label: 'Distributor' },
@@ -203,21 +202,75 @@ export default function Onboarding() {
               </Field>
 
               <div>
-                <CustomSelect
-                  name="nature_of_solar_business"
-                  label="What is the primary nature of your solar business?"
-                  options={businessOptions}
-                  className="mb-4 text-raisin"
-                />
+                <Field name="nature_of_solar_business">
+                  {({ field, meta }: FieldProps<string>) => (
+                    <>
+                      <label
+                        htmlFor="nature_of_solar_business"
+                        className="block text-sm font-medium text-raisin"
+                      >
+                        What is the primary nature of your solar business? *
+                      </label>
+                      <select
+                        {...field}
+                        id="nature_of_solar_business"
+                        className={`w-full mt-1 px-4 py-3 border rounded-md text-sm md:text-base lg:text-lg text-raisin ${
+                          meta.touched && meta.error
+                            ? 'border-red-500'
+                            : 'border-gray-300'
+                        } focus:outline-none focus:ring-2 focus:ring-mikado`}
+                      >
+                        {businessOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ErrorMessage
+                        name="nature_of_solar_business"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                    </>
+                  )}
+                </Field>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <CustomSelect
-                  name="id_type"
-                  label="ID Type"
-                  options={idOptions}
-                  className="mb-4 text-raisin"
-                />
+                <div>
+                  <Field name="id_type">
+                    {({ field, meta }: FieldProps<string>) => (
+                      <>
+                        <label
+                          htmlFor="id_type"
+                          className="block text-sm font-medium text-raisin"
+                        >
+                          ID Type *
+                        </label>
+                        <select
+                          {...field}
+                          id="id_type"
+                          className={`w-full mt-1 px-4 py-3 border rounded-md text-sm md:text-base lg:text-lg text-raisin ${
+                            meta.touched && meta.error
+                              ? 'border-red-500'
+                              : 'border-gray-300'
+                          } focus:outline-none focus:ring-2 focus:ring-mikado`}
+                        >
+                          {idOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <ErrorMessage
+                          name="id_type"
+                          component="div"
+                          className="text-red-500 text-sm mt-1"
+                        />
+                      </>
+                    )}
+                  </Field>
+                </div>
 
                 <div>
                   <Field name="id_number">

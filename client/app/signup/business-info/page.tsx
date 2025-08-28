@@ -18,7 +18,6 @@ import { Button } from '@/app/components/ui/Button';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
-import { CustomSelect, Option } from '@/app/components/form/CustomSelect';
 import { useRouter } from 'next/navigation';
 
 // Form values interface
@@ -59,21 +58,21 @@ const validationSchema = Yup.object({
   country: Yup.string().required('Country is required'),
 });
 
-const cityOptions: Option[] = [
+const cityOptions = [
   { value: '', label: 'Select city' },
   { value: 'Lagos', label: 'Lagos' },
   { value: 'Abuja', label: 'Abuja' },
   { value: 'Port Harcourt', label: 'Port Harcourt' },
 ];
 
-const stateOptions: Option[] = [
+const stateOptions = [
   { value: '', label: 'Select state' },
   { value: 'Lagos', label: 'Lagos State' },
   { value: 'FCT', label: 'Abuja FCT' },
   { value: 'Rivers', label: 'Rivers State' },
 ];
 
-const countryOptions: Option[] = [
+const countryOptions = [
   { value: '', label: 'Select country' },
   { value: 'Nigeria', label: 'Nigeria' },
   { value: 'Ghana', label: 'Ghana' },
@@ -361,32 +360,110 @@ export default function BusinessInfoForm() {
             {/* City, State, Country */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <CustomSelect
-                  name="city"
-                  label="City *"
-                  options={cityOptions}
-                  className="mt-1"
-                />
+                <Field name="city">
+                  {({ field, meta }: FieldProps) => (
+                    <>
+                      <label
+                        htmlFor="city"
+                        className="block text-sm font-medium text-raisin"
+                      >
+                        City *
+                      </label>
+                      <select
+                        {...field}
+                        id="city"
+                        className={`w-full mt-1 px-4 py-3 border rounded-md text-sm md:text-base lg:text-lg text-raisin ${
+                          meta.touched && meta.error
+                            ? 'border-red-500'
+                            : 'border-gray-300'
+                        } focus:outline-none focus:ring-2 focus:ring-mikado`}
+                      >
+                        {cityOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ErrorMessage
+                        name="city"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                    </>
+                  )}
+                </Field>
               </div>
 
               {/* State */}
               <div>
-                <CustomSelect
-                  name="state"
-                  label="State *"
-                  options={stateOptions}
-                  className="mt-1"
-                />
+                <Field name="state">
+                  {({ field, meta }: FieldProps) => (
+                    <>
+                      <label
+                        htmlFor="state"
+                        className="block text-sm font-medium text-raisin"
+                      >
+                        State *
+                      </label>
+                      <select
+                        {...field}
+                        id="state"
+                        className={`w-full mt-1 px-4 py-3 border rounded-md text-sm md:text-base lg:text-lg text-raisin ${
+                          meta.touched && meta.error
+                            ? 'border-red-500'
+                            : 'border-gray-300'
+                        } focus:outline-none focus:ring-2 focus:ring-mikado`}
+                      >
+                        {stateOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ErrorMessage
+                        name="state"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                    </>
+                  )}
+                </Field>
               </div>
 
               {/* Country */}
               <div>
-                <CustomSelect
-                  name="country"
-                  label="Country *"
-                  options={countryOptions}
-                  className="mt-1"
-                />
+                <Field name="country">
+                  {({ field, meta }: FieldProps) => (
+                    <>
+                      <label
+                        htmlFor="country"
+                        className="block text-sm font-medium text-raisin"
+                      >
+                        Country *
+                      </label>
+                      <select
+                        {...field}
+                        id="country"
+                        className={`w-full mt-1 px-4 py-3 border rounded-md text-sm md:text-base lg:text-lg text-raisin ${
+                          meta.touched && meta.error
+                            ? 'border-red-500'
+                            : 'border-gray-300'
+                        } focus:outline-none focus:ring-2 focus:ring-mikado`}
+                      >
+                        {countryOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ErrorMessage
+                        name="country"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                    </>
+                  )}
+                </Field>
               </div>
             </div>
 
