@@ -19,7 +19,6 @@ import { AlertCircle } from 'lucide-react';
 import { fmtDate, formatPhoneNumber } from '@/lib/format';
 import { STATUSCONST } from '@/lib/constants';
 import Image from 'next/image';
-import Empty from '@/app/assets/repayHistory-empty.png';
 import { toast } from 'react-toastify';
 
 const fmtNaira = (n: number) =>
@@ -253,7 +252,7 @@ export default function LoanRequestDetail() {
             {repayData?.result?.length === 0 ? (
               <div className="text-center h-fit text-sm text-[#797979]">
                 <Image
-                  src={Empty}
+                  src="/repayHistory-empty.png"
                   alt="No Repayment History"
                   width={100}
                   height={100}

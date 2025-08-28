@@ -15,7 +15,6 @@ import GoBack from '@/components/goback';
 import Document from '@/components/document';
 import { fmtDate, formatPhoneNumber } from '@/lib/format';
 import Image from 'next/image';
-import Empty from '@/app/assets/repayHistory-empty.png';
 
 const fmtNaira = (n: number) =>
   new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(
@@ -244,7 +243,7 @@ export default function LoanRequestDetail() {
             {repayData?.result?.length === 0 ? (
               <div className="text-center h-fit text-sm text-[#797979]">
                 <Image
-                  src={Empty}
+                  src="/repayHistory-empty.png"
                   alt="No Repayment History"
                   width={100}
                   height={100}
