@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Formik,
   Form,
@@ -42,6 +42,12 @@ const parseNairaInput = (formattedValue: string): string => {
   // Remove commas to get the raw numeric value for form submission
   return formattedValue.replace(/,/g, '');
 };
+
+// Define category interface
+interface Category {
+  name: string;
+  _id: string;
+}
 
 // Define the form values type
 interface InventoryFormValues {
@@ -113,6 +119,27 @@ const InventorySchema = Yup.object().shape({
 export default function AddInventoryForm() {
   const [images, setImages] = useState<File[]>([]);
   const [displayPrice, setDisplayPrice] = useState<string>('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState<boolean>(true);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await axios.get('/inventory/list-categories');
+        setCategories(response.data || []);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('Failed to load categories');
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -166,7 +193,7 @@ export default function AddInventoryForm() {
     <div className="space-y-5">
       {/* Top nav/back (optional) */}
       <div className="max-w-5xl mx-auto">
-       <GoBack />
+        <GoBack />
       </div>
 
       <h1 className="page-title">Add to Inventory</h1>
@@ -225,12 +252,18 @@ export default function AddInventoryForm() {
                         as="select"
                         name="product_category"
                         className="select"
+                        disabled={loadingCategories}
                       >
-                        <option value="">Select category</option>
-                        <option value="Inverter">Inverter</option>
-                        <option value="Battery">Battery</option>
-                        <option value="Panel">Panel</option>
-                        <option value="Accessory">Accessory</option>
+                        <option value="">
+                          {loadingCategories
+                            ? 'Loading categories...'
+                            : 'Select category'}
+                        </option>
+                        {categories.map((category) => (
+                          <option key={category._id} value={category._id}>
+                            {category.name}
+                          </option>
+                        ))}
                       </Field>
                       {/* faux chevron */}
                       <span className="pointer-events-none absolute right-3.5 top-[42px] text-gray-400">

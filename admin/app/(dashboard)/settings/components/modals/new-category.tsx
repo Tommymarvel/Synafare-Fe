@@ -62,7 +62,7 @@ const AddNewCategory = ({
             <DialogTitle>Decline Request</DialogTitle>
           </DialogHeader>
           <div className="border-b-2 border-b-gray-4 pt-[33px] pb-4 flex justify-between itesm-center">
-            <h1 className="text-xl font-medium">Decline Request</h1>
+            <h1 className="text-xl font-medium">Add Category</h1>
             <DialogClose asChild>
               <span className="block cursor-pointer">
                 <svg width="42" height="42" viewBox="0 0 42 42" fill="none">

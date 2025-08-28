@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import SearchInput from '@/app/components/search.input';
 import {
   Accordion,
@@ -6,6 +7,13 @@ import {
   AccordionTrigger,
 } from '@/app/components/ui/accordion';
 import { Checkbox } from '@/app/components/ui/checkbox';
+import axios from '@/lib/axiosInstance';
+
+// Define category interface
+interface Category {
+  name: string;
+  _id: string;
+}
 
 interface FilterState {
   category: string[];
@@ -28,13 +36,27 @@ const MarketPlaceFilter = ({
   onFiltersChange,
   onReset,
 }: MarketPlaceFilterProps) => {
-  const categories = [
-    'Inverter',
-    'Battery',
-    'Solar Panel',
-    'Charge Controller',
-    'Accessory',
-  ];
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState<boolean>(true);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await axios.get('/inventory/list-categories');
+        setCategories(response.data || []);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const brands = [
     'Bluegate',
     'Luminous',
@@ -51,10 +73,10 @@ const MarketPlaceFilter = ({
     'Future Energy Systems',
   ];
 
-  const handleCategoryChange = (category: string, checked: boolean) => {
+  const handleCategoryChange = (categoryId: string, checked: boolean) => {
     const newCategories = checked
-      ? [...filters.category, category]
-      : filters.category.filter((c) => c !== category);
+      ? [...filters.category, categoryId]
+      : filters.category.filter((c) => c !== categoryId);
     onFiltersChange({ category: newCategories });
   };
 
@@ -112,19 +134,29 @@ const MarketPlaceFilter = ({
               Category
             </AccordionTrigger>
             <AccordionContent className="space-y-3">
-              {categories.map((category) => (
-                <div key={category} className="flex items-center gap-3">
-                  <Checkbox
-                    className="border-gray-300 data-[state=checked]:bg-mikado data-[state=checked]:text-white data-[state=checked]:border-mikado"
-                    id={category.toLowerCase().replace(/\s+/g, '-')}
-                    checked={filters.category.includes(category)}
-                    onCheckedChange={(checked) =>
-                      handleCategoryChange(category, !!checked)
-                    }
-                  />
-                  <p>{category}</p>
+              {loadingCategories ? (
+                <div className="text-gray-500 text-sm">
+                  Loading categories...
                 </div>
-              ))}
+              ) : categories.length > 0 ? (
+                categories.map((category) => (
+                  <div key={category._id} className="flex items-center gap-3">
+                    <Checkbox
+                      className="border-gray-300 data-[state=checked]:bg-mikado data-[state=checked]:text-white data-[state=checked]:border-mikado"
+                      id={category._id}
+                      checked={filters.category.includes(category._id)}
+                      onCheckedChange={(checked) =>
+                        handleCategoryChange(category._id, !!checked)
+                      }
+                    />
+                    <p>{category.name}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-500 text-sm">
+                  No categories available
+                </div>
+              )}
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="price" className="w-full">
