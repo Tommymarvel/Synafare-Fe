@@ -59,7 +59,7 @@ const AddNewCategory = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="px-[27px] bg-white no-x py-0 max-w-[555px] pb-[17px] border-0 rounded-xl">
           <DialogHeader className="hidden">
-            <DialogTitle>Decline Request</DialogTitle>
+            <DialogTitle>Add Category</DialogTitle>
           </DialogHeader>
           <div className="border-b-2 border-b-gray-4 pt-[33px] pb-4 flex justify-between itesm-center">
             <h1 className="text-xl font-medium">Add Category</h1>

@@ -45,7 +45,8 @@ const MarketPlaceFilter = ({
       try {
         setLoadingCategories(true);
         const response = await axios.get('/inventory/list-categories');
-        setCategories(response.data || []);
+        // Access categories from the nested response structure
+        setCategories(response.data.categories || []);
       } catch (error) {
         console.error('Error fetching categories:', error);
         setCategories([]);
