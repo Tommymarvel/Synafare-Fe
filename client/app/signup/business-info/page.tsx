@@ -35,8 +35,22 @@ interface BusinessInfoValues {
 
 // Validation schema
 const validationSchema = Yup.object({
-  businessName: Yup.string().required('Business name is required'),
-  registrationNumber: Yup.string().required('Registration number is required'),
+  businessName: Yup.string()
+    .min(2, 'Business name must be at least 2 characters')
+    .max(100, 'Business name must not exceed 100 characters')
+    .matches(
+      /^[A-Za-z0-9\s\-&.()]+$/,
+      'Business name contains invalid characters'
+    )
+    .required('Business name is required'),
+  registrationNumber: Yup.string()
+    .min(6, 'Registration number must be at least 6 characters')
+    .max(20, 'Registration number must not exceed 20 characters')
+    .matches(
+      /^[A-Z0-9\-]+$/,
+      'Registration number must contain only uppercase letters, numbers, and hyphens'
+    )
+    .required('Registration number is required'),
   cacFile: Yup.mixed().required('CAC Certificate is required'),
   bankStatement: Yup.mixed().required('Bank statement is required'),
   address: Yup.string().required('Address is required'),
@@ -234,12 +248,11 @@ export default function BusinessInfoForm() {
       router.push('/signup/verification');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      toast.error(
-        (axiosError.response && axiosError.response.data
-          ? axiosError.response.data.message || axiosError.response.data
-          : axiosError.message || 'An error occurred'
-        ).toString()
-      );
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        'An error occurred';
+      toast.error(errorMessage);
     }
   };
 
@@ -273,6 +286,7 @@ export default function BusinessInfoForm() {
                         {...field}
                         placeholder="e.g AB distributor"
                         hasError={meta.touched && !!meta.error}
+                        maxLength={100}
                       />
                       <ErrorMessage
                         name="businessName"
@@ -292,9 +306,19 @@ export default function BusinessInfoForm() {
                         label="Registration Number *"
                         variant="outline"
                         {...field}
-                        placeholder="Enter number"
+                        placeholder="e.g RC123456"
                         hasError={meta.touched && !!meta.error}
                         size="lg"
+                        maxLength={20}
+                        onChange={(e) => {
+                          // Convert to uppercase and allow only letters, numbers, and hyphens
+                          const value = e.target.value
+                            .toUpperCase()
+                            .replace(/[^A-Z0-9\-]/g, '');
+                          field.onChange({
+                            target: { name: field.name, value },
+                          });
+                        }}
                       />
                       <ErrorMessage
                         name="registrationNumber"

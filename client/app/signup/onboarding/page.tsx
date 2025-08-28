@@ -20,20 +20,15 @@ interface AccountSetupValues {
   bvn: string;
 }
 
-const phoneRegex = /^\+?[0-9\s]{7,15}$/;
-
+/** You can keep Yup as a safety net, but UI enforces correctness already */
 const validationSchema = Yup.object({
   first_name: Yup.string().required('First name is required'),
   last_name: Yup.string().required('Last name is required'),
-  phn_no: Yup.string()
-    .matches(phoneRegex, 'Invalid phone number')
-    .required('Phone number is required'),
+  phn_no: Yup.string().required('Phone number is required'),
   nature_of_solar_business: Yup.string().required('Primary nature is required'),
   id_type: Yup.string().required('ID type is required'),
   id_number: Yup.string().required('ID number is required'),
-  bvn: Yup.string()
-    .matches(/^\d{11}$/, 'BVN must be exactly 11 digits')
-    .required('BVN is required'),
+  bvn: Yup.string().required('BVN is required'),
 });
 
 const idOptions: Option[] = [
@@ -61,7 +56,7 @@ export default function Onboarding() {
     bvn: '',
   };
 
-  const router = useRouter()
+  const router = useRouter();
 
   const onSubmit = async (values: AccountSetupValues) => {
     try {
@@ -70,12 +65,11 @@ export default function Onboarding() {
       router.push('/signup/business-info');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      toast.error(
-        (axiosError.response && axiosError.response.data
-          ? axiosError.response.data.message || axiosError.response.data
-          : axiosError.message || 'An error occurred'
-        ).toString()
-      );
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        'An error occurred';
+      toast.error(errorMessage);
     }
   };
 
@@ -84,16 +78,16 @@ export default function Onboarding() {
     id_number: string,
     setFieldError: (field: string, message: string) => void
   ) => {
+    if (!id_type || !id_number) return; // don't call if not ready
     try {
       await axiosInstance.get(
         `/idlookup/verify/?doctype=${id_type}&doc_number=${id_number}`
       );
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-
       setFieldError(
         'id_number',
-        axiosError.response?.data.message || 'ID verification failed'
+        axiosError.response?.data?.message || 'ID verification failed'
       );
     }
   };
@@ -102,23 +96,23 @@ export default function Onboarding() {
     bvnNumber: string,
     setFieldError: (field: string, message: string) => void
   ) => {
+    if (!bvnNumber || bvnNumber.length !== 11) return; // verify only when 11 digits present
     try {
       await axiosInstance.get(
         `/idlookup/verify/?doctype=bvn&doc_number=${bvnNumber}`
       );
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-
       setFieldError(
         'bvn',
-        axiosError.response?.data.message || 'ID verification failed'
+        axiosError.response?.data?.message || 'BVN verification failed'
       );
     }
   };
 
   return (
-    <div className=" flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg w-full max-w-[624px] ">
+    <div className="flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-[624px]">
         <h1 className="text-2xl md:text-[34px] font-semibold text-raisin text-center">
           Let’s get started
         </h1>
@@ -135,8 +129,8 @@ export default function Onboarding() {
             <Form className="mt-6 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Field name="first_name" className="flex flex-col">
-                    {({ field, meta }: FieldProps) => (
+                  <Field name="first_name">
+                    {({ field, meta }: FieldProps<string>) => (
                       <>
                         <Input
                           label="First Name *"
@@ -146,6 +140,8 @@ export default function Onboarding() {
                           hasError={meta.touched && !!meta.error}
                           size="lg"
                           className="text-raisin"
+                          lettersOnly // ✅ block non-letters
+                          maxLength={40}
                         />
                         <ErrorMessage
                           name="first_name"
@@ -156,9 +152,10 @@ export default function Onboarding() {
                     )}
                   </Field>
                 </div>
+
                 <div>
                   <Field name="last_name">
-                    {({ field, meta }: FieldProps) => (
+                    {({ field, meta }: FieldProps<string>) => (
                       <>
                         <Input
                           label="Last Name *"
@@ -168,6 +165,8 @@ export default function Onboarding() {
                           hasError={meta.touched && !!meta.error}
                           size="lg"
                           className="text-raisin"
+                          lettersOnly // ✅ block non-letters
+                          maxLength={40}
                         />
                         <ErrorMessage
                           name="last_name"
@@ -181,17 +180,18 @@ export default function Onboarding() {
               </div>
 
               <Field name="phn_no">
-                {({ field, meta }: FieldProps) => (
+                {({ field, meta }: FieldProps<string>) => (
                   <>
                     <Input
                       label="Phone Number *"
                       variant="outline"
                       {...field}
-                      placeholder="+123 456 7890"
+                      placeholder="+2348012345678"
                       hasError={meta.touched && !!meta.error}
                       size="lg"
                       className="text-raisin"
-                      type='tel'
+                      phoneMode // ✅ only digits, single leading '+'
+                      maxLength={15}
                     />
                     <ErrorMessage
                       name="phn_no"
@@ -205,7 +205,7 @@ export default function Onboarding() {
               <div>
                 <CustomSelect
                   name="nature_of_solar_business"
-                  label=" What is the primary nature of your solar business?"
+                  label="What is the primary nature of your solar business?"
                   options={businessOptions}
                   className="mb-4 text-raisin"
                 />
@@ -218,13 +218,10 @@ export default function Onboarding() {
                   options={idOptions}
                   className="mb-4 text-raisin"
                 />
+
                 <div>
                   <Field name="id_number">
-                    {({
-                      field,
-                      meta,
-                      form,
-                    }: FieldProps & { form: FormData }) => (
+                    {({ field, meta, form }: FieldProps<string>) => (
                       <>
                         <Input
                           label="ID Number *"
@@ -234,11 +231,14 @@ export default function Onboarding() {
                           hasError={meta.touched && !!meta.error}
                           size="lg"
                           className="text-raisin"
+                          numericOnly // ✅ digits only
+                          maxLength={20}
                           onBlur={(e) => {
-                            field.onBlur(e); // let Formik know we blurred
+                            field.onBlur(e);
+                            // only verify if id_type chosen and there's some value
                             handleVerifyId(
-                              form.values.id_type,
-                              form.values.id_number,
+                              (form.values as AccountSetupValues).id_type,
+                              (form.values as AccountSetupValues).id_number,
                               form.setFieldError
                             );
                           }}
@@ -255,21 +255,21 @@ export default function Onboarding() {
               </div>
 
               <Field name="bvn">
-                {({ field, meta, form }: FieldProps & { form: FormData }) => (
+                {({ field, form }: FieldProps<string>) => (
                   <>
                     <Input
                       label="BVN *"
                       variant="outline"
-                      {...field}
-                      placeholder="Enter your 11-digit BVN"
-                      hasError={meta.touched && !!meta.error}
+                      numericOnly
                       size="lg"
-                      className="text-raisin"
+                      maxLength={11}
+                      {...field}
                       onBlur={(e) => {
                         field.onBlur(e);
                         handleVerifyBvn(form.values.bvn, form.setFieldError);
                       }}
                     />
+
                     <ErrorMessage
                       name="bvn"
                       component="div"
@@ -280,7 +280,12 @@ export default function Onboarding() {
               </Field>
 
               <div className="pt-4">
-                <Button type="submit" variant="default" className="w-full" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? 'Submitting...' : 'Next'}
                 </Button>
               </div>

@@ -160,9 +160,9 @@ const MarketPlace = () => {
           />
         </div>
 
-        <div className="space-y-[15px] grow">
+        <div className="space-y-[15px] mt-4 grow">
           <div className="flex justify-between items-center border-y border-y-gray-4 py-3">
-            <h4 className="text-[16px]">
+            <h4 className="text-xs lg:text-base">
               {loading
                 ? 'Loading...'
                 : `Showing ${
@@ -170,15 +170,20 @@ const MarketPlace = () => {
                   } of ${totalResults} results`}
             </h4>
             <div className="flex gap-x-2 items-center">
-              <span className="text-gray-900">Sort by:</span>
+              <span className="text-gray-900 text-xs lg:text-base">
+                Sort by:
+              </span>
               <Select value={sortBy} onValueChange={handleSortChange}>
                 <SelectTrigger className="focus-visible:border-none border-none shadow-none font-semibold text-mikado-yellow">
-                  <SelectValue placeholder="Most popular" />
+                  <SelectValue
+                    placeholder="Most popular"
+                    className="text-xs lg:text-base"
+                  />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="text-xs lg:text-base">
                   <SelectItem value="popular">Most popular</SelectItem>
                   <SelectItem value="price_asc">Price: Low to High</SelectItem>
-                  <SelectItem value="price_desc">Price: High to Low</SelectItem>
+                  <SelectItem value="price_desc" >Price: High to Low</SelectItem>
                   <SelectItem value="newest">Newest</SelectItem>
                 </SelectContent>
               </Select>
@@ -230,4 +235,4 @@ const MarketPlace = () => {
   );
 };
 
-export default MarketPlace
+export default MarketPlace;

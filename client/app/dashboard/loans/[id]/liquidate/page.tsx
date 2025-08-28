@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { ArrowLeft, Wallet2 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -16,25 +16,23 @@ export default function PayDownpaymentPage() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
 
-  const {loan} = useLoanById(params.id)
+  const { loan } = useLoanById(params.id);
 
-  console.log(loan)
+  console.log(loan);
 
   const monthlyRepayment = useMemo(() => {
     if (!loan?.monthly_repayment) return 0;
     return Number(loan.monthly_repayment);
   }, [loan]);
 
-  const [method, setMethod] = useState<'wallet' | ''>('');
   const walletBalance = user?.wallet_balance;
 
-  const canPay =
-    method !== '' && ((walletBalance ?? 0) >= monthlyRepayment);
+  const canPay = (walletBalance ?? 0) >= monthlyRepayment;
 
-  const handleSubmit = async(id : string)=>{
+  const handleSubmit = async (id: string) => {
     try {
       await axiosInstance.patch(`/loan/${id}/liquidate/`);
-      router.push(`/dashboard/loans/${params.id}`)
+      router.push(`/dashboard/loans/${params.id}`);
       toast.success('Loan Liquidated Successfully');
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -45,7 +43,7 @@ export default function PayDownpaymentPage() {
         ).toString()
       );
     }
-  }
+  };
 
   return (
     <div className=" lg:px-8 py-4 max-w-2xl mx-auto">
@@ -98,17 +96,12 @@ export default function PayDownpaymentPage() {
           <label className="block text-sm font-medium text-gray-700">
             Payment Method <span className="text-red-500">*</span>
           </label>
-          <select
-            value={method}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              setMethod(e.target.value as 'wallet' | '')
-            }
-            className="mt-1 w-full rounded-md border px-4 py-3 bg-white"
-          >
-            <option value="">Select payment method</option>
-            <option value="wallet">Wallet</option>
-          </select>
-          {method === 'wallet' && (walletBalance ?? 0) < monthlyRepayment && (
+          <input
+            value="Wallet"
+            readOnly
+            className="mt-1 w-full rounded-md border bg-gray-100 px-4 py-3"
+          />
+          {(walletBalance ?? 0) < monthlyRepayment && (
             <p className="mt-1 text-xs text-red-600">
               Insufficient wallet balance to complete this payment.
             </p>
@@ -117,12 +110,11 @@ export default function PayDownpaymentPage() {
 
         <button
           disabled={!canPay}
-          onClick={() =>{
-            if(loan){
-              handleSubmit(String(loan.id))
+          onClick={() => {
+            if (loan) {
+              handleSubmit(String(loan.id));
             }
-          }
-          }
+          }}
           className="w-full py-4 rounded-md bg-mikado text-raisin font-medium disabled:bg-[#D0D5DD] disabled:cursor-not-allowed hover:bg-mikado/90"
         >
           Pay

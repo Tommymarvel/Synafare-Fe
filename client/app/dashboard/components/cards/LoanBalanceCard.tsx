@@ -21,7 +21,10 @@ export default function LoanBalanceCard() {
         <div className="mt-[25px]">
           {/* Balance amount */}
           <div className="mt-1 text-raisin text-[32px] font-medium">
-            ₦<span className="text-sm">{user?.loan_balance || 0.0}</span>
+            ₦{Math.floor(user?.loan_balance || 0)}
+            <span className="text-sm">
+              .{((user?.loan_balance || 0) % 1).toFixed(2).slice(2)}
+            </span>
           </div>
           {/* Available credit */}
           <p className="text-xs text-[#797979]">

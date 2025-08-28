@@ -50,16 +50,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   return (
     <nav className="flex flex-col p-4 space-y-1 bg-raisin h-full">
       <div className="flex justify-between items-center px-6 py-2">
-        <Image
-          src="/synafare-yellow.svg"
-          alt="Synafare Logo"
-          width={77}
-          height={48}
-          className="mb-4"
-        />
-        <span onClick={onClose} className="flex md:hidden">
+        <Link href="/dashboard" onClick={onClose} className="mb-4">
+          <Image
+            src="/synafare-yellow.svg"
+            alt="Synafare Logo"
+            width={77}
+            height={48}
+          />
+        </Link>
+        <button type="button" onClick={onClose} className="flex md:hidden">
           <XIcon className="text-mikado" />
-        </span>
+        </button>
       </div>
       <div className="mt-9 flex flex-col space-y-1">
         {filteredNavItems.map(({ label, href, src }) => {

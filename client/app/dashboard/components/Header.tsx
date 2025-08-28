@@ -102,7 +102,7 @@ export default function Header() {
                 />
                 <div>
                   <p className="text-sm font-semibold text-gray-800">
-                    {user?.first_name || 'User'}{' '}{user?.last_name || ''}
+                    {user?.first_name || 'User'} {user?.last_name || ''}
                   </p>
                   <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
@@ -111,6 +111,7 @@ export default function Header() {
                 <Link
                   href="/dashboard/settings"
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMenuOpen(false)}
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Account Settings
@@ -118,13 +119,17 @@ export default function Header() {
                 <Link
                   href="/support"
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMenuOpen(false)}
                 >
                   <Headset className="h-4 w-4 mr-2" />
                   Contact Support
                 </Link>
                 <span
-                  onClick={handleSubmit}
-                  className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleSubmit();
+                  }}
+                  className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout

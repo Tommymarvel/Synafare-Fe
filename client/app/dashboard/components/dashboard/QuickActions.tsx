@@ -11,16 +11,16 @@ import Image from 'next/image';
 
 export default function QuickActions() {
   const actions = [
-    { label: 'Request Loan', href: '/dashboard/loans/', Icon: MoneyBag },
+    { label: 'Request Loan', href: '/dashboard/loans/request', Icon: MoneyBag },
     {
       label: 'Create Invoice',
-      href: '/dashboard/invoices/new',
+      href: '/dashboard/invoices/create',
       Icon: FileText,
     },
-    { label: 'Repay Loan', href: '/dashboard/loans/repay', Icon: HandCoins },
+    { label: 'Repay Loan', href: '/dashboard/loans/', Icon: HandCoins },
     {
       label: 'Add Product',
-      href: '/dashboard/inventory/new',
+      href: '/dashboard/inventory/add',
       Icon: SolarPanel,
     },
     { label: 'Add Customer', href: '/dashboard/customers/', Icon: Users },

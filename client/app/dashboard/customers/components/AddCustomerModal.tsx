@@ -23,10 +23,24 @@ type FormValues = {
 };
 
 const schema: Yup.ObjectSchema<FormValues> = Yup.object({
-  customer_name: Yup.string().trim().required('Required'),
-  customer_email: Yup.string().trim().email('Invalid customer_email').required('Required'),
+  customer_name: Yup.string()
+    .trim()
+    .min(3, 'Name must be at least 3 characters')
+    .max(50, 'Name must not exceed 50 characters')
+    .matches(
+      /^[A-Za-z\s'-]+$/,
+      'Name can only contain letters, spaces, hyphens, and apostrophes'
+    )
+    .required('Required'),
+  customer_email: Yup.string()
+    .trim()
+    .email('Invalid email format')
+    .required('Required'),
   countryCode: Yup.string().required('Required'),
-  customer_phn: Yup.string().trim().required('Required'),
+  customer_phn: Yup.string()
+    .trim()
+    .matches(/^[0-9]{11}$/, 'Phone number must be exactly 11 digits')
+    .required('Required'),
 });
 
 export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
@@ -61,14 +75,17 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
       onKeyDown={(e) => e.key === 'Escape' && onClose()}
     >
       {/* overlay */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
 
       {/* panel */}
-      <div className="absolute inset-0 flex items-start justify-center  p-4 sm:p-6">
+      <div className="absolute inset-0 flex items-start justify-center p-4 sm:p-6">
         <div
           ref={panelRef}
           tabIndex={-1}
-          className="mt-12 w-full max-w-[560px] rounded-lg  bg-white shadow-2xl outline-none"
+          className="mt-12 w-full max-w-[560px] rounded-lg bg-white shadow-2xl outline-none"
         >
           {/* header */}
           <div className="relative px-5 py-4 sm:px-6">
@@ -93,26 +110,25 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
             onSubmit={async (values, { setSubmitting }) => {
               setSubmitting(true);
               try {
-              
                 const res = await axiosInstance.post('/customer/add', {
                   customer_name: values.customer_name,
                   customer_email: values.customer_email,
                   customer_phn: values.customer_phn,
                 });
 
-
-                toast.success(res.data.message || 'Customer added successfully');
+                toast.success(
+                  res.data.message || 'Customer added successfully'
+                );
                 onCreated?.();
                 onClose();
               } catch (error) {
-                    const axiosError = error as AxiosError<{ message?: string }>;
-                    toast.error(
-                      (axiosError.response && axiosError.response.data
-                        ? axiosError.response.data.message || axiosError.response.data
-                        : axiosError.message || 'An error occurred'
-                      ).toString()
-                    );
-                  } finally {
+                const axiosError = error as AxiosError<{ errors?: string }>;
+                const errorMessage =
+                  axiosError.response?.data?.errors ||
+                  axiosError.message ||
+                  'An error occurred';
+                toast.error(errorMessage);
+              } finally {
                 setSubmitting(false);
               }
             }}
@@ -125,10 +141,12 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                     {({ field, meta }: FieldProps<string>) => (
                       <Input
                         {...field}
-                        label="Customer’s Full Name *"
-                        placeholder="e.g David"
+                        label="Customer's Full Name *"
+                        placeholder="e.g David John"
                         hasError={!!(meta.touched && meta.error)}
                         className="rounded-2xl"
+                        lettersOnly
+                        maxLength={50}
                       />
                     )}
                   </Field>
@@ -138,12 +156,12 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                     className="text-xs text-red-600"
                   />
 
-                  {/* customer_email */}
+                  {/* Email */}
                   <Field name="customer_email">
                     {({ field, meta }: FieldProps<string>) => (
                       <Input
                         {...field}
-                        type="customer_email"
+                        type="email"
                         label="Customer Email Address *"
                         placeholder="Enter Email address"
                         hasError={!!(meta.touched && meta.error)}
@@ -157,7 +175,7 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                     className="text-xs text-red-600"
                   />
 
-                  {/* customer_phn */}
+                  {/* Phone */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Customer Phone Number *
@@ -175,10 +193,12 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                         {({ field, meta }: FieldProps<string>) => (
                           <Input
                             {...field}
-                            placeholder="Enter Phone number"
+                            placeholder="Enter 11-digit phone number"
                             hasError={!!(meta.touched && meta.error)}
                             className="rounded-r-lg text-sm rounded-l-none border-l-0"
-                            size='lg'
+                            size="lg"
+                            numericOnly
+                            maxLength={11}
                           />
                         )}
                       </Field>
@@ -192,7 +212,7 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                 </div>
 
                 {/* footer */}
-                <div className="px-5 sm:px-6 py-7 sm:py-6 flex items-center justify-end gap-3 ">
+                <div className="px-5 sm:px-6 py-7 sm:py-6 flex items-center justify-end gap-3">
                   <button
                     type="button"
                     onClick={onClose}

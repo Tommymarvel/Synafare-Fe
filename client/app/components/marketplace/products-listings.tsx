@@ -44,7 +44,7 @@ const ProductsListings = ({
         </div>
       )}
       {products.length > 0 && (
-        <div className="grid grid-cols-3 gap-[15px]">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-[15px]">
           {products.map((product) => (
             <ProductListing key={product.id} product={product} />
           ))}

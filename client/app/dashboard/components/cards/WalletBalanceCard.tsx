@@ -1,14 +1,19 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { EyeOff, Plus, Minus, Wallet } from 'lucide-react';
+import { EyeOff, Eye, Plus, Minus, Wallet } from 'lucide-react';
 import Spiral from '@/app/assets/spiral.png';
 import { useAuth } from '@/context/AuthContext';
 
 export default function WalletBalanceCard() {
   const { user } = useAuth();
+  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+
+  const toggleBalanceVisibility = () => {
+    setIsBalanceVisible(!isBalanceVisible);
+  };
   return (
     <div className="relative bg-raisin text-white rounded-2xl overflow-hidden">
       {/* Decorative background shape */}
@@ -27,11 +32,29 @@ export default function WalletBalanceCard() {
         <div>
           <div className="flex items-center text-[12px] text-[D0D5DD] ">
             <span>Wallet Balance</span>
-            <EyeOff className="ml-1 w-5 h-5" />
+            <button
+              onClick={toggleBalanceVisibility}
+              className="ml-1 hover:text-white transition-colors"
+            >
+              {isBalanceVisible ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
           </div>
         </div>{' '}
         <div className="mt-1 text-[32px] font-medium">
-          ₦{new Intl.NumberFormat('en-NG').format(user?.wallet_balance ?? 0)}
+          {isBalanceVisible ? (
+            <>
+              ₦{Math.floor(user?.wallet_balance ?? 0)}
+              <span className="text-sm">
+                .{((user?.wallet_balance ?? 0) % 1).toFixed(2).slice(2)}
+              </span>
+            </>
+          ) : (
+            <span>₦****</span>
+          )}
         </div>
         {/* Middle: Action buttons */}
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">

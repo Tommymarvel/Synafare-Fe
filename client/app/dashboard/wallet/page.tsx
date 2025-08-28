@@ -1,13 +1,15 @@
 // app/(dashboard)/wallet/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   EyeOff,
   Plus,
   Minus,
   Wallet as WalletIcon,
   ChevronDown,
+  Eye,
+  Calendar,
 } from 'lucide-react';
 import AddMoneyModal from './components/AddMoneyModal';
 import Image from 'next/image';
@@ -30,7 +32,37 @@ export type BankDetails = {
   bankName: string;
 };
 
+type DateRange = {
+  startDate: string;
+  endDate: string;
+  label: string;
+};
+
 const PAGE_SIZE = 10;
+
+const dateRangeOptions: DateRange[] = [
+  {
+    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+    label: 'Last 7 days',
+  },
+  {
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+    label: 'Last 30 days',
+  },
+  {
+    startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+    label: 'Last 3 months',
+  },
+];
 
 export default function WalletPage() {
   const [bankMeta, setBankMeta] = useState<BankDetails | null>(null);
@@ -42,9 +74,81 @@ export default function WalletPage() {
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
+  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
+    null
+  );
+  const [customDateRange, setCustomDateRange] = useState({
+    startDate: '',
+    endDate: '',
+  });
+  const dateFilterRef = useRef<HTMLDivElement>(null);
+
+  // Close date filter when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dateFilterRef.current &&
+        !dateFilterRef.current.contains(event.target as Node)
+      ) {
+        setShowDateFilter(false);
+      }
+    };
+
+    if (showDateFilter) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDateFilter]);
+
+  const toggleBalanceVisibility = () => {
+    setIsBalanceVisible(!isBalanceVisible);
+  };
+
+  const handleDateRangeSelect = (range: DateRange | null) => {
+    setSelectedDateRange(range);
+    setPage(1); // Reset to first page when filtering
+    setShowDateFilter(false);
+  };
+
+  const handleCustomDateRange = () => {
+    if (!customDateRange.startDate || !customDateRange.endDate) {
+      toast.error('Please select both start and end dates');
+      return;
+    }
+
+    if (
+      new Date(customDateRange.startDate) > new Date(customDateRange.endDate)
+    ) {
+      toast.error('Start date cannot be after end date');
+      return;
+    }
+
+    setSelectedDateRange({
+      startDate: customDateRange.startDate,
+      endDate: customDateRange.endDate,
+      label: `${customDateRange.startDate} to ${customDateRange.endDate}`,
+    });
+    setPage(1);
+    setShowDateFilter(false);
+  };
+
+  const clearDateFilter = () => {
+    setSelectedDateRange(null);
+    setCustomDateRange({ startDate: '', endDate: '' });
+    setPage(1);
+    setShowDateFilter(false);
+  };
+
   const { transactions, meta, isLoading, error } = useTransactions({
     page,
     limit: PAGE_SIZE,
+    from: selectedDateRange?.startDate,
+    to: selectedDateRange?.endDate,
   });
   const totalPages = meta.totalPages;
 
@@ -86,22 +190,34 @@ export default function WalletPage() {
           </div>
 
           <div className="relative p-4">
-            {/* Wallet label */}
-            <div className="flex items-center text-[12px] text-[#D0D5DD]">
-              <span>Wallet Balance</span>
-              <EyeOff className="ml-1 h-5 w-5" />
-            </div>
-
             {/* Amount */}
-            <div className="mt-2 text-4xl font-medium">
-              <p>
-                ₦
-                {new Intl.NumberFormat('en-NG').format(
-                  user?.wallet_balance ?? 0
-                )}
-              </p>
+            <div>
+              <div className="flex items-center text-[12px] text-[D0D5DD] ">
+                <span>Wallet Balance</span>
+                <button
+                  onClick={toggleBalanceVisibility}
+                  className="ml-1 hover:text-white transition-colors"
+                >
+                  {isBalanceVisible ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>{' '}
+            <div className="mt-1 text-[32px] font-medium">
+              {isBalanceVisible ? (
+                <>
+                  ₦{Math.floor(user?.wallet_balance ?? 0)}
+                  <span className="text-sm">
+                    .{((user?.wallet_balance ?? 0) % 1).toFixed(2).slice(2)}
+                  </span>
+                </>
+              ) : (
+                <span>₦****</span>
+              )}
             </div>
-
             {/* Account + actions */}
             <div className="mt-4 flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between">
               <span className="text-white/80">
@@ -126,7 +242,6 @@ export default function WalletPage() {
                 </button>
               </div>
             </div>
-
             {/* Icon badge */}
             <div className="absolute right-4 top-4 rounded-full bg-mikado p-3 text-gray-900">
               <WalletIcon className="h-5 w-5" />
@@ -138,10 +253,86 @@ export default function WalletPage() {
         <div className="mt-6 rounded-2xl border border-neutral-200 bg-white">
           <div className="flex items-center justify-between border-b px-4 py-3">
             <h4 className="font-medium">Recent Transactions</h4>
-            <button className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm">
-              Select Date Range
-              <ChevronDown className="h-4 w-4" />
-            </button>
+            <div className="relative" ref={dateFilterRef}>
+              <button
+                onClick={() => setShowDateFilter(!showDateFilter)}
+                className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50"
+              >
+                <Calendar className="h-4 w-4" />
+                {selectedDateRange
+                  ? selectedDateRange.label
+                  : 'Select Date Range'}
+                <ChevronDown className="h-4 w-4" />
+              </button>
+
+              {showDateFilter && (
+                <div className="absolute right-0 top-full mt-1 w-64 rounded-lg border bg-white shadow-lg z-10">
+                  <div className="p-2">
+                    {/* Predefined ranges */}
+                    <div className="space-y-1">
+                      {dateRangeOptions.map((range, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleDateRangeSelect(range)}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded"
+                        >
+                          {range.label}
+                        </button>
+                      ))}
+
+                      {/* Custom range */}
+                      <div className="border-t pt-2 mt-2">
+                        <div className="px-3 py-2">
+                          <p className="text-sm font-medium text-gray-700 mb-2">
+                            Custom Range
+                          </p>
+                          <div className="space-y-2">
+                            <input
+                              type="date"
+                              value={customDateRange.startDate}
+                              onChange={(e) =>
+                                setCustomDateRange((prev) => ({
+                                  ...prev,
+                                  startDate: e.target.value,
+                                }))
+                              }
+                              className="w-full px-2 py-1 text-xs border rounded"
+                              placeholder="Start date"
+                            />
+                            <input
+                              type="date"
+                              value={customDateRange.endDate}
+                              onChange={(e) =>
+                                setCustomDateRange((prev) => ({
+                                  ...prev,
+                                  endDate: e.target.value,
+                                }))
+                              }
+                              className="w-full px-2 py-1 text-xs border rounded"
+                              placeholder="End date"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={handleCustomDateRange}
+                                className="flex-1 px-2 py-1 text-xs bg-mikado text-raisin rounded hover:bg-yellow-600"
+                              >
+                                Apply
+                              </button>
+                              <button
+                                onClick={clearDateFilter}
+                                className="flex-1 px-2 py-1 text-xs border rounded hover:bg-gray-100"
+                              >
+                                Clear
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {transactions.length > 0 ? (
@@ -199,7 +390,9 @@ export default function WalletPage() {
                             colSpan={6}
                             className="px-6 py-10 text-center text-sm text-[#797979]"
                           >
-                            No transactions found.
+                            {selectedDateRange
+                              ? `No transactions found for the selected date range (${selectedDateRange.label}). Try adjusting your filter or clear it to see all transactions.`
+                              : 'No transactions found.'}
                           </td>
                         </tr>
                       )}
@@ -252,14 +445,34 @@ export default function WalletPage() {
               </div>
             </div>
           ) : (
-            <EmptyState
-              title="No Recent Transactions"
-              description="You haven't made any transactions yet. Add money to your wallet or make a purchase to see transactions here."
-              illustration={CoinStack}
-              illustrationWidth={120}
-              illustrationHeight={120}
-              className="h-64"
-            />
+            <div className="h-64">
+              <EmptyState
+                title={
+                  selectedDateRange
+                    ? 'No Transactions in Date Range'
+                    : 'No Recent Transactions'
+                }
+                description={
+                  selectedDateRange
+                    ? `No transactions found for ${selectedDateRange.label}. Try adjusting your date range or clear the filter to see all transactions.`
+                    : "You haven't made any transactions yet. Add money to your wallet or make a purchase to see transactions here."
+                }
+                illustration={CoinStack}
+                illustrationWidth={120}
+                illustrationHeight={120}
+                className="h-64"
+              />
+              {selectedDateRange && (
+                <div className="text-center mt-4">
+                  <button
+                    onClick={clearDateFilter}
+                    className="px-4 py-2 bg-mikado text-raisin rounded-lg hover:bg-yellow-600"
+                  >
+                    Clear Filter
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </section>

@@ -81,7 +81,7 @@ export default function RepaymentScheduleCard() {
                   </span>
                 </div>
                 <Link
-                  href={`/dashboard/loans/${loanId}`}
+                  href={`/dashboard/loans/${loanId}/liquidate`}
                   className="inline-flex items-center text-sm text-mikado hover:underline"
                 >
                   <span>Pay</span>
