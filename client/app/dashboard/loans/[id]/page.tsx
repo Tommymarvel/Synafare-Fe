@@ -62,7 +62,9 @@ export default function LoanDetailsPage() {
     { label: 'Interest (per month)', node: `${loan.interest * 100}%` },
     { label: 'Loan Amount', node: currency(loan.loan_amount) },
     {
-      label: `Downpayment (${loan.downpaymentInNaira}%)`,
+      label: `Downpayment (${Math.round(
+        loan.downpaymentInPercent * 100
+      )}%)`,
       node: currency(loan.downpaymentInNaira),
     },
     { label: 'Total Repayment', node: currency(loan.totalRepayment) },

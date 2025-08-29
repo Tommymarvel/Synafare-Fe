@@ -68,7 +68,7 @@ const TeamMembers = () => {
               <TableHead className="py-[13px] ps-6">Name</TableHead>
               <TableHead className="py-[13px] ps-6">Role</TableHead>
               <TableHead className="py-[13px] ps-6">Date Added</TableHead>
-              <TableHead className="py-[13px] ps-6">Action</TableHead>
+              {/* <TableHead className="py-[13px] ps-6">Action</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -89,7 +89,7 @@ const TeamMembers = () => {
                 <TableCell className="p-6 font-medium">
                   {format(new Date(request.dateAdded), 'MMM dd, yyyy')}
                 </TableCell>
-                <TableCell className="p-6 font-medium">
+                {/* <TableCell className="p-6 font-medium">
                   <svg width="5" height="16" viewBox="0 0 5 16" fill="none">
                     <path
                       d="M2.49984 8.83398C2.96007 8.83398 3.33317 8.46089 3.33317 8.00065C3.33317 7.54041 2.96007 7.16732 2.49984 7.16732C2.0396 7.16732 1.6665 7.54041 1.6665 8.00065C1.6665 8.46089 2.0396 8.83398 2.49984 8.83398Z"
@@ -113,7 +113,7 @@ const TeamMembers = () => {
                       strokeLinejoin="round"
                     />
                   </svg>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>

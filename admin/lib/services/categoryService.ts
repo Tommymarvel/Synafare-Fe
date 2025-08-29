@@ -35,7 +35,7 @@ export async function createCategory(payload: { name: string }) {
 
 export async function updateCategory(id: string, payload: { name: string }) {
   try {
-    const res = await axiosInstance.patch(
+    const res = await axiosInstance.put(
       `/inventory/admin/update-category/${id}`,
       payload
     );
@@ -63,7 +63,7 @@ export async function deleteCategory(id: string) {
     const res = await axiosInstance.delete(
       `/inventory/admin/delete-category/${id}`
     );
-    
+
     return res.data as { message?: string };
   } catch (error) {
     console.error('Error deleting category:', error);

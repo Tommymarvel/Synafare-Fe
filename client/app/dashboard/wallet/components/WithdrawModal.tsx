@@ -113,7 +113,7 @@ export default function WithdrawModal({
   });
 
   return (
-    <div className="fixed inset-0 z-[70] grid place-items-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-[70] grid place-items-center text-raisin bg-black/40 p-4">
       <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl">
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h3 className="text-lg font-semibold text-raisin">Withdraw</h3>
@@ -145,7 +145,10 @@ export default function WithdrawModal({
               toast.success('Withdrawal initiated successfully');
               onClose();
             } catch (error) {
-              const axiosError = error as AxiosError<{ message?: string, errors?: string | string[] }>;
+              const axiosError = error as AxiosError<{
+                message?: string;
+                errors?: string | string[];
+              }>;
               toast.error(
                 (axiosError.response && axiosError.response.data
                   ? axiosError.response.data.errors || axiosError.response.data

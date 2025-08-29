@@ -4,9 +4,33 @@ import React from 'react';
 import Link from 'next/link';
 import { Banknote } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { fmtNaira } from '@/lib/format';
 
 export default function LoanBalanceCard() {
   const { user } = useAuth();
+  const SplitCurrency = ({
+    amount,
+    className = 'text-[32px] font-medium',
+    decimalClassName = 'text-sm',
+  }: {
+    amount: number;
+    className?: string;
+    decimalClassName?: string;
+  }) => {
+    const formatted = fmtNaira(amount);
+    const [integerPart, decimalPart] = formatted.split('.');
+  
+    return (
+      <div className={`flex items-end ${className}`}>
+        {integerPart}
+        {decimalPart && (
+          <span className={`${decimalClassName} self-end mb-1`}>
+            .{decimalPart}
+          </span>
+        )}
+      </div>
+    );
+  };
   return (
     <div className="relative bg-white rounded-2xl border border-gray-200 p-4">
       {/* Top-right icon badge */}
@@ -21,10 +45,12 @@ export default function LoanBalanceCard() {
         <div className="mt-[25px]">
           {/* Balance amount */}
           <div className="mt-1 text-raisin text-[32px] font-medium">
-            ₦{Math.floor(user?.loan_balance || 0)}
-            <span className="text-sm">
-              .{((user?.loan_balance || 0) % 1).toFixed(2).slice(2)}
-            </span>
+          
+            <SplitCurrency
+              amount={user?.loan_balance ?? 0}
+              className="text-[32px] font-medium"
+              decimalClassName="text-sm"
+            />
           </div>
           {/* Available credit */}
           <p className="text-xs text-[#797979]">

@@ -24,6 +24,7 @@ interface User {
   _id: string;
   __v: number;
   account_status: string; // e.g. "inactive"
+  avatar?: string; // Profile picture URL
   business_document: string; // e.g. "submitted"
   bvn: string; // e.g. "22222222222"
   createdAt: string; // ISO date

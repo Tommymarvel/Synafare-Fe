@@ -1,7 +1,7 @@
 'use client';
 
 import CardWrapper from '@/components/cardWrapper';
-import { ManageGuard } from '@/components/PermissionGuard';
+// import { ManageGuard } from '@/components/PermissionGuard';
 import {
   Select,
   SelectContent,
@@ -13,9 +13,9 @@ import SearchInput from '@/components/search.input';
 
 const UserTableWrapper = ({
   children,
-  verify = false,
-  openVerifyModalfunc = () => null,
-  openDeleteModalfunc = () => null,
+  // verify = false,
+  // openVerifyModalfunc = () => null,
+  // openDeleteModalfunc = () => null,
 }: {
   children: React.ReactNode;
   verify?: boolean;
@@ -26,7 +26,8 @@ const UserTableWrapper = ({
     <CardWrapper className="px-0 py-0 rounded-lg">
       <div className="flex justify-between px-6 py-3">
         <div className="flex gap-x-[10px] grow">
-          {verify && (
+        {/* TODO: Ask dimeji if verify can handle multiple users at once */}
+          {/* {verify && (
             <ManageGuard module="users">
               <button
                 onClick={() => openVerifyModalfunc(true)}
@@ -79,7 +80,7 @@ const UserTableWrapper = ({
                 Delete
               </button>
             </ManageGuard>
-          )}
+          )} */}
           <div className="max-w-[334px] w-full">
             <SearchInput />
           </div>

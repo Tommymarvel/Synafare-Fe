@@ -24,6 +24,7 @@ export default function BankInfoPanel() {
   const locked = Boolean(user?.bank_details?.set);
 
   const initialValues: BankFormValues = {
+    bank_code: user?.bank_details?.bank_code || '',
     bank_name: user?.bank_details?.bank_name || '',
     account_number: user?.bank_details?.acc_no || '',
     account_name: user?.bank_details?.acc_name || '',

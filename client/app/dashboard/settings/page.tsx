@@ -1,13 +1,78 @@
 'use client';
 import InfoDetail from '../../components/detail'; // Fixed import path
 import EditProfileMdoal from './components/modals/edit-profile';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext'; // Import AuthContext
 import Image from 'next/image';
+import axiosInstance from '@/lib/axiosInstance';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
 
 const ProfileSettings = () => {
   const [editProfileModal, setEditProfileModal] = useState(false);
-  const { user, loading } = useAuth(); // Get user data from context
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user, loading, refreshUser } = useAuth(); // Get user data from context
+
+  const handlePhotoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const { data } = await axiosInstance.patch('/auth/setup', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      toast.success(
+        (data as { message?: string })?.message ||
+          'Profile photo updated successfully'
+      );
+
+      // Refresh user data to get the new avatar URL
+      if (typeof refreshUser === 'function') {
+        await refreshUser();
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string } | string>;
+      const respData = axiosError.response?.data;
+      const msg =
+        (typeof respData === 'string' ? respData : respData?.message) ||
+        axiosError.message ||
+        'Failed to update profile photo';
+      toast.error(msg);
+    } finally {
+      setIsUploadingPhoto(false);
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const triggerPhotoUpload = () => {
+    fileInputRef.current?.click();
+  };
 
   if (loading) {
     return (
@@ -34,24 +99,46 @@ const ProfileSettings = () => {
       />
       <h1 className="text-lg font-medium mb-[13px]">Profile</h1>
       <div className="space-y-6">
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoUpload}
+          className="hidden"
+        />
+
         <div className="rounded-lg border border-gray p-[18px] w-full">
           <div className="flex gap-x-[13px] items-center">
             <div className="relative">
               <Image
-                src="/avatar.jpg"
-                className="rounded-full w-[73px] aspect-square"
+                src={user.avatar || '/avatar.jpg'}
+                className="rounded-full w-[73px] aspect-square object-cover"
                 alt="Your profile picture"
                 width={73}
                 height={73}
               />
-              <span className="flex items-center justify-center w-[25px] h-[25px] bg-mikado-yellow rounded-full absolute right-0 bottom-0">
-                <svg width="16" height="13" viewBox="0 0 16 13" fill="none">
-                  <path
-                    d="M2.53422 12.2341H13.7475C15.0827 12.2341 15.7874 11.5417 15.7874 10.2189V3.72828C15.7874 2.40543 15.0827 1.71309 13.7475 1.71309H12.06C11.5778 1.71309 11.4233 1.63273 11.1204 1.31747L10.632 0.792043C10.3106 0.452058 9.98298 0.285156 9.35246 0.285156H6.89839C6.26787 0.285156 5.94643 0.452058 5.61881 0.792043L5.13046 1.31747C4.83375 1.62655 4.67303 1.71309 4.19087 1.71309H2.53422C1.199 1.71309 0.500488 2.40543 0.500488 3.72828V10.2189C0.500488 11.5417 1.199 12.2341 2.53422 12.2341ZM2.61458 11.004C2.05206 11.004 1.73062 10.7072 1.73062 10.1076V3.83954C1.73062 3.24612 2.05206 2.9494 2.61458 2.9494H4.5494C5.10574 2.9494 5.39009 2.8505 5.70535 2.51051L6.17515 1.99126C6.52131 1.61419 6.70676 1.51528 7.25073 1.51528H9.00011C9.54409 1.51528 9.72953 1.61419 10.0695 1.98508L10.5455 2.51051C10.8608 2.8505 11.1451 2.9494 11.7014 2.9494H13.6672C14.2359 2.9494 14.5511 3.24612 14.5511 3.83954V10.1076C14.5511 10.7072 14.2359 11.004 13.6672 11.004H2.61458ZM8.14088 10.188C9.99534 10.188 11.4789 8.70442 11.4789 6.84377C11.4789 4.98313 9.99534 3.49956 8.14088 3.49956C6.29259 3.49956 4.80902 4.98313 4.80902 6.84377C4.80902 8.70442 6.29259 10.188 8.14088 10.188ZM11.6891 4.63078C11.6891 5.08203 12.0538 5.43438 12.4989 5.4282C12.9316 5.4282 13.2963 5.07585 13.2963 4.63078C13.2963 4.19807 12.9254 3.82718 12.4989 3.82718C12.0538 3.82718 11.6891 4.19807 11.6891 4.63078ZM8.14088 9.06295C6.92311 9.06295 5.92788 8.0739 5.92788 6.84377C5.92788 5.60747 6.91693 4.6246 8.14088 4.6246C9.371 4.6246 10.3601 5.60747 10.3601 6.84377C10.3601 8.0739 9.371 9.06295 8.14088 9.06295Z"
-                    fill="#1D1C1D"
-                  />
-                </svg>
-              </span>
+              <button
+                onClick={triggerPhotoUpload}
+                disabled={isUploadingPhoto}
+                className={`flex items-center justify-center w-[25px] h-[25px] bg-mikado-yellow rounded-full absolute right-0 bottom-0 hover:bg-yellow-500 transition-colors ${
+                  isUploadingPhoto
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'cursor-pointer'
+                }`}
+                title="Change profile photo"
+              >
+                {isUploadingPhoto ? (
+                  <div className="w-3 h-3 border-2 border-gray-800 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg width="16" height="13" viewBox="0 0 16 13" fill="none">
+                    <path
+                      d="M2.53422 12.2341H13.7475C15.0827 12.2341 15.7874 11.5417 15.7874 10.2189V3.72828C15.7874 2.40543 15.0827 1.71309 13.7475 1.71309H12.06C11.5778 1.71309 11.4233 1.63273 11.1204 1.31747L10.632 0.792043C10.3106 0.452058 9.98298 0.285156 9.35246 0.285156H6.89839C6.26787 0.285156 5.94643 0.452058 5.61881 0.792043L5.13046 1.31747C4.83375 1.62655 4.67303 1.71309 4.19087 1.71309H2.53422C1.199 1.71309 0.500488 2.40543 0.500488 3.72828V10.2189C0.500488 11.5417 1.199 12.2341 2.53422 12.2341ZM2.61458 11.004C2.05206 11.004 1.73062 10.7072 1.73062 10.1076V3.83954C1.73062 3.24612 2.05206 2.9494 2.61458 2.9494H4.5494C5.10574 2.9494 5.39009 2.8505 5.70535 2.51051L6.17515 1.99126C6.52131 1.61419 6.70676 1.51528 7.25073 1.51528H9.00011C9.54409 1.51528 9.72953 1.61419 10.0695 1.98508L10.5455 2.51051C10.8608 2.8505 11.1451 2.9494 11.7014 2.9494H13.6672C14.2359 2.9494 14.5511 3.24612 14.5511 3.83954V10.1076C14.5511 10.7072 14.2359 11.004 13.6672 11.004H2.61458ZM8.14088 10.188C9.99534 10.188 11.4789 8.70442 11.4789 6.84377C11.4789 4.98313 9.99534 3.49956 8.14088 3.49956C6.29259 3.49956 4.80902 4.98313 4.80902 6.84377C4.80902 8.70442 6.29259 10.188 8.14088 10.188ZM11.6891 4.63078C11.6891 5.08203 12.0538 5.43438 12.4989 5.4282C12.9316 5.4282 13.2963 5.07585 13.2963 4.63078C13.2963 4.19807 12.9254 3.82718 12.4989 3.82718C12.0538 3.82718 11.6891 4.19807 11.6891 4.63078ZM8.14088 9.06295C6.92311 9.06295 5.92788 8.0739 5.92788 6.84377C5.92788 5.60747 6.91693 4.6246 8.14088 4.6246C9.371 4.6246 10.3601 5.60747 10.3601 6.84377C10.3601 8.0739 9.371 9.06295 8.14088 9.06295Z"
+                      fill="#1D1C1D"
+                    />
+                  </svg>
+                )}
+              </button>
             </div>
             <div className="space-y-1">
               <h4 className="font-medium text-lg capitalize">

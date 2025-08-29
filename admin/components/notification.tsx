@@ -1,10 +1,12 @@
+import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
 const Notification = () => {
+  const { user } = useAuth();
   return (
     <nav className="border-b border-b-[#E4E7EC] py-[14px] flex justify-end ">
       <div className="flex gap-x-7 content-container">
-        <div className="rounded-full bg-[#F6F6F6] h-10 w-10 flex items-center justify-center">
+        {/* <div className="rounded-full bg-[#F6F6F6] h-10 w-10 flex items-center justify-center">
           <div className="relative">
             <span className="absolute top-0 right-0 bg-mikado-yellow text-[10px] flex items-center justify-center w-[14px] h-[14px] rounded-full font-semibold text-resin-black">
               15
@@ -20,12 +22,12 @@ const Notification = () => {
               />
             </svg>
           </div>
-        </div>
+        </div> */}
         <span className="breaker h-[full] w-px bg-gray-200 block"></span>
         <div className="flex gap-x-[9px] items-center cursor-pointer">
           <div className="flex gap-x-1 items-center">
             <Image src="/avatar.jpg" alt="Avatar" width={36} height={36} className="rounded-full w-9 h-9" />
-            <p className="text-sm font-medium ">David Smith</p>
+            <p className="text-sm font-medium ">{user?.first_name} {user?.last_name}</p>
           </div>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

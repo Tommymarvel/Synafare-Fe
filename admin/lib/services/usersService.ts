@@ -191,14 +191,13 @@ export class UsersService {
   }
 
   /**
-   * Delete a user (DELETE /users/:id)
+   * Delete a user (DELETE /user/:id)
    * Permanently deletes the user from Firebase and database
-   * Note: backend expects Firebase UID in the plural `/users/:id` route
    */
   static async deleteUser(firebaseUid: string): Promise<UserActionResponse> {
     try {
       const response = await axiosInstance.delete<UserActionResponse>(
-        `/users/${firebaseUid}`
+        `${this.BASE_URL}/${firebaseUid}`
       );
       return response.data;
     } catch (error) {

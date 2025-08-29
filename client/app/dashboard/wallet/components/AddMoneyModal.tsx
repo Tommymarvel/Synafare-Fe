@@ -41,10 +41,10 @@ export default function AddMoneyModal({
   });
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
         <div className="flex items-center justify-between border-b px-6 py-4">
-          <h3 className="text-lg font-semibold">Add Money</h3>
+          <h3 className="text-lg font-semibold text-raisin">Add Money</h3>
           <button
             onClick={onClose}
             className="p-1 text-neutral-500 hover:text-neutral-700"
@@ -83,20 +83,20 @@ export default function AddMoneyModal({
           }) => (
             <Form className="px-6 py-5">
               {/* Amount */}
-              <label className="mb-1 block text-sm font-medium">
+              <label className="mb-1 block text-sm font-medium text-raisin">
                 Amount <span className="text-red-500">*</span>
               </label>
               <CurrencyInput name="amount" />
 
               {/* Method */}
               <div className="mt-4">
-                <label className="mb-1 block text-sm font-medium">
+                <label className="mb-1 block text-sm font-medium text-raisin">
                   Payment Method <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
                     className={clsx(
-                      'w-full appearance-none rounded-xl border border-neutral-200 bg-white px-4 py-3 pr-10 text-left outline-none',
+                      'w-full appearance-none rounded-xl border border-neutral-200 bg-white text-raisin px-4 py-3 pr-10 text-left outline-none',
                       'focus:border-neutral-400'
                     )}
                     value={values.method}

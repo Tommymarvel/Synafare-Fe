@@ -72,7 +72,7 @@ export default function Header() {
             onClick={() => setMenuOpen((o) => !o)}
           >
             <Image
-              src={Avatar}
+              src={user?.avatar ? user.avatar : Avatar}
               alt="User avatar"
               width={32}
               height={32}
@@ -94,7 +94,7 @@ export default function Header() {
             <div className="absolute right-0 mt-2 w-60 bg-white border rounded-lg shadow-lg z-50">
               <div className="px-4 py-3 flex items-center space-x-3">
                 <Image
-                  src={Avatar}
+                  src={user?.avatar ? user.avatar : Avatar}
                   alt="User avatar"
                   width={40}
                   height={40}
