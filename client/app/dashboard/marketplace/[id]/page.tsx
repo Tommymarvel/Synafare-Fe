@@ -54,7 +54,9 @@ export default function DashboardProductDetailPage({ params }: PageProps) {
 
         // Fetch related products from the same category
         const relatedResponse = await marketplaceApi.getProducts({
-          category: [apiProduct.product_category],
+          category: [typeof apiProduct.product_category === 'object' 
+            ? apiProduct.product_category._id 
+            : apiProduct.product_category],
           limit: 4,
         });
         const transformedRelated = relatedResponse.data

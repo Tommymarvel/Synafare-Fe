@@ -55,19 +55,23 @@ export default function StorePage({ params }: PageProps) {
         // Create supplier object from the first product (if available)
         if (response.data.length > 0) {
           const firstProduct = response.data[0];
-          setSupplier({
-            id: firstProduct.product_owner._id,
-            name:
-              firstProduct.product_owner.business?.business_name ||
-              'Unknown Supplier',
-            profile: '/product-avatar.png', // Default avatar
-            phone: '+234 812 345 6789', // Default phone (API doesn't provide this)
-            address: `${
-              firstProduct.product_owner.business?.state || 'Lagos'
-            }, Nigeria`,
-            type: firstProduct.product_owner.nature_of_solar_business,
-            totalProducts: response.meta.total_products,
-          });
+          
+          // Only create supplier if product_owner exists
+          if (firstProduct.product_owner) {
+            setSupplier({
+              id: firstProduct.product_owner._id,
+              name:
+                firstProduct.product_owner.business?.business_name ||
+                'Unknown Supplier',
+              profile: '/product-avatar.png', // Default avatar
+              phone: '+234 812 345 6789', // Default phone (API doesn't provide this)
+              address: `${
+                firstProduct.product_owner.business?.state || 'Lagos'
+              }, Nigeria`,
+              type: firstProduct.product_owner.nature_of_solar_business,
+              totalProducts: response.meta.total_products,
+            });
+          }
         }
       } catch (error) {
         console.error('Failed to fetch store data:', error);
