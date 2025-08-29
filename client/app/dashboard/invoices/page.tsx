@@ -73,7 +73,7 @@ export default function InvoicesPage() {
   // Reset selection when data changes
   useEffect(() => {
     setSelected(new Set());
-  }, [invoices]);
+  }, [invoices?.length]); // Only depend on length instead of the entire array
 
   // Handle create invoice click - check for business logo first
   const handleCreateInvoice = () => {

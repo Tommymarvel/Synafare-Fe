@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Send } from 'lucide-react';
 import { fmtDate, fmtNaira } from '@/lib/format';
@@ -10,20 +10,22 @@ import { useInvoicePreview } from '../hooks/useInvoicePreview';
 import GoBack from '@/app/components/goback';
 import { useInvoiceActions } from '../hooks/useInvoices';
 
-// Next's generated PageProps types expect Promise-like params; accept any here
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function InvoiceDetailPage(props: any) {
-  const { params } = props as { params: { id: string } };
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function InvoiceDetailPage({ params }: PageProps) {
+  const { id } = use(params);
   const router = useRouter();
   const [isSending, setIsSending] = useState(false);
   const { invoice, business, bank, isLoading, error, mutate } =
-    useInvoicePreview(params.id);
+    useInvoicePreview(id);
   const { markAsPaid, sendInvoice } = useInvoiceActions();
 
   const handleAction = async (action: string) => {
     switch (action) {
       case 'edit':
-        router.push(`/dashboard/invoices/${params.id}/edit`);
+        router.push(`/dashboard/invoices/${id}/edit`);
         break;
       case 'send':
         setIsSending(true);
@@ -207,7 +209,12 @@ export default function InvoiceDetailPage(props: any) {
                     {invoice.items.map((item, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4 text-sm text-gray-900">
-                          {item.product}
+                          {typeof item.product === 'object' &&
+                          item.product?.product_name
+                            ? item.product.product_name
+                            : typeof item.product === 'string'
+                            ? item.product
+                            : `Product ID: ${item.product}`}
                         </td>
                         <td className="px-6 py-4 text-sm text-center text-gray-900">
                           {item.quantity}

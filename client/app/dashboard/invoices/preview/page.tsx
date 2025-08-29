@@ -264,7 +264,12 @@ export default function InvoicePreviewPage() {
                   className="grid grid-cols-1 gap-2 px-4 py-3 text-sm md:grid-cols-[1fr_100px_140px_160px]"
                 >
                   <div className="text-gray-900">
-                    Product ID: {item.product}
+                    {typeof item.product === 'object' &&
+                    item.product?.product_name
+                      ? item.product.product_name
+                      : typeof item.product === 'string'
+                      ? item.product
+                      : `Product ID: ${item.product}`}
                   </div>
                   <div className="text-gray-700 md:text-center">
                     {item.quantity}

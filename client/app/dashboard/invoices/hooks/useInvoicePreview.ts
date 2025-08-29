@@ -22,7 +22,17 @@ export interface InvoicePreviewData {
       customer_name: string;
     };
     items: Array<{
-      product: string;
+      product:
+        | string
+        | {
+            _id: string;
+            product_name: string;
+            category: string;
+            catalogue_owner: string;
+            createdAt: string;
+            updatedAt: string;
+            __v: number;
+          };
       quantity: number;
       unit_price: number;
       amount: number;
