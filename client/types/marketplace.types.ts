@@ -2,7 +2,15 @@
 export type ApiProduct = {
   _id: string;
   product_name: string;
-  product_category: string;
+  product_category: {
+    _id: string;
+    name: string;
+    isActive: boolean;
+    tags: string[];
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
   product_sku: number;
   quantity_in_stock: number;
   brand: string;
