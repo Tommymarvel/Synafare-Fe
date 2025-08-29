@@ -40,6 +40,8 @@ export const marketplaceApi = {
     const response = await axiosInstance.get(
       `/inventory/marketplace?${params.toString()}`
     );
+    console.log(response.data);
+
     return response.data;
   },
 
@@ -78,18 +80,27 @@ export const marketplaceApi = {
 export const transformApiProduct = (
   apiProduct: ApiProduct
 ): ProductListingType => {
+  // Handle null product_owner
+  const productOwner = apiProduct.product_owner;
+  const businessName =
+    productOwner?.business?.business_name || 'Unknown Supplier';
+  const supplierId = productOwner?._id || '';
+  const natureOfBusiness = productOwner?.nature_of_solar_business || 'supplier';
+
   return {
     id: apiProduct._id,
     src: apiProduct.product_image[0] || '/solar-battery.png',
     category: apiProduct.product_category,
     title: apiProduct.product_name,
-    supplier_name:
-      apiProduct.product_owner.business?.business_name || 'Unknown Supplier',
+    supplier_name: businessName,
     supplier_profile: '/product-avatar.png', // Default avatar since API doesn't provide this
-    supplier_id: apiProduct.product_owner._id,
-    nature_of_solar_business: apiProduct.product_owner.nature_of_solar_business,
+    supplier_id: supplierId,
+    nature_of_solar_business: natureOfBusiness,
     url: `/dashboard/marketplace/${apiProduct._id}`,
-    price: parseInt(apiProduct.unit_price),
+    price:
+      typeof apiProduct.unit_price === 'string'
+        ? parseInt(apiProduct.unit_price)
+        : apiProduct.unit_price,
     description: apiProduct.desc,
     specifications: [], // API doesn't provide this, could be added later
     images:
@@ -97,7 +108,7 @@ export const transformApiProduct = (
         ? apiProduct.product_image
         : ['/solar-battery.png'],
     brand: apiProduct.brand,
-    model: apiProduct.model,
+    model: apiProduct.model_number || apiProduct.model || '',
     sku: apiProduct.product_sku,
     quantity_in_stock: apiProduct.quantity_in_stock,
     order_count: apiProduct.order_count || 0,

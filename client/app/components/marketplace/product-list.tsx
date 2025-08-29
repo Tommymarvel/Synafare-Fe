@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import { ProductListingType } from '@/types/marketplace.types';
 
-const ProductList = ({ product }: { product: ProductListingType }) => {
+const  ProductList = ({ product }: { product: ProductListingType }) => {
   return (
     <div className="border-[1.17px] border-gray rounded-md">
       <div className="relative w-full aspect-video">
-        <Image src={product.src} alt="" fill className="object-cover" />
+        <Image src={product.src} alt={product.title} fill className="object-cover" />
       </div>
       <div className="bg-white py-3 px-[18px] space-y-[6px]">
         <span className="text-mikado-yellow text-xs">{product.category}</span>

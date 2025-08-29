@@ -60,9 +60,11 @@ const MarketPlace = () => {
       );
 
       const response = await marketplaceApi.getProducts(cleanFilters);
+      console.log('API Response:', response); // Debug log
 
       // Transform API products to our component format
       const transformedProducts = response.data.map(transformApiProduct);
+      console.log('Transformed Products:', transformedProducts); // Debug log
 
       setProducts(transformedProducts);
       setTotalResults(response.meta.total_products);
@@ -183,7 +185,7 @@ const MarketPlace = () => {
                 <SelectContent className="text-xs lg:text-base">
                   <SelectItem value="popular">Most popular</SelectItem>
                   <SelectItem value="price_asc">Price: Low to High</SelectItem>
-                  <SelectItem value="price_desc" >Price: High to Low</SelectItem>
+                  <SelectItem value="price_desc">Price: High to Low</SelectItem>
                   <SelectItem value="newest">Newest</SelectItem>
                 </SelectContent>
               </Select>

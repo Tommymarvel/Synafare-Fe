@@ -6,8 +6,9 @@ export type ApiProduct = {
   product_sku: number;
   quantity_in_stock: number;
   brand: string;
-  model: string;
-  unit_price: string;
+  model?: string;
+  model_number?: string; // API uses this field name
+  unit_price: string | number; // API can send as string or number
   status: 'published' | 'draft' | 'unpublished' | 'out_of_stock';
   desc: string;
   order_count: number;
@@ -20,7 +21,7 @@ export type ApiProduct = {
       business_name: string;
       state: string;
     };
-  };
+  } | null; // Can be null
   createdAt: string;
   updatedAt: string;
 };
