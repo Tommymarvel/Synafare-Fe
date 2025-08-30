@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 import TimeCircle from '@/app/assets/Time-Circle.svg';
 import { Button } from '@/app/components/ui/Button';
@@ -16,7 +15,7 @@ const OTP_LENGTH = 5;
 
 export default function VerifyOtpPage() {
   const router = useRouter();
-  const [submitting, isSubmitting ] = useState(false)
+  const [submitting, isSubmitting] = useState(false);
 
   // State
   const [email, setEmail] = useState<string | null>(null);
@@ -43,9 +42,7 @@ export default function VerifyOtpPage() {
     const savedExpiry = Number(localStorage.getItem('otpExpiry') || '0');
     const now = Date.now();
     const expiryTime =
-      savedExpiry && savedExpiry > now
-        ? savedExpiry
-        : now + 600 * 500; /* 5m */
+      savedExpiry && savedExpiry > now ? savedExpiry : now + 600 * 500; /* 5m */
 
     localStorage.setItem('otpExpiry', expiryTime.toString());
 
@@ -103,7 +100,7 @@ export default function VerifyOtpPage() {
 
   // Verify handler
   const handleVerify = async () => {
-    isSubmitting(true)
+    isSubmitting(true);
     if (!email) return;
     const otp = verificationCode.join('');
     if (otp.length < OTP_LENGTH) {
@@ -116,7 +113,7 @@ export default function VerifyOtpPage() {
       sessionStorage.removeItem('verifyEmail');
       toast.success('Email verified! Redirecting…');
       router.push('/login');
-      isSubmitting(false)
+      isSubmitting(false);
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message?: string }>;
       toast.error(
@@ -198,7 +195,11 @@ export default function VerifyOtpPage() {
         )}
       </div>
       <div className={isShaking ? 'shake' : ''}>
-        <Button className="w-full rounded mb-4 " disabled={submitting} onClick={handleVerify}>
+        <Button
+          className="w-full rounded mb-4 "
+          disabled={submitting}
+          onClick={handleVerify}
+        >
           Verify
         </Button>
       </div>

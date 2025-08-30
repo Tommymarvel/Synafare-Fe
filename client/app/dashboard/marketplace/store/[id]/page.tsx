@@ -55,7 +55,7 @@ export default function StorePage({ params }: PageProps) {
         // Create supplier object from the first product (if available)
         if (response.data.length > 0) {
           const firstProduct = response.data[0];
-          
+
           // Only create supplier if product_owner exists
           if (firstProduct.product_owner) {
             setSupplier({

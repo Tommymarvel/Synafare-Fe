@@ -107,7 +107,10 @@ export default function EditInventoryForm() {
             ? 'unpublished'
             : 'draft',
         product_name: productData.product_name || '',
-        product_category: productData.product_category || '',
+        product_category:
+          typeof productData.product_category === 'object'
+            ? productData.product_category?.name || ''
+            : productData.product_category || '',
         product_sku: productData.product_sku?.toString() || '',
         quantity_in_stock: productData.quantity_in_stock?.toString() || '',
         brand: productData.brand || '',

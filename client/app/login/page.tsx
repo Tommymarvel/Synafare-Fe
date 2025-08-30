@@ -17,7 +17,7 @@ import {
 import axiosInstance from '@/lib/axiosInstance';
 import Google from '@/app/assets/google-icon.png';
 import Image from 'next/image';
-import { useAuth } from '@/context/AuthContext';
+// import { useAuth } from '@/context/AuthContext';
 import { useLoginFlow } from '@/hooks/useAuthFlows';
 import { FirebaseError } from 'firebase/app';
 
@@ -40,7 +40,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const router = useRouter();
-  const { refreshUser } = useAuth();
+  // const { refreshUser } = useAuth();
   const { login } = useLoginFlow();
 
   const handleGoogleLogin = async () => {
@@ -81,7 +81,7 @@ export default function LoginPage() {
         router.push('/dashboard');
       }
 
-      await refreshUser();
+      // await refreshUser();
     } catch (error) {
       if (sessionEmail) {
         sessionStorage.setItem('verifyEmail', sessionEmail);

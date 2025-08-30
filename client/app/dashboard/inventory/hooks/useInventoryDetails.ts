@@ -7,7 +7,7 @@ export interface InventoryDetailsType {
   _id: string;
   product_name: string;
   product_sku: number;
-  product_category: string;
+  product_category: string | { _id: string; name: string };
   unit_price: string;
   quantity_in_stock: number;
   brand?: string;

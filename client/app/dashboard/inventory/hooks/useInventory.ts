@@ -7,7 +7,7 @@ import { StatusType } from '@/app/components/statusChip';
 interface InventoryDataType {
   _id: string;
   product_name: string;
-  product_category: string;
+  product_category: string | { _id: string; name: string };
   product_sku?: number;
   quantity_in_stock?: number;
   brand?: string;

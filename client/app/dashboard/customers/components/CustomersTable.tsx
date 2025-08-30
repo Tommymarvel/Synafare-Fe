@@ -103,7 +103,7 @@ export default function CustomersTable({
                   <EmptyState
                     title="No Customers Found"
                     description="No customers match your search criteria. Try adjusting your search terms."
-                    illustration="/no-user.svg"
+                    illustration="/empty.svg"
                     className="border-0 py-8"
                   />
                 </td>

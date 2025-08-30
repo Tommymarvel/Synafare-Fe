@@ -110,7 +110,9 @@ export default function InventoryDetailsPage() {
                     Category
                   </span>
                   <p className="mt-1 text-sm text-gray-900">
-                    {inventory.product_category}
+                    {typeof inventory.product_category === 'object'
+                      ? inventory.product_category?.name || 'Unknown Category'
+                      : inventory.product_category || 'Unknown Category'}
                   </p>
                 </div>
                 <div>

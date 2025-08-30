@@ -499,7 +499,6 @@ const Inventory = () => {
         </TableHeader>
         <TableBody>
           {data.map((request) => {
-           
             return (
               <TableRow
                 className="border-b border-b-gray-200 text-resin-black"
@@ -531,7 +530,9 @@ const Inventory = () => {
                   </div>
                 </TableCell>
                 <TableCell className="p-6">
-                  {request.product_category}
+                  {typeof request.product_category === 'object'
+                    ? request.product_category?.name || 'Unknown Category'
+                    : request.product_category || 'Unknown Category'}
                 </TableCell>
                 <TableCell className="p-6">
                   {request.unit_price
@@ -552,7 +553,10 @@ const Inventory = () => {
                     <DropdownMenuTrigger className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-md">
                       <MoreVertical className="h-4 w-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 z-20 bg-white">
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-48 z-20 bg-white"
+                    >
                       <DropdownMenuItem asChild>
                         <Link
                           href={`/dashboard/inventory/${request._id}`}

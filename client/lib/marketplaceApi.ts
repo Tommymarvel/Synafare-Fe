@@ -90,9 +90,10 @@ export const transformApiProduct = (
   return {
     id: apiProduct._id,
     src: apiProduct.product_image[0] || '/solar-battery.png',
-    category: typeof apiProduct.product_category === 'object' 
-      ? apiProduct.product_category?.name || 'Unknown Category'
-      : apiProduct.product_category || 'Unknown Category',
+    category:
+      typeof apiProduct.product_category === 'object'
+        ? apiProduct.product_category?.name || 'Unknown Category'
+        : apiProduct.product_category || 'Unknown Category',
     title: apiProduct.product_name,
     supplier_name: businessName,
     supplier_profile: '/product-avatar.png', // Default avatar since API doesn't provide this

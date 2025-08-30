@@ -19,7 +19,7 @@ export interface EditProductResponse {
   _id: string;
   status: string;
   product_name: string;
-  product_category: string;
+  product_category: string | { _id: string; name: string };
   product_image: string[];
   [key: string]: unknown;
 }

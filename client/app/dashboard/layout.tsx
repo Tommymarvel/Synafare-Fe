@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { RFQProvider } from '@/context/RFQContext';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -38,7 +39,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Page content */}
         <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-5">
-          {children}
+                      <RFQProvider>{children}</RFQProvider>
+          
         </main>
       </div>
     </div>

@@ -123,6 +123,7 @@ export default function InventoryLoanForm({
         validationSchema={schema}
         onSubmit={async (values, { setSubmitting }) => {
           setSubmitting(true);
+          const loadingToast = toast.loading('Submitting loan request...');
           try {
             const transaction_cost = Number(values.transactionCost);
             const loan_duration_in_months = Number(values.duration);
@@ -157,6 +158,12 @@ export default function InventoryLoanForm({
               );
 
             await axiosInstance.post('/loan/apply', fd);
+            toast.update(loadingToast, {
+              render: 'Loan request submitted successfully!',
+              type: 'success',
+              isLoading: false,
+              autoClose: 3000,
+            });
             onSuccess();
           } catch (error) {
             const axiosError = error as AxiosError<{
@@ -168,7 +175,12 @@ export default function InventoryLoanForm({
               axiosError.response?.data?.message ??
               axiosError.message ??
               'An error occurred';
-            toast.error(Array.isArray(msg) ? msg.join(', ') : String(msg));
+            toast.update(loadingToast, {
+              render: Array.isArray(msg) ? msg.join(', ') : String(msg),
+              type: 'error',
+              isLoading: false,
+              autoClose: 5000,
+            });
           } finally {
             setSubmitting(false);
           }
@@ -413,7 +425,7 @@ export default function InventoryLoanForm({
                   disabled={!isValid || isSubmitting}
                   className="w-full py-4 px-6 rounded-md text-sm bg-mikado text-raisin font-medium disabled:bg-[#D0D5DD] disabled:cursor-not-allowed hover:bg-mikado/90"
                 >
-                  Submit
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
                 </button>
               </div>
             </Form>
