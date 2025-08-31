@@ -5,6 +5,7 @@ import { X, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/app/components/ui/Button';
 import NegotiateModal from './NegotiateModal';
 import { createPortal } from 'react-dom';
+import { useAuth } from '@/context/AuthContext';
 
 type HistoryItem = {
   id: string;
@@ -29,6 +30,7 @@ type QuoteModalProps = {
   customerName: string;
   additionalMessage?: string;
   requestId?: string; // Add requestId prop
+  supplierId?: string; // ID of the supplier this quote is being sent to
 
   // history & actions
   history?: HistoryItem[];
@@ -48,6 +50,7 @@ export default function QuoteRequestModal({
   customerName,
   additionalMessage,
   requestId,
+  supplierId,
   history = [],
   onSendQuotation,
   onAccept,
@@ -56,6 +59,10 @@ export default function QuoteRequestModal({
 }: QuoteModalProps) {
   const [expanded, setExpanded] = useState(true);
   const [negotiateOpen, setNegotiateOpen] = useState(false);
+  const { user } = useAuth();
+
+  // Check if current user is the supplier receiving this quote request
+  const isTargetSupplier = user?._id === supplierId;
 
   useEffect(() => {
     if (!open) return;
@@ -166,42 +173,56 @@ export default function QuoteRequestModal({
             {/* Footer CTAs */}
             <div className="mt-5">
               {!hasHistory ? (
-                <Button
-                  onClick={onSendQuotation}
-                  className="w-full rounded-xl py-3 text-sm"
-                >
-                  Send Quotation
-                </Button>
+                // No history case: only show Send Quotation if user is the target supplier
+                isTargetSupplier ? (
+                  <Button
+                    onClick={onSendQuotation}
+                    className="w-full rounded-xl py-3 text-sm"
+                  >
+                    Send Quotation
+                  </Button>
+                ) : (
+                  <div className="text-center text-sm text-gray-500 py-4">
+                    Waiting for supplier to send quotation...
+                  </div>
+                )
               ) : (
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
-                  <Button
-                    variant="secondary"
-                    onClick={onReject}
-                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
-                  >
-                    Reject
-                  </Button>
-                  <Button
-                    onClick={onAccept}
-                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setNegotiateOpen(true);
-                    }}
-                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
-                  >
-                    Negotiate
-                  </Button>
-                </div>
+                // Has history case: only show actions if user is the target supplier
+                isTargetSupplier ? (
+                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="secondary"
+                      onClick={onReject}
+                      className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      onClick={onAccept}
+                      className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setNegotiateOpen(true);
+                      }}
+                      className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                    >
+                      Negotiate
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center text-sm text-gray-500 py-4">
+                    Quote activity in progress...
+                  </div>
+                )
               )}
             </div>
           </div>
         </div>
       </div>
-      {negotiateOpen && (
+      {negotiateOpen && isTargetSupplier && (
         <NegotiateModal
           onClose={() => setNegotiateOpen(false)}
           onSuccess={() => {

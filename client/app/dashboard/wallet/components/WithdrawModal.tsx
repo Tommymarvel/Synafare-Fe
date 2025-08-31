@@ -1,64 +1,16 @@
 // app/(dashboard)/wallet/components/WithdrawModal.tsx
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { Formik, Form, useFormikContext } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { X, ChevronDown } from 'lucide-react';
+import { X } from 'lucide-react';
 import clsx from 'clsx';
 import CurrencyInput from './CurrencyInput';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-toastify';
-import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 import { AxiosError } from 'axios';
-
-type Bank = { code: string; name: string; logo?: string };
-
-// --- Auto resolver (uses hooks correctly) ---
-function AccountResolver({
-  onResolved,
-  onError,
-}: {
-  onResolved: (name: string) => void;
-  onError: (msg: string) => void;
-}) {
-  const { values } = useFormikContext<{
-    bankCode: string;
-    accountNumber: string;
-    amount: number | '';
-  }>();
-  const key = useMemo(
-    () =>
-      values.bankCode && /^\d{10}$/.test(values.accountNumber)
-        ? `${values.bankCode}:${values.accountNumber}`
-        : '',
-    [values.bankCode, values.accountNumber]
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    async function run() {
-      if (!key) return;
-      try {
-        const [bankCode, accountNumber] = key.split(':');
-        const { data } = await axiosInstance.post('/payment/validate-bank', {
-          bankCode,
-          accountNumber,
-        });
-        if (!cancelled) onResolved(data?.data?.accountName || '');
-      } catch {
-        if (!cancelled)
-          onError('Could not verify account. Check details and try again.');
-      }
-    }
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [key, onResolved, onError]);
-
-  return null;
-}
 
 // --- Main modal ---
 export default function WithdrawModal({
@@ -70,31 +22,7 @@ export default function WithdrawModal({
   onClose: () => void;
   balance: number;
 }) {
-  const [acctName, setAcctName] = useState('');
-  const [resolveErr, setResolveErr] = useState('');
-  const [banks, setBanks] = useState<Bank[]>([]);
-  const [loadingBanks, setLoadingBanks] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    (async () => {
-      try {
-        setLoadingBanks(true);
-        const { data } = await axiosInstance.get('/payment/get-banks');
-
-        const list: Bank[] = (data?.data || []).map((b: { code: string; name: string; logo?: string }) => ({
-          code: b.code,
-          name: b.name,
-          logo: b.logo || '', // optional
-        }));
-        setBanks(list);
-      } catch {
-        toast.error('Could not load banks');
-      } finally {
-        setLoadingBanks(false);
-      }
-    })();
-  }, [open]);
+  const { user, loading } = useAuth();
 
   if (!open) return null;
 
@@ -106,10 +34,6 @@ export default function WithdrawModal({
       .test('lte-balance', 'Withdrawal amount exceeds wallet balance', (v) =>
         typeof v === 'number' ? v <= balance : false
       ),
-    bankCode: Yup.string().required('Select a bank'),
-    accountNumber: Yup.string()
-      .matches(/^\d{10}$/, 'Enter a 10-digit account number')
-      .required('Account number is required'),
   });
 
   return (
@@ -130,17 +54,21 @@ export default function WithdrawModal({
           validateOnBlur
           initialValues={{
             amount: '' as number | '',
-            bankCode: '',
-            accountNumber: '',
           }}
           validationSchema={Schema}
           onSubmit={async (vals, { setSubmitting }) => {
             try {
               setSubmitting(true);
+              if (!user?.bank_details?.set) {
+                toast.error(
+                  'Please add your bank details in settings before withdrawing.'
+                );
+                return;
+              }
               await axiosInstance.post('/payment/withdraw', {
                 amount: Number(vals.amount),
-                bank_code: vals.bankCode,
-                acc_no: vals.accountNumber,
+                bank_code: user.bank_details.bank_code,
+                acc_no: user.bank_details.acc_no,
               });
               toast.success('Withdrawal initiated successfully');
               onClose();
@@ -160,166 +88,90 @@ export default function WithdrawModal({
             }
           }}
         >
-          {({
-            values,
-            errors,
-            touched,
-            isSubmitting,
-            setFieldValue,
-            setFieldTouched,
-          }) => {
-            const selected = banks.find((b) => b.code === values.bankCode);
-            return (
-              <Form className="px-6 py-5">
-                {/* Amount */}
-                <label className="mb-1 block text-sm font-medium">
-                  Amount <span className="text-red-500">*</span>
-                </label>
-                <CurrencyInput
-                  name="amount"
-                  placeholder=" 50,000"
-                  className="text-raisin"
-                />
-                {touched.amount && errors.amount && (
-                  <p className="mt-1 text-sm text-red-500">{errors.amount}</p>
-                )}
+          {({ values, errors, touched, isSubmitting }) => (
+            <Form className="px-6 py-5">
+              {/* Amount */}
+              <label className="mb-1 block text-sm font-medium">
+                Amount <span className="text-red-500">*</span>
+              </label>
+              <CurrencyInput
+                name="amount"
+                placeholder=" 50,000"
+                className="text-raisin"
+              />
+              {touched.amount && errors.amount && (
+                <p className="mt-1 text-sm text-red-500">{errors.amount}</p>
+              )}
 
-                {/* Bank */}
-                <div className="mt-4">
-                  <label className="mb-1 block text-sm font-medium">
-                    Bank Name <span className="text-red-500">*</span>
-                  </label>
-
-                  <div className="relative flex items-center gap-2">
-                    {/* Selected bank logo (outside of <option>) */}
-                    <div className="h-8 w-8 overflow-hidden">
-                      {selected?.logo ? (
-                        <Image
-                          src={selected.logo}
-                          alt={selected.name}
-                          width={32}
-                          height={32}
-                          // avoid Next.js remote domain config issues:
-                          unoptimized
-                        />
-                      ) : null}
+              {/* Bank details display or prompt */}
+              <div className="mt-6">
+                {loading ? (
+                  <p className="text-sm text-gray-500">
+                    Loading bank details...
+                  </p>
+                ) : user?.bank_details?.set ? (
+                  <div className="p-4 rounded-xl border bg-neutral-50">
+                    <div className="font-semibold text-raisin">
+                      Bank Details
                     </div>
-
-                    <div className="relative flex-1">
-                      <select
-                        value={values.bankCode}
-                        disabled={loadingBanks}
-                        onChange={(e) => {
-                          setAcctName('');
-                          setResolveErr('');
-                          setFieldValue('bankCode', e.target.value);
-                          setFieldTouched('bankCode', true, false);
-                        }}
-                        className={clsx(
-                          'w-full appearance-none rounded-xl border border-neutral-200 bg-white px-4 py-3 pr-10 text-left outline-none',
-                          'focus:border-neutral-400',
-                          loadingBanks && 'opacity-60'
-                        )}
-                      >
-                        <option value="" disabled>
-                          {loadingBanks ? 'Loading banks…' : 'Select bank'}
-                        </option>
-                        {banks.map((b) => (
-                          <option key={b.code} value={b.code}>
-                            {b.name}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
+                    <div className="mt-2 text-sm">
+                      <span className="block">
+                        Bank: {user.bank_details.bank_name}
+                      </span>
+                      <span className="block">
+                        Account Name: {user.bank_details.acc_name}
+                      </span>
+                      <span className="block">
+                        Account Number: {user.bank_details.acc_no}
+                      </span>
                     </div>
                   </div>
+                ) : (
+                  <div className="p-4 rounded-xl border bg-red-50">
+                    <div className="font-semibold text-red-700">
+                      No bank details found
+                    </div>
+                    <div className="mt-2 text-sm text-red-700">
+                      Please add your bank details in settings before
+                      withdrawing.
+                    </div>
+                    <Link
+                      href="/dashboard/settings/bank"
+                      className="mt-2 inline-block text-mikado underline font-medium"
+                    >
+                      Go to Bank Details Settings
+                    </Link>
+                  </div>
+                )}
+              </div>
 
-                  {touched.bankCode && errors.bankCode && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.bankCode}
-                    </p>
+              {/* Footer */}
+              <div className="mt-6 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="h-11 flex-1 rounded-xl border border-neutral-300 bg-white font-medium text-neutral-700 hover:bg-neutral-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    isSubmitting ||
+                    !values.amount ||
+                    !!errors.amount ||
+                    !user?.bank_details?.set
+                  }
+                  className={clsx(
+                    'h-11 flex-1 rounded-xl bg-amber-400 font-semibold text-black hover:bg-amber-300',
+                    'disabled:cursor-not-allowed disabled:opacity-50'
                   )}
-                </div>
-
-                {/* Account number */}
-                <div className="mt-4">
-                  <label className="mb-1 block text-sm font-medium">
-                    Account Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    inputMode="numeric"
-                    maxLength={10}
-                    value={values.accountNumber}
-                    onChange={(e) => {
-                      const digits = e.target.value
-                        .replace(/\D/g, '')
-                        .slice(0, 10);
-                      setFieldValue('accountNumber', digits);
-                      setAcctName('');
-                      setResolveErr('');
-                    }}
-                    onBlur={() => setFieldTouched('accountNumber', true)}
-                    placeholder="0234456789"
-                    className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 outline-none placeholder:text-neutral-400 focus:border-neutral-400"
-                  />
-
-                  {/* Auto-lookup */}
-                  <AccountResolver
-                    onResolved={(name) => {
-                      setAcctName(name);
-                      setResolveErr('');
-                    }}
-                    onError={(msg) => {
-                      setAcctName('');
-                      setResolveErr(msg);
-                    }}
-                  />
-
-                  {acctName && (
-                    <p className="mt-2 text-sm font-medium uppercase text-raisin">
-                      {acctName}
-                    </p>
-                  )}
-                  {resolveErr && (
-                    <p className="mt-2 text-sm text-red-500">{resolveErr}</p>
-                  )}
-                  {touched.accountNumber && errors.accountNumber && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.accountNumber}
-                    </p>
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div className="mt-6 flex items-center justify-between gap-3">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="h-11 flex-1 rounded-xl border border-neutral-300 bg-white font-medium text-neutral-700 hover:bg-neutral-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={
-                      isSubmitting ||
-                      !values.amount ||
-                      !!errors.amount ||
-                      !values.bankCode ||
-                      !/^\d{10}$/.test(values.accountNumber) ||
-                      !acctName
-                    }
-                    className={clsx(
-                      'h-11 flex-1 rounded-xl bg-amber-400 font-semibold text-black hover:bg-amber-300',
-                      'disabled:cursor-not-allowed disabled:opacity-50'
-                    )}
-                  >
-                    Continue
-                  </button>
-                </div>
-              </Form>
-            );
-          }}
+                >
+                  Continue
+                </button>
+              </div>
+            </Form>
+          )}
         </Formik>
       </div>
     </div>

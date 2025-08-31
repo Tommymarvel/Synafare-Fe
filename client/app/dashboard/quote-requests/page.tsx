@@ -419,7 +419,7 @@ export default function QuoteRequestsPage() {
                                 }
                               : undefined
                           }
-                          illustration="/no-item.svg"
+                          illustration="/empty.svg"
                           className="border-0"
                         />
                       </td>

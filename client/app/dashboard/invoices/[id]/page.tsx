@@ -139,22 +139,6 @@ export default function InvoiceDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Dates row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <p className="text-sm text-gray-500">Issue Date</p>
-                <p className="text-base font-medium">
-                  {fmtDate(invoice.issue_date)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Due Date</p>
-                <p className="text-base font-medium">
-                  {fmtDate(invoice.due_date)}
-                </p>
-              </div>
-            </div>
-
             {/* Parties */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div>
@@ -170,14 +154,30 @@ export default function InvoiceDetailPage({ params }: PageProps) {
               </div>
 
               <div>
-                <h2 className="text-sm font-semibold text-gray-900 mb-2">
-                  Bill To:
-                </h2>
-                <div className="text-sm text-gray-700 space-y-1">
-                  <p className="font-medium">
-                    {invoice.receipient.customer_name}
-                  </p>
-                  <p>{invoice.receipient.customer_email}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <p className="text-sm text-gray-500">Issue Date</p>
+                    <p className="text-base font-medium">
+                      {fmtDate(invoice.issue_date)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Due Date</p>
+                    <p className="text-base font-medium">
+                      {fmtDate(invoice.due_date)}
+                    </p>
+                  </div>
+                </div>
+                <div className='text-end'>
+                  <h2 className="text-sm font-semibold text-gray-900 mb-2">
+                    Bill To:
+                  </h2>
+                  <div className="text-sm text-gray-700 space-y-1">
+                    <p className="font-medium">
+                      {invoice.receipient.customer_name}
+                    </p>
+                    <p>{invoice.receipient.customer_email}</p>
+                  </div>
                 </div>
               </div>
             </div>

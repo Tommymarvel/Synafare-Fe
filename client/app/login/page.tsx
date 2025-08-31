@@ -152,7 +152,7 @@ export default function LoginPage() {
         </div>
       )}
 
-      <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
+      <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] lg:mx-[64px] mb-[32px]">
         <div>
           <h1 className="text-2xl lg:text-[34px] font-medium text-raisin text-center">
             Welcome Back
