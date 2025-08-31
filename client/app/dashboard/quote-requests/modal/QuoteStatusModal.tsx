@@ -186,37 +186,35 @@ export default function QuoteRequestModal({
                     Waiting for supplier to send quotation...
                   </div>
                 )
+              ) : // Has history case: only show actions if user is the target supplier
+              isTargetSupplier ? (
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+                  <Button
+                    variant="secondary"
+                    onClick={onReject}
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    onClick={onAccept}
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setNegotiateOpen(true);
+                    }}
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                  >
+                    Negotiate
+                  </Button>
+                </div>
               ) : (
-                // Has history case: only show actions if user is the target supplier
-                isTargetSupplier ? (
-                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
-                    <Button
-                      variant="secondary"
-                      onClick={onReject}
-                      className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      onClick={onAccept}
-                      className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setNegotiateOpen(true);
-                      }}
-                      className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
-                    >
-                      Negotiate
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center text-sm text-gray-500 py-4">
-                    Quote activity in progress...
-                  </div>
-                )
+                <div className="text-center text-sm text-gray-500 py-4">
+                  Quote activity in progress...
+                </div>
               )}
             </div>
           </div>

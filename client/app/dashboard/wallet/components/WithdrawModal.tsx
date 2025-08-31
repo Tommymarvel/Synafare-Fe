@@ -88,7 +88,7 @@ export default function WithdrawModal({
             }
           }}
         >
-          {({ values, errors, touched, isSubmitting }) => (
+          {({ values, errors, isSubmitting }) => (
             <Form className="px-6 py-5">
               {/* Amount */}
               <label className="mb-1 block text-sm font-medium">
@@ -99,9 +99,7 @@ export default function WithdrawModal({
                 placeholder=" 50,000"
                 className="text-raisin"
               />
-              {touched.amount && errors.amount && (
-                <p className="mt-1 text-sm text-red-500">{errors.amount}</p>
-              )}
+             
 
               {/* Bank details display or prompt */}
               <div className="mt-6">
