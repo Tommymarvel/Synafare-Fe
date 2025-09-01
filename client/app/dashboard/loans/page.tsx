@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { LoansEmptyState } from './components/EmptyState';
 import LoanAgreementModal from './components/LoanAgreeementModal';
+import LoanTableWrapper from './components/LoanTableWrapper';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { LoansOffers } from './components/LoanOffers';
@@ -10,6 +11,7 @@ import ActiveLoans from './components/ActiveLoans';
 import LoansTable from './components/LoansTable';
 import PaidLoans from './components/PaidLoans';
 import { useLoans } from './hooks/useLoans';
+import type { LoanStatus } from './types';
 
 const TABS = [
   { key: 'all', label: 'All Loans' },
@@ -19,6 +21,7 @@ const TABS = [
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
+type DateRange = '' | '1' | '2' | '7' | '30' | '90';
 
 export default function LoansPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('all');
@@ -26,11 +29,96 @@ export default function LoansPage() {
   const router = useRouter();
   const [showAgreement, setShowAgreement] = useState(false);
 
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<LoanStatus | ''>('');
+  const [dateRangeFilter, setDateRangeFilter] = useState<DateRange>('');
+
   const { loans, isLoading, error, refresh } = useLoans();
 
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
+
+  const handleStatusChange = useCallback((value: LoanStatus | '') => {
+    setStatusFilter(value);
+  }, []);
+
+  const handleDateRangeChange = useCallback((value: DateRange) => {
+    setDateRangeFilter(value);
+  }, []);
+
+  const handleTabChange = useCallback((tab: TabKey) => {
+    setActiveTab(tab);
+    // Reset filters when changing tabs
+    setStatusFilter('');
+    setDateRangeFilter('');
+  }, []);
+
+  // Apply filters to loans
+  const getFilteredLoans = useMemo(() => {
+    if (!loans) return [];
+
+    const q = searchTerm.trim().toLowerCase();
+    const now = new Date();
+
+    return loans.filter((loan) => {
+      // Search filter
+      if (q && !loan.customerName.toLowerCase().includes(q)) return false;
+
+      // Status filter
+      if (statusFilter && loan.loanStatus !== statusFilter) return false;
+
+      // Date filter
+      if (dateRangeFilter) {
+        const days = Number(dateRangeFilter);
+        const requested = new Date(loan.dateRequested);
+
+        if (days === 1) {
+          // Today - same day
+          const today = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+          );
+          const requestedDay = new Date(
+            requested.getFullYear(),
+            requested.getMonth(),
+            requested.getDate()
+          );
+          if (requestedDay.getTime() !== today.getTime()) return false;
+        } else if (days === 2) {
+          // Yesterday
+          const yesterday = new Date(now);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayDay = new Date(
+            yesterday.getFullYear(),
+            yesterday.getMonth(),
+            yesterday.getDate()
+          );
+          const requestedDay = new Date(
+            requested.getFullYear(),
+            requested.getMonth(),
+            requested.getDate()
+          );
+          if (requestedDay.getTime() !== yesterdayDay.getTime()) return false;
+        } else {
+          // Last X days
+          const since = new Date(now);
+          since.setDate(now.getDate() - days);
+          if (requested < since) return false;
+        }
+      }
+
+      return true;
+    });
+  }, [loans, searchTerm, statusFilter, dateRangeFilter]);
+
   const offersCount = useMemo(
-    () => loans.filter((loan) => loan.loanStatus === 'OFFER_RECEIVED').length,
-    [loans]
+    () =>
+      getFilteredLoans.filter((loan) => loan.loanStatus === 'OFFER_RECEIVED')
+        .length,
+    [getFilteredLoans]
   );
 
   const handleAccept = () => setShowAgreement(false);
@@ -44,22 +132,39 @@ export default function LoansPage() {
     if (isLoading) return <p className="p-6">Loading…</p>;
     if (error) return <p className="p-6 text-red-600">Error loading loans</p>;
 
-    const list = loans ?? [];
+    const filteredLoans = getFilteredLoans;
 
-    const offers = list.filter((l) => l.loanStatus === 'OFFER_RECEIVED');
-    const active = list.filter((l) => l.loanStatus === 'ACTIVE');
-    const repaid = list.filter((l) => l.loanStatus === 'COMPLETED');
+    const offers = filteredLoans.filter(
+      (l) => l.loanStatus === 'OFFER_RECEIVED'
+    );
+    const active = filteredLoans.filter((l) => l.loanStatus === 'ACTIVE');
+    const repaid = filteredLoans.filter((l) => l.loanStatus === 'COMPLETED');
 
-    switch (activeTab) {
-      case 'offers':
-        return <LoansOffers loans={offers} refresh={refresh} />;
-      case 'active':
-        return <ActiveLoans loans={active} />;
-      case 'paid': // <- not "paid" if your tab key is 'repaid'
-        return <PaidLoans loans={repaid} />;
-      default:
-        return <LoansTable loans={list} refresh={refresh} />;
-    }
+    const content = (() => {
+      switch (activeTab) {
+        case 'offers':
+          return <LoansOffers loans={offers} refresh={refresh} />;
+        case 'active':
+          return <ActiveLoans loans={active} />;
+        case 'paid':
+          return <PaidLoans loans={repaid} />;
+        default:
+          return <LoansTable loans={filteredLoans} refresh={refresh} />;
+      }
+    })();
+
+    return (
+      <LoanTableWrapper
+        searchValue={searchTerm}
+        onSearchChange={handleSearchChange}
+        statusFilter={statusFilter}
+        onStatusChange={handleStatusChange}
+        dateRangeFilter={dateRangeFilter}
+        onDateRangeChange={handleDateRangeChange}
+      >
+        {content}
+      </LoanTableWrapper>
+    );
   };
 
   return (
@@ -109,7 +214,7 @@ export default function LoansPage() {
           return (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => handleTabChange(tab.key)}
               className={`relative pb-2 text-xs md:text-sm font-medium ${
                 isActive
                   ? 'text-mikado border-b-2 border-mikado'

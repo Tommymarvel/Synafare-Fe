@@ -7,13 +7,34 @@ import { Eye, Pencil, Trash2, Search } from 'lucide-react';
 import { Customer } from '../types';
 import { Input } from '@/app/components/form/Input';
 import EmptyState from '@/app/components/EmptyState';
+import EditCustomerModal from './EditCustomerModal';
+import DeleteCustomerModal from './DeleteCustomerModal';
+import Pagination from '@/app/components/pagination';
+import axiosInstance from '@/lib/axiosInstance';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
+
+type Props = {
+  customers: Customer[];
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  onRefresh?: () => void;
+};
 
 export default function CustomersTable({
   customers,
-}: {
-  customers: Customer[];
-}) {
+  currentPage,
+  totalPages,
+  onPageChange,
+  onRefresh,
+}: Props) {
   const [q, setQ] = useState('');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
 
   const filtered = customers.filter(
     (c) =>
@@ -21,6 +42,41 @@ export default function CustomersTable({
       c.email.toLowerCase().includes(q.toLowerCase()) ||
       c.phone.includes(q)
   );
+
+  const handleEdit = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedCustomer) return;
+
+    try {
+      const res = await axiosInstance.delete(
+        `/customer/delete/${selectedCustomer.id}`
+      );
+      toast.success(res.data.message || 'Customer deleted successfully');
+      onRefresh?.();
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        'An error occurred while deleting customer';
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleModalClose = () => {
+    setEditModalOpen(false);
+    setDeleteModalOpen(false);
+    setSelectedCustomer(null);
+  };
 
   const th =
     'sticky top-0 bg-[#F0F2F5] text-left text-xs font-medium text-raisin px-4 lg:px-6 py-3';
@@ -84,12 +140,14 @@ export default function CustomersTable({
                     <button
                       className="p-2 rounded-md border hover:bg-neutral-50"
                       title="Edit"
+                      onClick={() => handleEdit(c)}
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       className="p-2 rounded-md border hover:bg-neutral-50"
                       title="Delete"
+                      onClick={() => handleDelete(c)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -113,27 +171,31 @@ export default function CustomersTable({
         </table>
       </div>
 
-      {/* pagination stub */}
-      <div className="flex items-center justify-between px-4 py-3">
-        <button className="px-3 py-2 border rounded-md hover:bg-neutral-50">
-          Previous
-        </button>
-        <div className="space-x-1">
-          <button className="px-2 py-1 rounded-md bg-mikado/20 text-mikado">
-            1
-          </button>
-          <button className="px-2 py-1 rounded-md hover:bg-neutral-100">
-            2
-          </button>
-          <span>…</span>
-          <button className="px-2 py-1 rounded-md hover:bg-neutral-100">
-            10
-          </button>
-        </div>
-        <button className="px-3 py-2 border rounded-md hover:bg-neutral-50">
-          Next
-        </button>
+      {/* pagination */}
+      <div className="px-4">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
       </div>
+
+      {/* modals */}
+      <EditCustomerModal
+        open={editModalOpen}
+        onClose={handleModalClose}
+        onUpdated={() => {
+          onRefresh?.();
+          handleModalClose();
+        }}
+        customer={selectedCustomer}
+      />
+
+      <DeleteCustomerModal
+        open={deleteModalOpen}
+        onClose={handleModalClose}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }

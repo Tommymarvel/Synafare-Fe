@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { Search, MoreVertical } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import Pagination from '@/app/components/pagination';
 import type { Loan, LoanStatus } from '../types';
 import { createPortal } from 'react-dom';
@@ -15,8 +15,6 @@ import { fmtNaira } from '@/lib/format';
 import StatusChip from '@/app/components/statusChip';
 import EmptyState from '@/app/components/EmptyState';
 // import AcceptLoanAgreement from './AcceptLoanAgreement';
-
-type DateRange = '' | '7' | '30' | '90';
 
 const PAGE_SIZE = 10;
 
@@ -179,47 +177,23 @@ export default function LoansTable({
   loans: Loan[];
   refresh: KeyedMutator<Loan[]>;
 }) {
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<LoanStatus | ''>('');
-  const [dateRange, setDateRange] = useState<DateRange>('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [modalOpen, setModalOpen] = useState(false);
   const [activeLoan, setActiveLoan] = useState<Loan | null>(null);
   // const [showAgreement, setShowAgreement] = useState(false);
 
-  // Compute filtered results
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    const now = new Date();
-
-    return loans.filter((l) => {
-      if (q && !l.customerName.toLowerCase().includes(q)) return false;
-      if (statusFilter && l.loanStatus !== statusFilter) return false;
-
-      if (dateRange) {
-        const days = Number(dateRange);
-        const since = new Date(now);
-        since.setDate(now.getDate() - days);
-        const requested = new Date(l.dateRequested);
-        if (requested < since) return false;
-      }
-
-      return true;
-    });
-  }, [loans, search, statusFilter, dateRange]);
-
-  // Reset page & selection when filters change
+  // Reset page & selection when loans change
   React.useEffect(() => {
     setPage(1);
     setSelected(new Set());
-  }, [search, statusFilter, dateRange]);
+  }, [loans]);
 
-  // Pagination
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  // Pagination - use filtered loans directly
+  const totalPages = Math.max(1, Math.ceil(loans.length / PAGE_SIZE));
   const start = (page - 1) * PAGE_SIZE;
-  const end = Math.min(start + PAGE_SIZE, filtered.length);
-  const pageRows = filtered.slice(start, end);
+  const end = Math.min(start + PAGE_SIZE, loans.length);
+  const pageRows = loans.slice(start, end);
 
   // Row selection (page-scoped “select all”)
   const pageIds = pageRows.map((r) => r.id);
@@ -291,54 +265,7 @@ export default function LoansTable({
     'sticky top-0 z-10 bg-[#F0F2F5] px-3 lg:px-6 py-3 font-medium text-xs leading-[18px] text-center';
 
   return (
-    <div className="space-y-4 border rounded-lg">
-      {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-6 pt-3">
-        <div className="relative w-full sm:w-64">
-          <label htmlFor="loan-search" className="sr-only">
-            Search
-          </label>
-          <input
-            id="loan-search"
-            type="text"
-            placeholder="Search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-3.5 py-2.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-mikado"
-          />
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
-            <Search className="w-5 h-5" />
-          </span>
-        </div>
-
-        <div className="flex max-w-full gap-2">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as LoanStatus | '')}
-            className="px-3 py-2 w-1/2 border text-sm rounded-md bg-white"
-          >
-            <option value="">Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="OFFER_RECEIVED">Offer Received</option>
-            <option value="AWAITING_DOWNPAYMENT">Awaiting Downpayment</option>
-            <option value="AWAITING_DISBURSEMENT">Awaiting Disbursement</option>
-            <option value="ACTIVE">Active</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
-
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value as DateRange)}
-            className="px-3 py-2 w-1/2  flex-1 text-sm border rounded-md bg-white"
-          >
-            <option value="">Select Date Range</option>
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-          </select>
-        </div>
-      </div>
+    <div className="space-y-4">
       {/* Table */}
       <div className="-mx-1 md:mx-0">
         <div

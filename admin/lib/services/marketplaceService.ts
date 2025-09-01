@@ -9,10 +9,20 @@ export type APIProductOwner = {
   };
 };
 
+export type APIProductCategory = {
+  _id: string;
+  name: string;
+  isActive: boolean;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
 export type APIProduct = {
   _id: string;
   product_name?: string;
-  product_category?: string;
+  product_category?: APIProductCategory | string;
   product_sku?: number | string;
   quantity_in_stock?: number;
   brand?: string;

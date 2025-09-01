@@ -13,7 +13,7 @@ import {
 import SearchInput from '@/components/search.input';
 import { LoanStatusFilter } from '@/lib/status-types';
 
-export type DateRangePreset = 'all' | '7' | '30' | '90';
+export type DateRangePreset = 'all' | '1' | '2' | '7' | '30' | '90';
 
 function useDebounced<T>(value: T, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -23,8 +23,6 @@ function useDebounced<T>(value: T, delay = 300) {
   }, [value, delay]);
   return debounced;
 }
-
-
 
 const LoanTableWrapper = ({
   children,
@@ -99,7 +97,7 @@ const LoanTableWrapper = ({
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All statuses</SelectItem>
+                <SelectItem value="ALL">All status</SelectItem>
                 <SelectItem value="PENDING">Pending</SelectItem>
                 <SelectItem value="OFFER_RECEIVED">Offer Received</SelectItem>
                 <SelectItem value="REJECTED">Rejected</SelectItem>
@@ -133,6 +131,8 @@ const LoanTableWrapper = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All time</SelectItem>
+              <SelectItem value="1">Today</SelectItem>
+              <SelectItem value="2">Yesterday</SelectItem>
               <SelectItem value="7">Last 7 days</SelectItem>
               <SelectItem value="30">Last 30 days</SelectItem>
               <SelectItem value="90">Last 90 days</SelectItem>

@@ -8,11 +8,13 @@ import { Input } from '@/app/components/form/Input';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
+import { Customer } from '../types';
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreated?: () => void; // call to refresh table
+  onUpdated?: () => void; // call to refresh table
+  customer: Customer | null;
 };
 
 type FormValues = {
@@ -57,7 +59,12 @@ const schema: Yup.ObjectSchema<FormValues> = Yup.object({
   customer_dob: Yup.string(),
 });
 
-export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
+export default function EditCustomerModal({
+  open,
+  onClose,
+  onUpdated,
+  customer,
+}: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   // lock background scroll + focus trap entry
@@ -91,21 +98,22 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
 
   if (!open) return null;
 
+  // Pre-populate with customer data
   const initialValues: FormValues = {
-    customer_name: '',
-    customer_email: '',
+    customer_name: customer?.name || '',
+    customer_email: customer?.email || '',
     countryCode: '+234',
-    customer_phn: '',
+    customer_phn: customer?.phone || '',
     customer_bvn: '',
     customer_dob: '',
   };
 
   return (
     <div
-      className="fixed inset-0 z-50"
+      className=" inset-0 z-50"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="add-customer-title"
+      aria-labelledby="edit-customer-title"
       onKeyDown={(e) => e.key === 'Escape' && onClose()}
     >
       {/* overlay */}
@@ -124,10 +132,10 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
           {/* header */}
           <div className="relative px-5 py-4 sm:px-6">
             <h2
-              id="add-customer-title"
+              id="edit-customer-title"
               className="text-xl font-semibold text-raisin"
             >
-              Add New Customer
+              Edit Customer
             </h2>
             <button
               aria-label="Close"
@@ -141,6 +149,7 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
           <Formik<FormValues>
             initialValues={initialValues}
             validationSchema={schema}
+            enableReinitialize={true}
             onSubmit={async (values, { setSubmitting }) => {
               setSubmitting(true);
               try {
@@ -161,12 +170,15 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                   payload.customer_dob = new Date(values.customer_dob);
                 }
 
-                const res = await axiosInstance.post('/customer/add', payload);
+                const res = await axiosInstance.patch(
+                  `/customer/${customer?.id}`,
+                  payload
+                );
 
                 toast.success(
-                  res.data.message || 'Customer added successfully'
+                  res.data.message || 'Customer updated successfully'
                 );
-                onCreated?.();
+                onUpdated?.();
                 onClose();
               } catch (error) {
                 const axiosError = error as AxiosError<{ errors?: string }>;
@@ -317,7 +329,7 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                     disabled={isSubmitting}
                     className="h-11 rounded-lg bg-mikado px-6 text-raisin font-medium hover:bg-mikado/90 disabled:opacity-60"
                   >
-                    {isSubmitting ? 'Adding…' : 'Add Customer'}
+                    {isSubmitting ? 'Updating…' : 'Update Customer'}
                   </button>
                 </div>
               </Form>

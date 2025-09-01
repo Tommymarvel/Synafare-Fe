@@ -58,25 +58,77 @@ const validationSchema = Yup.object({
   country: Yup.string().required('Country is required'),
 });
 
-const cityOptions = [
-  { value: '', label: 'Select city' },
+const nigeriaStateOptions = [
+  { value: '', label: 'Select state' },
+  { value: 'Abia', label: 'Abia' },
+  { value: 'Adamawa', label: 'Adamawa' },
+  { value: 'Akwa Ibom', label: 'Akwa Ibom' },
+  { value: 'Anambra', label: 'Anambra' },
+  { value: 'Bauchi', label: 'Bauchi' },
+  { value: 'Bayelsa', label: 'Bayelsa' },
+  { value: 'Benue', label: 'Benue' },
+  { value: 'Borno', label: 'Borno' },
+  { value: 'Cross River', label: 'Cross River' },
+  { value: 'Delta', label: 'Delta' },
+  { value: 'Ebonyi', label: 'Ebonyi' },
+  { value: 'Edo', label: 'Edo' },
+  { value: 'Ekiti', label: 'Ekiti' },
+  { value: 'Enugu', label: 'Enugu' },
+  { value: 'FCT', label: 'Federal Capital Territory' },
+  { value: 'Gombe', label: 'Gombe' },
+  { value: 'Imo', label: 'Imo' },
+  { value: 'Jigawa', label: 'Jigawa' },
+  { value: 'Kaduna', label: 'Kaduna' },
+  { value: 'Kano', label: 'Kano' },
+  { value: 'Katsina', label: 'Katsina' },
+  { value: 'Kebbi', label: 'Kebbi' },
+  { value: 'Kogi', label: 'Kogi' },
+  { value: 'Kwara', label: 'Kwara' },
   { value: 'Lagos', label: 'Lagos' },
-  { value: 'Abuja', label: 'Abuja' },
-  { value: 'Port Harcourt', label: 'Port Harcourt' },
+  { value: 'Nasarawa', label: 'Nasarawa' },
+  { value: 'Niger', label: 'Niger' },
+  { value: 'Ogun', label: 'Ogun' },
+  { value: 'Ondo', label: 'Ondo' },
+  { value: 'Osun', label: 'Osun' },
+  { value: 'Oyo', label: 'Oyo' },
+  { value: 'Plateau', label: 'Plateau' },
+  { value: 'Rivers', label: 'Rivers' },
+  { value: 'Sokoto', label: 'Sokoto' },
+  { value: 'Taraba', label: 'Taraba' },
+  { value: 'Yobe', label: 'Yobe' },
+  { value: 'Zamfara', label: 'Zamfara' },
 ];
 
-const stateOptions = [
-  { value: '', label: 'Select state' },
-  { value: 'Lagos', label: 'Lagos State' },
-  { value: 'FCT', label: 'Abuja FCT' },
-  { value: 'Rivers', label: 'Rivers State' },
+const ghanaStateOptions = [
+  { value: '', label: 'Select region' },
+  { value: 'Ashanti', label: 'Ashanti' },
+  { value: 'Brong-Ahafo', label: 'Brong-Ahafo' },
+  { value: 'Central', label: 'Central' },
+  { value: 'Eastern', label: 'Eastern' },
+  { value: 'Greater Accra', label: 'Greater Accra' },
+  { value: 'Northern', label: 'Northern' },
+  { value: 'Upper East', label: 'Upper East' },
+  { value: 'Upper West', label: 'Upper West' },
+  { value: 'Volta', label: 'Volta' },
+  { value: 'Western', label: 'Western' },
 ];
+
+// Function to get state options based on country
+const getStateOptions = (country: string) => {
+  switch (country) {
+    case 'Nigeria':
+      return nigeriaStateOptions;
+    case 'Ghana':
+      return ghanaStateOptions;
+    default:
+      return [{ value: '', label: 'Select state' }];
+  }
+};
 
 const countryOptions = [
   { value: '', label: 'Select country' },
   { value: 'Nigeria', label: 'Nigeria' },
   { value: 'Ghana', label: 'Ghana' },
-  { value: 'Kenya', label: 'Kenya' },
 ];
 
 // Dropzone for CAC Certificate
@@ -363,27 +415,14 @@ export default function BusinessInfoForm() {
                 <Field name="city">
                   {({ field, meta }: FieldProps) => (
                     <>
-                      <label
-                        htmlFor="city"
-                        className="block text-sm font-medium text-raisin"
-                      >
-                        City *
-                      </label>
-                      <select
+                      <Input
+                        label="City *"
+                        variant="outline"
                         {...field}
-                        id="city"
-                        className={`w-full mt-1 px-4 py-3 border rounded-md text-sm md:text-base lg:text-lg text-raisin ${
-                          meta.touched && meta.error
-                            ? 'border-red-500'
-                            : 'border-gray-300'
-                        } focus:outline-none focus:ring-2 focus:ring-mikado`}
-                      >
-                        {cityOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
+                        placeholder="Enter city"
+                        hasError={meta.touched && !!meta.error}
+                        size="lg"
+                      />
                       <ErrorMessage
                         name="city"
                         component="div"
@@ -397,43 +436,46 @@ export default function BusinessInfoForm() {
               {/* State */}
               <div>
                 <Field name="state">
-                  {({ field, meta }: FieldProps) => (
-                    <>
-                      <label
-                        htmlFor="state"
-                        className="block text-sm font-medium text-raisin"
-                      >
-                        State *
-                      </label>
-                      <select
-                        {...field}
-                        id="state"
-                        className={`w-full mt-1 px-4 py-3 border rounded-md text-sm md:text-base lg:text-lg text-raisin ${
-                          meta.touched && meta.error
-                            ? 'border-red-500'
-                            : 'border-gray-300'
-                        } focus:outline-none focus:ring-2 focus:ring-mikado`}
-                      >
-                        {stateOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <ErrorMessage
-                        name="state"
-                        component="div"
-                        className="text-red-500 text-sm mt-1"
-                      />
-                    </>
-                  )}
+                  {({ field, meta, form }: FieldProps) => {
+                    const stateOptions = getStateOptions(form.values.country);
+                    return (
+                      <>
+                        <label
+                          htmlFor="state"
+                          className="block text-sm font-medium text-raisin"
+                        >
+                          State *
+                        </label>
+                        <select
+                          {...field}
+                          id="state"
+                          className={`w-full mt-1 px-4 py-3 border rounded-md text-sm md:text-base lg:text-lg text-raisin ${
+                            meta.touched && meta.error
+                              ? 'border-red-500'
+                              : 'border-gray-300'
+                          } focus:outline-none focus:ring-2 focus:ring-mikado`}
+                        >
+                          {stateOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <ErrorMessage
+                          name="state"
+                          component="div"
+                          className="text-red-500 text-sm mt-1"
+                        />
+                      </>
+                    );
+                  }}
                 </Field>
               </div>
 
               {/* Country */}
               <div>
                 <Field name="country">
-                  {({ field, meta }: FieldProps) => (
+                  {({ field, meta, form }: FieldProps) => (
                     <>
                       <label
                         htmlFor="country"
@@ -449,6 +491,11 @@ export default function BusinessInfoForm() {
                             ? 'border-red-500'
                             : 'border-gray-300'
                         } focus:outline-none focus:ring-2 focus:ring-mikado`}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          // Reset state when country changes
+                          form.setFieldValue('state', '');
+                        }}
                       >
                         {countryOptions.map((option) => (
                           <option key={option.value} value={option.value}>

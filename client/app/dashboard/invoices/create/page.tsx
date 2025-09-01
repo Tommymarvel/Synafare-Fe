@@ -484,21 +484,9 @@ export default function CreateInvoicePage() {
                                     placeholder="Select or Add item"
                                     onAddNew={() => setAddingCatalogue(true)}
                                     showAddNew={true}
-                                    showCustomOption={true}
-                                    customOptionLabel="Add custom item…"
                                   />
                                 </div>
                               </div>
-
-                              {/* If custom chosen, show free text below */}
-                              {values.items[idx].description === '[custom]' && (
-                                <Field
-                                  as="input"
-                                  name={`items.${idx}.description`}
-                                  placeholder="Type custom description"
-                                  className="input w-full"
-                                />
-                              )}
                             </div>
 
                             {/* qty */}

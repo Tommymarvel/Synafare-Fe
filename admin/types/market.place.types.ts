@@ -1,4 +1,4 @@
-import { STATUSCONST, TRANSACTIONTYPE } from "@/lib/constants";
+import { STATUSCONST, TRANSACTIONTYPE } from '@/lib/constants';
 
 export type ProductListingType = {
   id: string;
@@ -9,6 +9,13 @@ export type ProductListingType = {
   supplier_name: string;
   supplier_profile: string;
   supplier_id: string;
+  // Additional fields for product details
+  description?: string;
+  price?: number;
+  brand?: string;
+  model_number?: string;
+  sku?: string;
+  stock_quantity?: number;
 };
 
 export type WalletTransactions = {

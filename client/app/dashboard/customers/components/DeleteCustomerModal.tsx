@@ -60,11 +60,18 @@ export default function DeleteCustomerModal({
         >
           <div className="px-6 pt-6 pb-4 text-center">
             {/* concentric danger icon */}
-         
-              <Image src={AlertCircle} alt="Danger Icon" width={48} className='mx-auto' />
-         
 
-            <h2 id="delete-title" className="text-lg font-medium mt-5 text-raisin">
+            <Image
+              src={AlertCircle}
+              alt="Danger Icon"
+              width={48}
+              className="mx-auto"
+            />
+
+            <h2
+              id="delete-title"
+              className="text-lg font-medium mt-5 text-raisin"
+            >
               Delete Customer
             </h2>
             <p className="mt-2 text-sm text-raisin/70">

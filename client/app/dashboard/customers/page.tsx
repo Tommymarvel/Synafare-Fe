@@ -8,8 +8,21 @@ import AddCustomerModal from './components/AddCustomerModal';
 import { useState } from 'react';
 
 export default function CustomersPage() {
-  const { customers, total, isLoading, error, refresh } = useCustomersList();
-   const [showAdd, setShowAdd] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10; // Items per page
+
+  const { customers, total, isLoading, error, refresh } = useCustomersList({
+    page: currentPage,
+    limit,
+  });
+
+  // Calculate total pages
+  const totalPages = Math.ceil(total / limit);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className=" space-y-6">
@@ -68,12 +81,18 @@ export default function CustomersPage() {
           onAdd={() => window.location.assign('/dashboard/customers/new')}
         />
       ) : (
-        <CustomersTable customers={customers} />
+        <CustomersTable
+          customers={customers}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          onRefresh={refresh}
+        />
       )}
       <AddCustomerModal
         open={showAdd}
         onClose={() => setShowAdd(false)}
-        onCreated={() => refresh()} 
+        onCreated={() => refresh()}
       />
     </div>
   );

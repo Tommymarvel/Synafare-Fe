@@ -58,6 +58,7 @@ interface User {
   updatedAt: string;
   wallet_balance?: number; // e.g. 10000
   role: string;
+  avatar?: string; // Profile picture URL
   permissions: Permissions;
 }
 

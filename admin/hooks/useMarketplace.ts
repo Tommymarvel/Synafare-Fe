@@ -9,15 +9,41 @@ import { ProductListingType } from '@/types/market.place.types';
 function mapProduct(p: APIProduct): ProductListingType {
   const owner =
     typeof p.product_owner === 'string' ? undefined : p.product_owner;
+
+  // Handle category - extract name if it's an object, use as string if it's already a string
+  const category =
+    typeof p.product_category === 'object' && p.product_category !== null
+      ? p.product_category.name
+      : typeof p.product_category === 'string'
+      ? p.product_category
+      : '---';
+
   return {
     id: p._id,
     src: p.product_image?.[0] || '/product-img.png',
-    category: p.product_category || '---',
+    category: category,
     title: p.product_name || '---',
     url: `/marketplace/product/${p._id}`,
     supplier_name: owner?.business?.business_name || '---',
     supplier_profile: '/product-avatar.png',
     supplier_id: owner?._id || '---',
+    // Additional fields
+    description: p.desc,
+    price:
+      typeof p.unit_price === 'number'
+        ? p.unit_price
+        : typeof p.unit_price === 'string'
+        ? parseFloat(p.unit_price)
+        : undefined,
+    brand: p.brand,
+    model_number: p.model_number,
+    sku:
+      typeof p.product_sku === 'string'
+        ? p.product_sku
+        : typeof p.product_sku === 'number'
+        ? String(p.product_sku)
+        : undefined,
+    stock_quantity: p.quantity_in_stock,
   };
 }
 

@@ -2,7 +2,6 @@
 import CardWrapper from '@/components/cardWrapper';
 import GoBack from '@/components/goback';
 import ProductList from '../../components/product-list';
-import { ProductListingData } from '@/data/marketplace';
 import { useState } from 'react';
 import ProductCarouselThumbNailIncluded from '../../components/carousel-thumbnails';
 import Image from 'next/image';
@@ -12,11 +11,31 @@ import { useParams } from 'next/navigation';
 const MPProductDetails = () => {
   const [activeCarousel, setActiveCarousel] = useState<number>(0);
   const { id } = useParams<{ id: string }>();
-  const { item, related } = useMarketplaceItem(id);
-  const product = item ?? ProductListingData[0];
+  const { item, related, isLoading } = useMarketplaceItem(id);
 
-  // For admin, we'll use some default images since API returns array we can ignore here
-  const productImages = ['/carousel-1.png', '/carousel-2.png'];
+  // Show loading or empty state if no product
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!item) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Product not found
+      </div>
+    );
+  }
+
+  const product = item;
+
+  // Use product images from API or fallback to default
+  const productImages: string[] = product.src
+    ? [product.src]
+    : ['/carousel-1.png', '/carousel-2.png'];
 
   const handleThumbnailClick = (index: number) => {
     setActiveCarousel(index);
@@ -86,17 +105,14 @@ const MPProductDetails = () => {
             </div>
             <div className="border-t-2 border-t-gray-4 pt-[13px] grow  flex flex-col justify-between pb-2">
               <p className="text-xs/[24px]">
-                Luminous 1.5 kVA inverter and battery combo is specially
-                designed to cater today&apos;s need keeping future aspiration in
-                mind, The inverter set powers all home appliances except home
-                air-conditioners and 1 HP water motor, rest everything will be
-                running for 4-6 hours whenever there is power outage such as led
-                lights, fans, television, refrigerator, washing machine, mixer
-                and laptop. This is a solar ready inverter that could be
-                connected too solar panels in future to run all home appliances.
+                {product.description || 'No description available'}
               </p>
 
-              <h4 className="text-2xl font-semibold">₦980,000</h4>
+              <h4 className="text-2xl font-semibold">
+                {product.price
+                  ? `₦${product.price.toLocaleString()}`
+                  : 'Price not available'}
+              </h4>
             </div>
           </div>
         </div>
@@ -121,11 +137,9 @@ const MPProductDetails = () => {
         <h2 className="font-semibold text-xl">Related Products</h2>
 
         <div className="grid grid-cols-4 gap-x-[15px]">
-          {(related.length ? related : ProductListingData.slice(0, 4)).map(
-            (relatedProduct) => (
-              <ProductList key={relatedProduct.id} product={relatedProduct} />
-            )
-          )}
+          {related.map((relatedProduct) => (
+            <ProductList key={relatedProduct.id} product={relatedProduct} />
+          ))}
         </div>
       </div>
     </div>
