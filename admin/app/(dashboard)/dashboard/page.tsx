@@ -1,10 +1,11 @@
-'use client'
+'use client';
 import CardWrapper from '../../../components/cardWrapper';
 import CashFlow from '../dashboard/components/cashflow';
 import LoanOverviewChart from '../dashboard/components/loanOverview';
 import PageIntro from '@/components/page-intro';
 import StatusComp from '@/components/status';
 import TopCards from '@/components/top-cards';
+import ViewTransactionReceipt from './components/modals/view-transaction';
 
 import {
   Table,
@@ -16,23 +17,49 @@ import {
 } from '@/components/ui/table';
 
 import Link from 'next/link';
-import { useDashboardData, useRecentTransaction } from '@/hooks/useDashboard';
+import {
+  useDashboardData,
+  useRecentTransaction,
+  Transaction,
+} from '@/hooks/useDashboard';
 import { formatWalletBalance } from '@/lib/utils/userUtils';
 import { fmtNaira } from '@/lib/format';
+import { useState } from 'react';
 const Dasboard = () => {
-  const {dashboardData} = useDashboardData()
-  const {transactionData} = useRecentTransaction()
+  const { dashboardData } = useDashboardData();
+  const { transactionData } = useRecentTransaction();
+  const [openModal, setOpenModal] = useState(false);
+  const [currentTransaction, setCurrentTransaction] = useState<
+    Transaction | undefined
+  >();
+
+  const handleShowTransaction = function (id: string) {
+    const transaction = transactionData.find((x) => x._id === id);
+    if (!transaction) return;
+    setCurrentTransaction(transaction);
+    setOpenModal(true);
+  };
   return (
     <div>
+      <ViewTransactionReceipt
+        receipt={currentTransaction}
+        open={openModal}
+        onOpenChange={setOpenModal}
+      />
       <PageIntro>Welcome Admin,</PageIntro>
       <div className="space-y-5">
         <div className="flex gap-x-[13px]">
           <div className="rounded-[6px] flex-1 bg-cover bg-deep-green text-white bg-[url('/card-green.png')] py-8 px-4 space-y-[6px]">
             <h3 className="text-[13px]">Wallet balance</h3>
-            <p className="text-lg font-medium">{fmtNaira(Number(dashboardData?.wallet_bal?.amount ?? 0))}</p>
+            <p className="text-lg font-medium">
+              {fmtNaira(Number(dashboardData?.wallet_bal?.amount ?? 0))}
+            </p>
           </div>
 
-          <TopCards title="Verification Requests" value={dashboardData.verify_request}>
+          <TopCards
+            title="Verification Requests"
+            value={dashboardData.verify_request}
+          >
             <svg
               width="20"
               height="20"
@@ -134,9 +161,21 @@ const Dasboard = () => {
           <CashFlow data={dashboardData.cashFlow} className="grow" />
           <LoanOverviewChart
             data={[
-              { name: "Active", value: dashboardData.active_loans, color: "#FCB022" },
-              { name: "Repaid", value: dashboardData.paid_loans, color: "#3D8B40" },
-              { name: "Overdue", value: dashboardData.overdue_loans, color: "#C21A18" },
+              {
+                name: 'Active',
+                value: dashboardData.active_loans,
+                color: '#FCB022',
+              },
+              {
+                name: 'Repaid',
+                value: dashboardData.paid_loans,
+                color: '#3D8B40',
+              },
+              {
+                name: 'Overdue',
+                value: dashboardData.overdue_loans,
+                color: '#C21A18',
+              },
             ]}
             className="shrink-0 min-w-[352px] px-5 pt-[26px]"
           />
@@ -160,26 +199,39 @@ const Dasboard = () => {
                 <TableHead className="py-[13px] ps-6">Action</TableHead>
               </TableRow>
             </TableHeader>
-            {
-              transactionData.length > 0 ? (<TableBody>
-                {
-                  transactionData.slice(0, 10).map((item,idxx)=> {
-                    return (<TableRow key={idxx} className="border-b border-b-gray-200">
-                <TableCell className="p-6 w-[12ch] truncate">{item.trx_id}</TableCell>
-                <TableCell className="p-6 capitalize">{item.trx_type.replace(/_/g, " ")}</TableCell>
-                <TableCell className="p-6 ">{formatWalletBalance(item.trx_amount)}</TableCell>
-                <TableCell className="p-6">{new Date(item.createdAt).toLocaleString()}</TableCell>
-                <TableCell className="p-6">
-                  <StatusComp status={item.trx_status} />
-                </TableCell>
-                <TableCell className="text-[#E2A109] p-6">View</TableCell>
-              </TableRow>)
-                  })
-                }
-              </TableBody>) : (<div>
-                Recent Transaction not available
-              </div>)
-            }
+            {transactionData.length > 0 ? (
+              <TableBody>
+                {transactionData.slice(0, 10).map((item, idxx) => {
+                  return (
+                    <TableRow key={idxx} className="border-b border-b-gray-200">
+                      <TableCell className="p-6 w-[12ch] truncate">
+                        {item.trx_id}
+                      </TableCell>
+                      <TableCell className="p-6 capitalize">
+                        {item.trx_type.replace(/_/g, ' ')}
+                      </TableCell>
+                      <TableCell className="p-6 ">
+                        {formatWalletBalance(item.trx_amount)}
+                      </TableCell>
+                      <TableCell className="p-6">
+                        {new Date(item.createdAt).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="p-6">
+                        <StatusComp status={item.trx_status} />
+                      </TableCell>
+                      <TableCell
+                        onClick={() => handleShowTransaction(item._id)}
+                        className="text-[#E2A109] p-6 cursor-pointer hover:underline"
+                      >
+                        View
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            ) : (
+              <div>Recent Transaction not available</div>
+            )}
           </Table>
         </CardWrapper>
       </div>

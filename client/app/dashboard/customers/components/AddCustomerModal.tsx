@@ -20,6 +20,16 @@ type FormValues = {
   customer_email: string;
   countryCode: string;
   customer_phn: string;
+  customer_bvn?: string;
+  customer_dob?: string;
+};
+
+type APIPayload = {
+  customer_name: string;
+  customer_email: string;
+  customer_phn: string;
+  customer_bvn?: string;
+  customer_dob?: string;
 };
 
 const schema: Yup.ObjectSchema<FormValues> = Yup.object({
@@ -41,6 +51,10 @@ const schema: Yup.ObjectSchema<FormValues> = Yup.object({
     .trim()
     .matches(/^[0-9]{11}$/, 'Phone number must be exactly 11 digits')
     .required('Required'),
+  customer_bvn: Yup.string()
+    .trim()
+    .matches(/^[0-9]{11}$/, 'BVN must be exactly 11 digits'),
+  customer_dob: Yup.string(),
 });
 
 export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
@@ -57,6 +71,24 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
     };
   }, [open]);
 
+  const handleVerifyBvn = async (
+    bvnNumber: string,
+    setFieldError: (field: string, message: string) => void
+  ) => {
+    if (!bvnNumber || bvnNumber.length !== 11) return; // verify only when 11 digits present
+    try {
+      await axiosInstance.get(
+        `/idlookup/verify/?doctype=bvn&doc_number=${bvnNumber}`
+      );
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      setFieldError(
+        'customer_bvn',
+        axiosError.response?.data?.message || 'BVN verification failed'
+      );
+    }
+  };
+
   if (!open) return null;
 
   const initialValues: FormValues = {
@@ -64,11 +96,13 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
     customer_email: '',
     countryCode: '+234',
     customer_phn: '',
+    customer_bvn: '',
+    customer_dob: '',
   };
 
   return (
     <div
-      className=" inset-0 z-50"
+      className="fixed inset-0 z-50"
       role="dialog"
       aria-modal="true"
       aria-labelledby="add-customer-title"
@@ -110,11 +144,25 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
             onSubmit={async (values, { setSubmitting }) => {
               setSubmitting(true);
               try {
-                const res = await axiosInstance.post('/customer/add', {
+                // Prepare the data with proper formatting
+                const payload: APIPayload = {
                   customer_name: values.customer_name,
                   customer_email: values.customer_email,
                   customer_phn: values.customer_phn,
-                });
+                };
+
+                // Add BVN as number string if provided
+                if (values.customer_bvn && values.customer_bvn.trim()) {
+                  payload.customer_bvn = values.customer_bvn.trim();
+                }
+
+                // Convert date to timestamp if provided
+                if (values.customer_dob && values.customer_dob.trim()) {
+                  const dateTimestamp = new Date(values.customer_dob).getTime();
+                  payload.customer_dob = dateTimestamp.toString();
+                }
+
+                const res = await axiosInstance.post('/customer/add', payload);
 
                 toast.success(
                   res.data.message || 'Customer added successfully'
@@ -209,6 +257,51 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                       className="mt-1 text-xs text-red-600"
                     />
                   </div>
+
+                  {/* BVN */}
+                  <Field name="customer_bvn">
+                    {({ field, meta, form }: FieldProps<string>) => (
+                      <Input
+                        {...field}
+                        label="Customer BVN "
+                        placeholder="Enter 11-digit BVN"
+                        hasError={!!(meta.touched && meta.error)}
+                        className="rounded-2xl"
+                        numericOnly
+                        maxLength={11}
+                        onBlur={(e) => {
+                          field.onBlur(e);
+                          handleVerifyBvn(
+                            (form.values as FormValues).customer_bvn || '',
+                            form.setFieldError
+                          );
+                        }}
+                      />
+                    )}
+                  </Field>
+                  <ErrorMessage
+                    name="customer_bvn"
+                    component="p"
+                    className="text-xs text-red-600"
+                  />
+
+                  {/* Date of Birth */}
+                  <Field name="customer_dob">
+                    {({ field, meta }: FieldProps<string>) => (
+                      <Input
+                        {...field}
+                        type="date"
+                        label="Customer Date of Birth "
+                        hasError={!!(meta.touched && meta.error)}
+                        className="rounded-2xl"
+                      />
+                    )}
+                  </Field>
+                  <ErrorMessage
+                    name="customer_dob"
+                    component="p"
+                    className="text-xs text-red-600"
+                  />
                 </div>
 
                 {/* footer */}

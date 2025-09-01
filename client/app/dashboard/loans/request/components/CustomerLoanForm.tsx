@@ -5,7 +5,6 @@ import * as Yup from 'yup';
 import useSWR from 'swr';
 import axiosInstance from '@/lib/axiosInstance';
 import { Input } from '@/app/components/form/Input';
-import CustomerSelect from '../components/CustomerSelect';
 import Error, {
   BankDropzone,
   TransactionDropzone,
@@ -15,6 +14,8 @@ import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import { computeDownpayment, isAllowedType } from '../libs/utils';
 import LoanAgreementModal from '../../components/LoanAgreeementModal';
+import AddCustomerModal from '../../../customers/components/AddCustomerModal';
+import { Plus } from 'lucide-react';
 
 type CustomerAPI = {
   _id: string;
@@ -88,11 +89,13 @@ export default function CustomerLoanForm({
   onSuccess: () => void;
 }) {
   const [showAgreement, setShowAgreement] = useState(false);
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
 
   const {
     data: list,
     isLoading: loadingCustomers,
     error: customersError,
+    mutate: refetchCustomers,
   } = useSWR<CustomersListResponse, unknown, CustomersKey>(
     [CUSTOMERS_URL],
     customersFetcher,
@@ -199,20 +202,38 @@ export default function CustomerLoanForm({
                   Select an existing customer on your account
                 </p>
                 <div className="my-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Customer *
-                  </label>
-                  <CustomerSelect
-                    name="customerId"
-                    options={options}
-                    loading={loadingCustomers}
-                    disabled={!!customersError}
-                    placeholder={
-                      loadingCustomers
-                        ? 'Loading customers…'
-                        : 'Search customers by name or email'
-                    }
-                  />
+                  <div className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Customer *
+                      </label>
+                      <Field
+                        as="select"
+                        name="customerId"
+                        disabled={loadingCustomers || !!customersError}
+                        className="w-full rounded-md text-sm border py-3 px-4 bg-white focus:outline-none focus:ring-2 focus:ring-mikado"
+                      >
+                        <option value="">
+                          {loadingCustomers
+                            ? 'Loading customers…'
+                            : 'Select a customer'}
+                        </option>
+                        {options.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </Field>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddCustomer(true)}
+                      className="flex items-center gap-2 px-4 py-3 bg-mikado hover:bg-mikado/90 text-raisin rounded-md font-medium transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add
+                    </button>
+                  </div>
                   <Error name="customerId" />
                 </div>
               </section>
@@ -346,6 +367,15 @@ export default function CustomerLoanForm({
         open={showAgreement}
         onClose={() => setShowAgreement(false)}
         onAccept={() => setShowAgreement(false)}
+      />
+
+      <AddCustomerModal
+        open={showAddCustomer}
+        onClose={() => setShowAddCustomer(false)}
+        onCreated={() => {
+          refetchCustomers();
+          setShowAddCustomer(false);
+        }}
       />
     </>
   );

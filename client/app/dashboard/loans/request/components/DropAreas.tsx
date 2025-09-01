@@ -102,13 +102,14 @@ export function TransactionDropzone() {
       <label>
         <p className="text-sm font-medium text-raisin">Transaction Invoice *</p>
         <p className="text-sm text-[#645D5D] -mt-1 mb-2">
-          <button
-            type="button"
-            className="text-mikado underline"
-            onClick={() => alert('Open invoice creator')}
-          >
-            Click here
-          </button>{' '}
+            <a
+              href="/dashboard/invoices/create"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-mikado underline"
+            >
+              Click here
+            </a>{' '}
           to instantly create an invoice
         </p>
       </label>

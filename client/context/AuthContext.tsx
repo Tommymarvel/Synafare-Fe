@@ -23,6 +23,7 @@ interface BankDetails {
 interface User {
   _id: string;
   __v: number;
+  available_credit: number;
   account_status: string; // e.g. "inactive"
   avatar?: string; // Profile picture URL
   business_document: string; // e.g. "submitted"

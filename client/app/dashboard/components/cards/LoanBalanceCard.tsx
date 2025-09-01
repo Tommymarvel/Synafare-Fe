@@ -54,7 +54,7 @@ export default function LoanBalanceCard() {
           </div>
           {/* Available credit */}
           <p className="text-xs text-[#797979]">
-            Available Credit: ₦ 5,000,000.00
+            Available Credit: {fmtNaira(user?.available_credit ?? 0)}
           </p>
         </div>
 

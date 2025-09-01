@@ -10,7 +10,15 @@ type Props = {
 };
 
 export default function Status({ status, className }: Props) {
+  // Normalize status to handle both cases and capitalize for display
+  const normalizedStatus = status?.toLowerCase();
+  const displayStatus =
+    typeof status === 'string'
+      ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+      : status;
+
   if (
+    normalizedStatus === 'pending' ||
     status === STATUSCONST.PENDING ||
     status === STATUSCONST.OFFER_RECEIVED ||
     status === STATUSCONST.PENDINGVERIFICATION
@@ -22,7 +30,7 @@ export default function Status({ status, className }: Props) {
           className
         )}
       >
-        {status}
+        {displayStatus}
       </span>
     );
   }
@@ -38,12 +46,14 @@ export default function Status({ status, className }: Props) {
           className
         )}
       >
-        {status}
+        {displayStatus}
       </span>
     );
   }
 
   if (
+    normalizedStatus === 'successful' ||
+    status === STATUSCONST.successful ||
     status === STATUSCONST.SUCCESS ||
     status === STATUSCONST.PAID ||
     status === STATUSCONST.VERIFIED ||
@@ -59,7 +69,7 @@ export default function Status({ status, className }: Props) {
           className
         )}
       >
-        {status}
+        {displayStatus}
       </span>
     );
   }
@@ -72,7 +82,7 @@ export default function Status({ status, className }: Props) {
           className
         )}
       >
-        {status}
+        {displayStatus}
       </span>
     );
   }
@@ -84,7 +94,7 @@ export default function Status({ status, className }: Props) {
         className
       )}
     >
-      {status}
+      {displayStatus}
     </span>
   );
 }
