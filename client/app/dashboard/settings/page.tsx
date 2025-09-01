@@ -121,7 +121,7 @@ const ProfileSettings = () => {
               <button
                 onClick={triggerPhotoUpload}
                 disabled={isUploadingPhoto}
-                className={`flex items-center justify-center w-[25px] h-[25px] bg-mikado-yellow rounded-full absolute right-0 bottom-0 hover:bg-yellow-500 transition-colors ${
+                className={`flex items-center justify-center w-[25px] h-[25px] bg-mikado rounded-full absolute right-0 bottom-0 hover:bg-yellow-500 transition-colors ${
                   isUploadingPhoto
                     ? 'opacity-50 cursor-not-allowed'
                     : 'cursor-pointer'

@@ -58,7 +58,7 @@ const ChooseAction = ({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="ms-auto font-medium w-fit px-6 cursor-pointer py-2 bg-mikado-yellow rounded-lg flex items-center gap-x-2">
-            Chose Action
+            Choose Action
             <svg width="21" height="20" viewBox="0 0 21 20" fill="none">
               <path
                 d="M10.5 14C9.91668 14 9.33335 13.775 8.89168 13.3334L3.45835 7.90003C3.21668 7.65837 3.21668 7.25837 3.45835 7.0167C3.70002 6.77503 4.10002 6.77503 4.34168 7.0167L9.77502 12.45C10.175 12.85 10.825 12.85 11.225 12.45L16.6583 7.0167C16.9 6.77503 17.3 6.77503 17.5417 7.0167C17.7833 7.25837 17.7833 7.65837 17.5417 7.90003L12.1083 13.3334C11.6667 13.775 11.0833 14 10.5 14Z"

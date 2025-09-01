@@ -76,7 +76,7 @@ export default function Header() {
               alt="User avatar"
               width={32}
               height={32}
-              className="rounded-full"
+              className="rounded-full w-[32px] aspect-square object-cover"
             />
             <span className="text-sm text-gray-800 font-medium">
               {user?.first_name || 'User'}
@@ -98,7 +98,7 @@ export default function Header() {
                   alt="User avatar"
                   width={40}
                   height={40}
-                  className="rounded-full"
+                  className="rounded-full w-[40px] aspect-square object-cover"
                 />
                 <div>
                   <p className="text-sm font-semibold text-gray-800">

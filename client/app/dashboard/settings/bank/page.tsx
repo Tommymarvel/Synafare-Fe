@@ -13,7 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function BankInfoPanel() {
   const [open, setOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
 
   const filled = Boolean(
     user?.bank_details?.bank_name &&
@@ -72,10 +72,10 @@ export default function BankInfoPanel() {
           open={open}
           onClose={() => setOpen(false)}
           initialValues={initialValues}
-          // onSuccess={(patch) => {
-          //   onUpdated?.(patch);
-          //   setOpen(false);
-          // }}
+          onSuccess={async () => {
+            await refreshUser();
+            setOpen(false);
+          }}
         />
       )}
     </>

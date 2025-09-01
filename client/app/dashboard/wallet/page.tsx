@@ -65,8 +65,6 @@ const dateRangeOptions: DateRange[] = [
   },
 ];
 
-
-
 export default function WalletPage() {
   const [bankMeta, setBankMeta] = useState<BankDetails | null>(null);
   const [open, setOpen] = useState(false);

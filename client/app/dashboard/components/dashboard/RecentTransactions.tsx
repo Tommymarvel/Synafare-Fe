@@ -5,15 +5,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import CoinStack from '@/app/assets/coins-stack.svg';
-import { Transaction, useTransactions } from '../../wallet/hooks/useTransactions';
+import {
+  Transaction,
+  useTransactions,
+} from '../../wallet/hooks/useTransactions';
 import { fmtDate, fmtNaira } from '@/lib/format';
 import TransactionDetailsModal from '../../wallet/components/TransactionDetailsModal';
 import { downloadTransactionReceipt } from '@/lib/transactionUtils';
 
 export default function RecentTransactions() {
   const [showTxn, setShowTxn] = useState(false);
-    const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
-  
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
   const { transactions, isLoading, error } = useTransactions({
     page: 1,
@@ -21,8 +23,6 @@ export default function RecentTransactions() {
   });
 
   const hasTx = transactions.length > 0;
-
-  
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-6">
