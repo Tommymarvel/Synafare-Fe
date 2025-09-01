@@ -1,14 +1,14 @@
-import EmptyList from "@/app/(dashboard)/loan-requests/components/empty-list";
-import CardWrapper from "@/components/cardWrapper";
-import Pagination from "@/components/pagination";
-import SearchInput from "@/components/search.input";
+import EmptyList from '@/app/(dashboard)/loan-requests/components/empty-list';
+import CardWrapper from '@/components/cardWrapper';
+import Pagination from '@/components/pagination';
+import SearchInput from '@/components/search.input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 import {
   Table,
@@ -18,10 +18,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { CatelogueType } from "@/types/usertypes";
+} from '@/components/ui/table';
+import { CatelogueType } from '@/types/usertypes';
 
-const InstallerInventory = ({ data }: { data: CatelogueType[] }) => {
+const InstallerInventory = ({
+  data,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
+}: {
+  data: CatelogueType[];
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+}) => {
   if (!data || data.length < 1) {
     return (
       <CardWrapper className="px-[23px] py-3 rounded-lg">
@@ -66,7 +80,13 @@ const InstallerInventory = ({ data }: { data: CatelogueType[] }) => {
         <TableFooter className="border-t border-t-gray-200">
           <TableRow>
             <TableCell colSpan={8} className="p-6">
-              <Pagination />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={onPageChange}
+                onPrevious={onPrevious}
+                onNext={onNext}
+              />
             </TableCell>
           </TableRow>
         </TableFooter>

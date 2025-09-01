@@ -1,9 +1,23 @@
-import Pagination from "@/components/pagination";
-import ProductListing from "./product-list";
-import { ProductListingType } from "@/types/market.place.types";
-import Image from "next/image";
+import Pagination from '@/components/pagination';
+import ProductListing from './product-list';
+import { ProductListingType } from '@/types/market.place.types';
+import Image from 'next/image';
 
-const ProductsListings = ({ products }: { products: ProductListingType[] }) => {
+const ProductsListings = ({
+  products,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
+}: {
+  products: ProductListingType[];
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+}) => {
   return (
     <>
       {!products.length && (
@@ -19,7 +33,13 @@ const ProductsListings = ({ products }: { products: ProductListingType[] }) => {
           <ProductListing key={product.id} product={product} />
         ))}
       </div>
-      <Pagination />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        onPrevious={onPrevious}
+        onNext={onNext}
+      />
     </>
   );
 };

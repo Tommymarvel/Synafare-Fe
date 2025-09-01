@@ -16,7 +16,21 @@ import ViewTransactionReceipt from './modals/view-transaction';
 import { useState } from 'react';
 import Image from 'next/image';
 import { fmtDate } from '@/lib/format';
-const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
+const TransactionTable = ({
+  data,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
+}: {
+  data: WalletTransactions[];
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+}) => {
   const [openModal, setOpenModal] = useState(true);
   const [currentReceipt, setCurrentReceipt] = useState<
     WalletTransactions | undefined
@@ -80,7 +94,9 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
                 {request.transactionType}
               </TableCell>
               <TableCell className="p-6 font-medium">
-                {request.transactionRef.length > 15 ? `${request.transactionRef.slice(0, 15)}...` : request.transactionRef}
+                {request.transactionRef.length > 15
+                  ? `${request.transactionRef.slice(0, 15)}...`
+                  : request.transactionRef}
               </TableCell>
               <TableCell className="p-6 font-medium">
                 {request.amount.toLocaleString('en-NG', {
@@ -103,7 +119,13 @@ const TransactionTable = ({ data }: { data: WalletTransactions[] }) => {
         <TableFooter className="border-t border-t-gray-200">
           <TableRow>
             <TableCell colSpan={7} className="px-6 py-6">
-              <Pagination />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={onPageChange}
+                onPrevious={onPrevious}
+                onNext={onNext}
+              />
             </TableCell>
           </TableRow>
         </TableFooter>

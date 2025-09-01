@@ -19,7 +19,14 @@ type QuoteItem = {
 };
 
 interface QuoteRequestItem {
-  product: string;
+  product:
+    | {
+        _id: string;
+        product_name: string;
+        product_category: string;
+        unit_price: number;
+      }
+    | string; // Can be object or string
   quantity: number;
   _id: string;
 }
@@ -171,8 +178,13 @@ export default function SendQuotationPage() {
       // Transform items for backend schema
       const formattedItems = payload.items.map((item, idx) => {
         const baseProductId = quoteRequest?.items[idx]?.product;
+        const productId =
+          typeof baseProductId === 'string'
+            ? baseProductId
+            : baseProductId?._id;
+
         return {
-          product: baseProductId, // product ID from original request
+          product: productId, // product ID from original request
           quantity: item.qty,
           unit_price: parseNairaInput(item.price),
         };
@@ -275,7 +287,10 @@ export default function SendQuotationPage() {
   const firstItem = quoteRequest?.items[0];
   const baseItem = firstItem
     ? {
-        description: firstItem.product,
+        description:
+          typeof firstItem.product === 'string'
+            ? firstItem.product
+            : firstItem.product.product_name || 'Product not specified',
         qty: firstItem.quantity,
       }
     : {

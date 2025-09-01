@@ -41,11 +41,12 @@ interface OfferHistory {
   date_sent: string;
   additional_message?: string;
   _id: string;
+  user: string; // ID of user who made this action
 }
 
 interface ApiQuoteRequest {
   _id: string;
-  user: ApiQuoteRequestUser;
+  user: ApiQuoteRequestUser | null; // Make user optional/nullable
   supplier: string;
   items: ApiQuoteRequestItem[];
   status: string;
@@ -144,7 +145,29 @@ interface UseQuoteRequestsResult {
 
 // Transform API response to QuoteRequest format
 const transformApiResponse = (apiData: ApiQuoteRequest[]): QuoteRequest[] => {
+  // Log the last object in the array for debugging
+  if (apiData.length > 0) {
+    const lastObject = apiData[apiData.length - 1];
+    console.log('Last object in quote requests array:', {
+      id: lastObject._id,
+      user: lastObject.user,
+      status: lastObject.status,
+      supplier: lastObject.supplier,
+      createdAt: lastObject.createdAt,
+    });
+  }
+
   return apiData.map((item) => {
+    // Log if user is null for debugging
+    if (!item.user) {
+      console.warn('Found quote request with null user:', {
+        id: item._id,
+        status: item.status,
+        createdAt: item.createdAt,
+        supplier: item.supplier,
+      });
+    }
+
     // Map API status to QuoteRequestStatus enum
     let status: QuoteRequestStatus = 'PENDING'; // default
     const apiStatus = item.status.toUpperCase();
@@ -197,10 +220,21 @@ const transformApiResponse = (apiData: ApiQuoteRequest[]): QuoteRequest[] => {
 
     const totalQuantity = item.items.reduce((sum, i) => sum + i.quantity, 0);
 
+    // Add fallback for null user object
+    const userFallback = item.user || {
+      _id: 'unknown',
+      email: 'Unknown User',
+      first_name: 'Unknown',
+      last_name: 'User',
+      phn_no: '',
+    };
+
     return {
       id: item._id,
-      customer: `${item.user.first_name} ${item.user.last_name}`.trim(),
-      customerEmail: item.user.email,
+      customer:
+        `${userFallback.first_name} ${userFallback.last_name}`.trim() ||
+        'Unknown User',
+      customerEmail: userFallback.email || 'No email provided',
       product: productDisplay,
       quantity: totalQuantity,
       quoteSent: quoteSent,
@@ -212,7 +246,7 @@ const transformApiResponse = (apiData: ApiQuoteRequest[]): QuoteRequest[] => {
       message: item.additional_message,
       deliveryLocation: item.delivery_location,
       offerHistory: item.offerHistory || [], // Include raw offer history
-      requesterId: item.user?._id,
+      requesterId: userFallback._id,
       supplierId: item.supplier, // Extract supplier ID from API
     };
   });

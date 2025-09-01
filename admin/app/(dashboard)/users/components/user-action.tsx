@@ -157,8 +157,6 @@ const UserActionButton = ({
 
           {status == STATUSCONST.VERIFIED && (
             <>
-             
-              
               <ManageGuard module="users">
                 <DropdownMenuItem
                   onClick={handleBlockUser}

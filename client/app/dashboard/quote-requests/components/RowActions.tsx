@@ -31,6 +31,13 @@ export interface QuoteRequest {
   deliveryLocation?: string;
   requesterId?: string; // original request owner id
   supplierId?: string; // supplier id
+  offerHistory?: Array<{
+    _id: string;
+    user: string;
+    date_sent: string;
+    counter_amount?: number;
+    amount_recieved?: number;
+  }>; // Raw offer history from API
 }
 
 export type RowAction =
@@ -123,7 +130,8 @@ export function RowActions({
                 quoteRequest.status,
                 user?._id,
                 quoteRequest.requesterId,
-                quoteRequest.supplierId
+                quoteRequest.supplierId,
+                quoteRequest.offerHistory
               ).map(({ key, label, tone }) => (
                 <button
                   key={key}
@@ -153,10 +161,24 @@ function buildMenuForStatus(
   status: QuoteRequestStatus,
   currentUserId?: string,
   requesterId?: string,
-  supplierId?: string
+  supplierId?: string,
+  offerHistory?: Array<{
+    _id: string;
+    user: string;
+    date_sent: string;
+    counter_amount?: number;
+    amount_recieved?: number;
+  }>
 ): { key: RowAction; label: string; tone?: 'danger' }[] {
   const isRequester = currentUserId === requesterId;
   const isSupplier = currentUserId === supplierId;
+
+  // For NEGOTIATED status, check who made the last action
+  let lastActionByCurrentUser = false;
+  if (status === 'NEGOTIATED' && offerHistory && offerHistory.length > 0) {
+    const lastOffer = offerHistory[offerHistory.length - 1];
+    lastActionByCurrentUser = lastOffer.user === currentUserId;
+  }
 
   switch (status) {
     case 'PENDING':
@@ -173,11 +195,21 @@ function buildMenuForStatus(
     case 'QUOTE_SENT':
       return [{ key: 'viewQuote', label: 'View Quote' }];
     case 'NEGOTIATED':
-      return [
-        { key: 'viewRequest', label: 'View Request' },
-        { key: 'acceptRequest', label: 'Accept Request' },
-        { key: 'rejectRequest', label: 'Reject Request', tone: 'danger' },
-      ];
+      const negotiatedActions: {
+        key: RowAction;
+        label: string;
+        tone?: 'danger';
+      }[] = [{ key: 'viewRequest', label: 'View Request' }];
+
+      // Only show Accept/Reject actions if the current user didn't make the last action
+      if (!lastActionByCurrentUser) {
+        negotiatedActions.push(
+          { key: 'acceptRequest', label: 'Accept Request' },
+          { key: 'rejectRequest', label: 'Reject Request', tone: 'danger' }
+        );
+      }
+
+      return negotiatedActions;
     case 'REJECTED':
       return [{ key: 'view', label: 'View' }];
     case 'ACCEPTED':

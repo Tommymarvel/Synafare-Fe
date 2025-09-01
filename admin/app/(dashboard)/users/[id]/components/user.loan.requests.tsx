@@ -16,7 +16,21 @@ import { STATUSCONST } from '@/lib/constants';
 import ViewOfferModal from './modals/view-offer';
 import { useState } from 'react';
 
-const UserLoanRequests = ({ data }: { data: UserLoanRecord[] }) => {
+const UserLoanRequests = ({
+  data,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
+}: {
+  data: UserLoanRecord[];
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+}) => {
   const [openOffer, setOpenOffer] = useState(false);
   if (!data || data.length < 1) {
     return (
@@ -77,7 +91,13 @@ const UserLoanRequests = ({ data }: { data: UserLoanRecord[] }) => {
         <TableFooter className="border-t border-t-gray-200">
           <TableRow>
             <TableCell colSpan={8} className="p-6">
-              <Pagination />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={onPageChange}
+                onPrevious={onPrevious}
+                onNext={onNext}
+              />
             </TableCell>
           </TableRow>
         </TableFooter>

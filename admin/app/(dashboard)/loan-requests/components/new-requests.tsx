@@ -18,9 +18,23 @@ import { useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { fmtDate, fmtNaira } from '@/lib/format';
 
-type Props = { data: Loan[] };
+type Props = {
+  data: Loan[];
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+};
 
-const NewRequests = ({ data }: Props) => {
+const NewRequests = ({
+  data,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
+}: Props) => {
   const [submitting, setSubmitting] = useState<string | null>(null);
 
   async function acceptOffer(
@@ -139,7 +153,13 @@ const NewRequests = ({ data }: Props) => {
       <TableFooter className="border-t border-t-gray-200">
         <TableRow>
           <TableCell colSpan={7} className="px-6 py-6">
-            <Pagination />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={onPageChange}
+              onPrevious={onPrevious}
+              onNext={onNext}
+            />
           </TableCell>
         </TableRow>
       </TableFooter>

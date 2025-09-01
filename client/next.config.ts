@@ -1,4 +1,3 @@
-// next.config.js   ← make sure this is CommonJS!
 import { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -7,6 +6,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
         port: '',
         pathname: '/**',
       },

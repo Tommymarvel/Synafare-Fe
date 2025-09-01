@@ -26,9 +26,19 @@ import Image from 'next/image';
 const DistEmbededInventory = ({
   data,
   ownerUserId,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
 }: {
   data: DInventoryDataType[];
   ownerUserId: string;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
 }) => {
   if (!data || data.length < 1)
     return (
@@ -143,7 +153,13 @@ const DistEmbededInventory = ({
         <TableFooter className="border-t border-t-gray-200">
           <TableRow>
             <TableCell colSpan={8} className="p-6">
-              <Pagination />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={onPageChange}
+                onPrevious={onPrevious}
+                onNext={onNext}
+              />
             </TableCell>
           </TableRow>
         </TableFooter>

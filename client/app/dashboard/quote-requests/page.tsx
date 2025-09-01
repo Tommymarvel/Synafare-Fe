@@ -552,9 +552,11 @@ export default function QuoteRequestsPage() {
       {showQuoteStatusModal && selectedQuoteRequest && (
         <QuoteRequestModal
           open={showQuoteStatusModal}
-          onClose={() => {
+          onClose={async () => {
             setShowQuoteStatusModal(false);
             setSelectedQuoteRequest(null);
+            // Always refresh the quote list when modal closes to ensure latest data
+            await mutate();
           }}
           quantity={selectedQuoteRequest.quantity}
           quoteSent={
@@ -573,6 +575,9 @@ export default function QuoteRequestsPage() {
           customerName={selectedQuoteRequest.customer}
           additionalMessage={selectedQuoteRequest.message}
           requestId={selectedQuoteRequest.id}
+          supplierId={selectedQuoteRequest.supplierId}
+          requesterId={selectedQuoteRequest.requesterId}
+          rawOfferHistory={selectedQuoteRequest.offerHistory || []}
           history={
             selectedQuoteRequest.offerHistory
               ? transformOfferHistoryForUI(selectedQuoteRequest.offerHistory)
@@ -586,17 +591,39 @@ export default function QuoteRequestsPage() {
           }}
           onAccept={async () => {
             if (!selectedQuoteRequest) return;
-            await handleAction('acceptRequest', selectedQuoteRequest);
-            setShowQuoteStatusModal(false);
+            try {
+              await handleAction('acceptRequest', selectedQuoteRequest);
+              setShowQuoteStatusModal(false);
+              // Refresh the quote list to reflect the new status
+              await mutate();
+              // Clear the selected quote request so it doesn't show stale data
+              setSelectedQuoteRequest(null);
+            } catch (error) {
+              console.error('Failed to accept quote:', error);
+            }
           }}
           onReject={async () => {
             if (!selectedQuoteRequest) return;
-            await handleAction('rejectRequest', selectedQuoteRequest);
-            setShowQuoteStatusModal(false);
+            try {
+              await handleAction('rejectRequest', selectedQuoteRequest);
+              setShowQuoteStatusModal(false);
+              // Refresh the quote list to reflect the new status
+              await mutate();
+              // Clear the selected quote request so it doesn't show stale data
+              setSelectedQuoteRequest(null);
+            } catch (error) {
+              console.error('Failed to reject quote:', error);
+            }
           }}
           onViewQuote={() => {
             setShowQuoteStatusModal(false);
             setShowQuotePreviewModal(true);
+          }}
+          onRefreshData={async () => {
+            // Refresh the quote list after negotiations and close modal
+            await mutate();
+            setShowQuoteStatusModal(false);
+            setSelectedQuoteRequest(null);
           }}
         />
       )}

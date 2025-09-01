@@ -14,7 +14,21 @@ import Status from '@/components/status';
 import { Loan } from '../../loans/types';
 import { fmtDate, fmtNaira } from '@/lib/format';
 
-const LoanOffers = ({ data }: { data: Loan[] }) => {
+const LoanOffers = ({
+  data,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
+}: {
+  data: Loan[];
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+}) => {
   if (!data || data.length < 1)
     return (
       <div>
@@ -77,7 +91,13 @@ const LoanOffers = ({ data }: { data: Loan[] }) => {
       <TableFooter className="border-t border-t-gray-200">
         <TableRow>
           <TableCell colSpan={7} className="px-6 py-6">
-            <Pagination />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={onPageChange}
+              onPrevious={onPrevious}
+              onNext={onNext}
+            />
           </TableCell>
         </TableRow>
       </TableFooter>

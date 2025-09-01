@@ -27,7 +27,21 @@ import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import QuoteRequestModal from './modals/quote-request';
 
-const UserQuote = ({ data }: { data: QuoteRequest[] }) => {
+const UserQuote = ({
+  data,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
+}: {
+  data: QuoteRequest[];
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+}) => {
   const params = useParams();
   const userId = params?.id as string;
   const { rawQuotes } = useUserQuotes(userId);
@@ -143,7 +157,13 @@ const UserQuote = ({ data }: { data: QuoteRequest[] }) => {
             <TableFooter className="border-t border-t-gray-200">
               <TableRow>
                 <TableCell colSpan={8} className="p-6">
-                  <Pagination />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                    onPrevious={onPrevious}
+                    onNext={onNext}
+                  />
                 </TableCell>
               </TableRow>
             </TableFooter>

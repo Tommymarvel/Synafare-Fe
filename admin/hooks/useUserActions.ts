@@ -66,7 +66,10 @@ export function useUserActions(): UseUserActionsReturn {
     }
   };
 
-  const declineUser = async (userId: string, reason?: string): Promise<APIUser | null> => {
+  const declineUser = async (
+    userId: string,
+    reason?: string
+  ): Promise<APIUser | null> => {
     setDeclining(true);
     try {
       return await executeAction(

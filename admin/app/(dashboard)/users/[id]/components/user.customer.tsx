@@ -17,9 +17,19 @@ import { UserCustomer } from '@/types/usertypes';
 const UserCustomerTable = ({
   data,
   ownerUserId,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
 }: {
   data: UserCustomer[];
   ownerUserId?: string;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
 }) => {
   if (!data || data.length < 1) {
     return (
@@ -75,7 +85,13 @@ const UserCustomerTable = ({
         <TableFooter className="border-t border-t-gray-200">
           <TableRow>
             <TableCell colSpan={8} className="p-6">
-              <Pagination />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={onPageChange}
+                onPrevious={onPrevious}
+                onNext={onNext}
+              />
             </TableCell>
           </TableRow>
         </TableFooter>

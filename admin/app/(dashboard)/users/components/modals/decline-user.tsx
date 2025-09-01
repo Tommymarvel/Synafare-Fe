@@ -28,7 +28,7 @@ const DeclineUserModal = ({
       // You might want to show an error here
       return;
     }
-    
+
     onOpenChange(false);
     setConfirmDeclineModal(true);
   };
@@ -85,8 +85,8 @@ const DeclineUserModal = ({
 
             <div className="flex gap-x-4  mt-5 font-medium text-[16px] justify-end">
               <DialogClose asChild>
-                <Button 
-                  variant="Colored" 
+                <Button
+                  variant="Colored"
                   className="px-[64px] py-4"
                   onClick={handleCancel}
                 >
@@ -94,8 +94,8 @@ const DeclineUserModal = ({
                 </Button>
               </DialogClose>
 
-              <Button 
-                onClick={handleDeclineUser} 
+              <Button
+                onClick={handleDeclineUser}
                 className="px-[64px] py-4"
                 disabled={!reason.trim()}
               >

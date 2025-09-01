@@ -7,6 +7,16 @@ import NegotiateModal from './NegotiateModal';
 import { createPortal } from 'react-dom';
 import { useAuth } from '@/context/AuthContext';
 
+type OfferHistoryItem = {
+  _id: string;
+  counter_amount?: number;
+  amount_recieved?: number;
+  additional_message?: string;
+  title?: string;
+  date_sent: string;
+  user: string; // ID of user who made this action
+};
+
 type HistoryItem = {
   id: string;
   title: string; // e.g. "₦900,000 Quotation Sent" or "Mary Smith negotiated amount to ₦875,000"
@@ -31,6 +41,8 @@ type QuoteModalProps = {
   additionalMessage?: string;
   requestId?: string; // Add requestId prop
   supplierId?: string; // ID of the supplier this quote is being sent to
+  requesterId?: string; // ID of the user who made the request (client)
+  rawOfferHistory?: OfferHistoryItem[]; // Raw offer history from API with user field
 
   // history & actions
   history?: HistoryItem[];
@@ -38,6 +50,7 @@ type QuoteModalProps = {
   onAccept?: () => void; // shown when there is history (negotiation)
   onReject?: () => void;
   onViewQuote?: () => void; // Add this for view quote functionality
+  onRefreshData?: () => void; // Callback to refresh the quote list
 };
 
 export default function QuoteRequestModal({
@@ -51,18 +64,42 @@ export default function QuoteRequestModal({
   additionalMessage,
   requestId,
   supplierId,
+  requesterId,
+  rawOfferHistory = [],
   history = [],
   onSendQuotation,
   onAccept,
   onReject,
   onViewQuote,
+  onRefreshData,
 }: QuoteModalProps) {
   const [expanded, setExpanded] = useState(true);
   const [negotiateOpen, setNegotiateOpen] = useState(false);
   const { user } = useAuth();
 
-  // Check if current user is the supplier receiving this quote request
-  const isTargetSupplier = user?._id === supplierId;
+  // Correct logic based on API structure:
+  // - User is supplier if their ID matches the supplierId
+  // - User is client if their ID matches the requesterId (the person who made the request)
+  const isSupplier = user?._id === supplierId;
+  const isClient = user?._id === requesterId;
+  const hasOfferHistory = history.length > 0 || rawOfferHistory.length > 0;
+
+  // Determine who should act next based on the last action in raw offer history
+  const lastRawOfferAction =
+    rawOfferHistory.length > 0
+      ? rawOfferHistory[rawOfferHistory.length - 1]
+      : null;
+  const lastActionByClient =
+    lastRawOfferAction && lastRawOfferAction.user === requesterId;
+  const lastActionBySupplier =
+    lastRawOfferAction && lastRawOfferAction.user === supplierId;
+
+  // Who should see action buttons:
+  // - If last action was by client, supplier should see buttons
+  // - If last action was by supplier, client should see buttons
+  // - If no history, supplier sees "Send Quote", client sees "Waiting"
+  const shouldClientSeeActions = hasOfferHistory && lastActionBySupplier;
+  const shouldSupplierSeeActions = hasOfferHistory && lastActionByClient;
 
   useEffect(() => {
     if (!open) return;
@@ -172,22 +209,21 @@ export default function QuoteRequestModal({
 
             {/* Footer CTAs */}
             <div className="mt-5">
-              {!hasHistory ? (
-                // No history case: only show Send Quotation if user is the target supplier
-                isTargetSupplier ? (
-                  <Button
-                    onClick={onSendQuotation}
-                    className="w-full rounded-xl py-3 text-sm"
-                  >
-                    Send Quotation
-                  </Button>
-                ) : (
-                  <div className="text-center text-sm text-gray-500 py-4">
-                    Waiting for supplier to send quotation...
-                  </div>
-                )
-              ) : // Has history case: only show actions if user is the target supplier
-              isTargetSupplier ? (
+              {/* Case 1: Supplier with no offer history - Show "Send Quote" button */}
+              {isSupplier && !hasOfferHistory ? (
+                <Button
+                  onClick={onSendQuotation}
+                  className="w-full rounded-xl py-3 text-sm"
+                >
+                  Send Quote
+                </Button>
+              ) : /* Case 2: Client with no offer history - Show waiting message */
+              isClient && !hasOfferHistory ? (
+                <div className="text-center text-sm text-gray-500 py-4">
+                  Waiting for supplier to send quotation...
+                </div>
+              ) : /* Case 3: Client should see actions (when supplier made last action) */
+              isClient && shouldClientSeeActions ? (
                 <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
                   <Button
                     variant="secondary"
@@ -211,36 +247,83 @@ export default function QuoteRequestModal({
                     Negotiate
                   </Button>
                 </div>
-              ) : (
+              ) : /* Case 4: Supplier should see actions (when client made last action) */
+              isSupplier && shouldSupplierSeeActions ? (
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+                  <Button
+                    variant="secondary"
+                    onClick={onReject}
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    onClick={onAccept}
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setNegotiateOpen(true);
+                    }}
+                    className="w-full sm:w-[32%] rounded-xl py-3 text-sm"
+                  >
+                    Negotiate
+                  </Button>
+                </div>
+              ) : /* Case 5: Client waiting for supplier response */
+              isClient && hasOfferHistory && !shouldClientSeeActions ? (
                 <div className="text-center text-sm text-gray-500 py-4">
-                  Quote activity in progress...
+                  Waiting for supplier response...
+                </div>
+              ) : /* Case 6: Supplier waiting for client response */
+              isSupplier && hasOfferHistory && !shouldSupplierSeeActions ? (
+                <div className="text-center text-sm text-gray-500 py-4">
+                  Waiting for client response...
+                </div>
+              ) : (
+                /* Fallback case */
+                <div className="text-center text-sm text-gray-500 py-4">
+                  Loading quote status...
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
-      {negotiateOpen && isTargetSupplier && (
-        <NegotiateModal
-          onClose={() => setNegotiateOpen(false)}
-          onSuccess={() => {
-            setNegotiateOpen(false);
-            // Refresh the quote status or perform any other action
-          }}
-          amountReceived={
-            quoteSent === '— — — — — —'
-              ? 0
-              : Number(quoteSent.replace(/[^0-9.-]+/g, ''))
-          }
-          requestId={requestId || ''}
-        />
-      )}
     </div>
   );
 
   // Render modal into document.body to avoid stacking context issues
   if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
+    return (
+      <>
+        {createPortal(modalContent, document.body)}
+        {negotiateOpen &&
+          ((isClient && shouldClientSeeActions) ||
+            (isSupplier && shouldSupplierSeeActions)) &&
+          createPortal(
+            <NegotiateModal
+              onClose={() => setNegotiateOpen(false)}
+              onSuccess={() => {
+                setNegotiateOpen(false);
+                // Refresh the quote status and the quote list
+                if (onRefreshData) {
+                  onRefreshData();
+                }
+              }}
+              amountReceived={
+                quoteSent === '— — — — — —'
+                  ? 0
+                  : Number(quoteSent.replace(/[^0-9.-]+/g, ''))
+              }
+              requestId={requestId || ''}
+            />,
+            document.body
+          )}
+      </>
+    );
   }
 
   return null;
