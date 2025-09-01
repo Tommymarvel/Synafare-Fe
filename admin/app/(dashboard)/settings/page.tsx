@@ -7,24 +7,34 @@ import { useAuth } from '@/context/AuthContext';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
 
 const ProfileSettings = () => {
   const [editProfileModal, setEditProfileModal] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [password, setPassword] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
+  const router = useRouter();
 
   const handleChangePassword = async (pw: string) => {
     if (!pw.trim()) {
       toast.error('Please enter a password');
       return;
     }
-    
+
     try {
-      await axiosInstance.patch('/update-pw', { 'new-pw': pw });
-      toast.success('Password changed successfully');
+      await axiosInstance.patch('/auth/update-pw', { 'new-pw': pw });
+      toast.success('Password changed successfully. You will be logged out.');
       setPassword(''); // Clear the password field
+
+      // Logout user after successful password change
+      setTimeout(async () => {
+        await logout();
+        router.push(
+          '/login?message=Password changed successfully. Please login with your new password.'
+        );
+      }, 2000); // Give user time to see the success message
     } catch (error) {
       console.log(error);
       toast.error('An error occurred while trying to change your password');
@@ -122,7 +132,7 @@ const ProfileSettings = () => {
               <Image
                 width={73}
                 height={73}
-                src={user?.avatar || "/avatar.jpg"}
+                src={user?.avatar || '/avatar.jpg'}
                 className="rounded-full w-[73px] aspect-square object-cover"
                 alt="Your profile picture"
               />
@@ -198,11 +208,16 @@ const ProfileSettings = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="py-5 px-4 bg-gray-100 border border-gray-300 w-full grow rounded-md"
-                placeholder="Enter new password"
+                placeholder="Enter new password (min 8 characters)"
               />
-              <button 
+              <button
                 onClick={() => handleChangePassword(password)}
-                className="border shrink-0 border-resin-black py-2 px-4 rounded-lg hover:bg-deep-green hover:text-gray-4"
+                disabled={password.length < 8}
+                className={`shrink-0 py-2 px-4 rounded-lg text-white font-medium transition-colors ${
+                  password.length >= 8
+                    ? 'bg-black hover:bg-gray-800 cursor-pointer'
+                    : 'bg-gray-400 cursor-not-allowed opacity-50'
+                }`}
               >
                 Change Password
               </button>

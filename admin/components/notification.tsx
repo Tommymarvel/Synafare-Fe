@@ -1,8 +1,48 @@
-import { useAuth } from "@/context/AuthContext";
-import Image from "next/image";
+import { useAuth } from '@/context/AuthContext';
+import Image from 'next/image';
+import { useState, useEffect, useRef } from 'react';
+import { Settings, LogOut } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 const Notification = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
+
+  const handleLogout = async () => {
+    setMenuOpen(false);
+    try {
+      await logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('An error occurred during logout');
+    }
+  };
+
   return (
     <nav className="border-b border-b-[#E4E7EC] py-[14px] flex justify-end ">
       <div className="flex gap-x-7 content-container">
@@ -24,17 +64,75 @@ const Notification = () => {
           </div>
         </div> */}
         <span className="breaker h-[full] w-px bg-gray-200 block"></span>
-        <div className="flex gap-x-[9px] items-center cursor-pointer">
-          <div className="flex gap-x-1 items-center">
-            <Image src={user?.avatar || "/avatar.jpg"} alt="Avatar" width={36} height={36} className="rounded-full w-9 h-9 object-cover" />
-            <p className="text-sm font-medium ">{user?.first_name} {user?.last_name}</p>
-          </div>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M12 16.8C11.3 16.8 10.6 16.53 10.07 16L3.55002 9.48C3.26002 9.19 3.26002 8.71 3.55002 8.42C3.84002 8.13 4.32002 8.13 4.61002 8.42L11.13 14.94C11.61 15.42 12.39 15.42 12.87 14.94L19.39 8.42C19.68 8.13 20.16 8.13 20.45 8.42C20.74 8.71 20.74 9.19 20.45 9.48L13.93 16C13.4 16.53 12.7 16.8 12 16.8Z"
-              fill="#1D1C1D"
-            />
-          </svg>
+
+        {/* Avatar + dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            className="flex gap-x-[9px] items-center cursor-pointer focus:outline-none"
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <div className="flex gap-x-1 items-center">
+              <Image
+                src={user?.avatar || '/avatar.jpg'}
+                alt="Avatar"
+                width={36}
+                height={36}
+                className="rounded-full w-9 h-9 object-cover"
+              />
+              <p className="text-sm font-medium ">
+                {user?.first_name} {user?.last_name}
+              </p>
+            </div>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 16.8C11.3 16.8 10.6 16.53 10.07 16L3.55002 9.48C3.26002 9.19 3.26002 8.71 3.55002 8.42C3.84002 8.13 4.32002 8.13 4.61002 8.42L11.13 14.94C11.61 15.42 12.39 15.42 12.87 14.94L19.39 8.42C19.68 8.13 20.16 8.13 20.45 8.42C20.74 8.71 20.74 9.19 20.45 9.48L13.93 16C13.4 16.53 12.7 16.8 12 16.8Z"
+                fill="#1D1C1D"
+              />
+            </svg>
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-60 bg-white border rounded-lg shadow-lg z-50">
+              <div className="px-4 py-3 flex items-center space-x-3">
+                <Image
+                  src={user?.avatar || '/avatar.jpg'}
+                  alt="User avatar"
+                  width={40}
+                  height={40}
+                  className="rounded-full w-[40px] aspect-square object-cover"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {user?.first_name || 'User'} {user?.last_name || ''}
+                  </p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
+                </div>
+              </div>
+              <div className="border-t">
+                <Link
+                  href="/settings"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Account Settings
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>

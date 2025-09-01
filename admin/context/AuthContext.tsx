@@ -9,7 +9,9 @@ import React, {
   ReactNode,
 } from 'react';
 import axios, { AxiosError } from 'axios';
+import useSWR from 'swr';
 import axiosInstance from '@/lib/axiosInstance';
+import { swrGet } from '@/lib/swrFetcher';
 
 interface Permissions {
   users: {
@@ -71,6 +73,7 @@ interface AuthContextValue {
   loading: boolean;
   error: string | null;
   refreshUser: () => Promise<void>;
+  logout: () => Promise<void>;
   hasPermission: (
     module: keyof Permissions,
     action: 'view' | 'manage'
@@ -82,34 +85,46 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWhoAmI = async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axiosInstance.get<WhoAmIResponse>('/auth/whoami');
-      setUser(response.data.data);
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        const axiosErr = err as AxiosError<{ message?: string }>;
-        setError(
-          axiosErr.response?.data?.message ??
-            axiosErr.message ??
-            'Failed to fetch user'
-        );
-      } else if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred');
-      }
-      setUser(null);
-    } finally {
-      setLoading(false);
+  // Use SWR for whoami with 90-second revalidation
+  const {
+    data: user,
+    error: swrError,
+    isLoading: loading,
+    mutate: refreshUser,
+  } = useSWR<User>(
+    '/auth/whoami',
+    (url: string) => swrGet<WhoAmIResponse>(url).then((res) => res.data),
+    {
+      refreshInterval: 90000, // 90 seconds
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000,
+      onError: (err: unknown) => {
+        if (axios.isAxiosError(err)) {
+          const axiosErr = err as AxiosError<{ message?: string }>;
+          setError(
+            axiosErr.response?.data?.message ??
+              axiosErr.message ??
+              'Failed to fetch user'
+          );
+        } else if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unknown error occurred');
+        }
+      },
     }
-  };
+  );
+
+  // Clear error when data is successfully fetched
+  useEffect(() => {
+    if (user && !swrError) {
+      setError(null);
+    }
+  }, [user, swrError]);
 
   const hasPermission = (
     module: keyof Permissions,
@@ -127,17 +142,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return hasPermission(module, 'manage');
   };
 
-  useEffect(() => {
-    void fetchWhoAmI();
-  }, []);
+  const logout = async (): Promise<void> => {
+    try {
+      await axiosInstance.post('/auth/logout');
+      localStorage.removeItem('authToken');
+      await refreshUser(); // Clear SWR cache
+      // Redirect will be handled by the component calling logout
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Clear local state even if API call fails
+      localStorage.removeItem('authToken');
+      await refreshUser(); // Clear SWR cache
+    }
+  };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
+        user: user || null,
         loading,
         error,
-        refreshUser: fetchWhoAmI,
+        refreshUser: async () => {
+          await refreshUser();
+        },
+        logout,
         hasPermission,
         canView,
         canManage,
