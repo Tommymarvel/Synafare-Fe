@@ -24,14 +24,35 @@ const VerifiedUsersTable = ({
   data,
   loading = false,
   onUserUpdated,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
 }: {
   data: AllUsers[];
   loading?: boolean;
   onUserUpdated?: () => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
 }) => {
   const [showDeclineModal, setshowDeclineModal] = useState(false);
   const [showDeleteModal, setshowDeleteModal] = useState(false);
   const [showVerifyModal, setshowVerifyModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+
+  const handleOpenDeclineModal = (userId: string) => {
+    setSelectedUserId(userId);
+    setshowDeclineModal(true);
+  };
+
+  const handleCloseDeclineModal = () => {
+    setSelectedUserId(undefined);
+    setshowDeclineModal(false);
+  };
 
   if (loading) {
     return (
@@ -58,7 +79,9 @@ const VerifiedUsersTable = ({
     <>
       <DeclineUserModal
         open={showDeclineModal}
-        onOpenChange={setshowDeclineModal}
+        onOpenChange={handleCloseDeclineModal}
+        userId={selectedUserId}
+        onUserUpdated={onUserUpdated}
       />
       <ConfirmDeleteUser
         open={showDeleteModal}
@@ -106,7 +129,7 @@ const VerifiedUsersTable = ({
                   id={request.id}
                   status={request.status}
                   firebaseUid={request.firebaseUid}
-                  openDeclineModal={setshowDeclineModal}
+                  openDeclineModal={() => handleOpenDeclineModal(request.id)}
                   onUserUpdated={onUserUpdated}
                 />
               </TableCell>
@@ -116,7 +139,13 @@ const VerifiedUsersTable = ({
         <TableFooter className="border-t border-t-gray-200">
           <TableRow>
             <TableCell colSpan={7} className="px-6 py-6">
-              <Pagination />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={onPageChange}
+                onPrevious={onPrevious}
+                onNext={onNext}
+              />
             </TableCell>
           </TableRow>
         </TableFooter>

@@ -12,15 +12,29 @@ import EmptyList from '../../loan-requests/components/empty-list';
 import Status from '@/components/status';
 import UserActionButton from './user-action';
 import { AllUsers } from '@/types/usertypes';
+
+interface AllUsersTableProps {
+  data: AllUsers[];
+  loading?: boolean;
+  onUserUpdated?: () => void;
+  // Pagination props
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+}
+
 const AllUsersTable = ({
   data,
   loading = false,
   onUserUpdated,
-}: {
-  data: AllUsers[];
-  loading?: boolean;
-  onUserUpdated?: () => void;
-}) => {
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
+  onPrevious = () => {},
+  onNext = () => {},
+}: AllUsersTableProps) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -81,7 +95,13 @@ const AllUsersTable = ({
       <TableFooter className="border-t border-t-gray-200">
         <TableRow>
           <TableCell colSpan={7} className="px-6 py-6">
-            <Pagination />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={onPageChange}
+              onPrevious={onPrevious}
+              onNext={onNext}
+            />
           </TableCell>
         </TableRow>
       </TableFooter>

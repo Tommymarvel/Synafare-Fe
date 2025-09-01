@@ -11,22 +11,39 @@ import {
 } from '@/components/ui/select';
 import SearchInput from '@/components/search.input';
 
-const UserTableWrapper = ({
-  children,
-  // verify = false,
-  // openVerifyModalfunc = () => null,
-  // openDeleteModalfunc = () => null,
-}: {
+interface UserTableWrapperProps {
   children: React.ReactNode;
   verify?: boolean;
   openVerifyModalfunc?: (x: boolean) => void;
   openDeleteModalfunc?: (x: boolean) => void;
-}) => {
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  statusFilter?: string;
+  onStatusChange?: (value: string) => void;
+  dateRangeFilter?: string;
+  onDateRangeChange?: (value: string) => void;
+}
+
+const UserTableWrapper = ({
+  children,
+  searchValue = '',
+  onSearchChange = () => {},
+  statusFilter = '',
+  onStatusChange = () => {},
+  dateRangeFilter = '',
+  onDateRangeChange = () => {},
+}: // verify = false,
+// openVerifyModalfunc = () => null,
+// openDeleteModalfunc = () => null,
+UserTableWrapperProps) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearchChange(e.target.value);
+  };
   return (
     <CardWrapper className="px-0 py-0 rounded-lg">
       <div className="flex justify-between px-6 py-3">
         <div className="flex gap-x-[10px] grow">
-        {/* TODO: Ask dimeji if verify can handle multiple users at once */}
+          {/* TODO: Ask dimeji if verify can handle multiple users at once */}
           {/* {verify && (
             <ManageGuard module="users">
               <button
@@ -82,26 +99,40 @@ const UserTableWrapper = ({
             </ManageGuard>
           )} */}
           <div className="max-w-[334px] w-full">
-            <SearchInput />
+            <SearchInput
+              value={searchValue}
+              onChange={handleSearchChange}
+              placeholder="Search users..."
+            />
           </div>
         </div>
 
         <div className="gap-x-[10px] flex">
-          <Select>
-            <SelectTrigger className="border p-3 border-border-gray rounded-md ">
+          <Select value={statusFilter} onValueChange={onStatusChange}>
+            <SelectTrigger className="border p-3 border-border-gray rounded-md min-w-[120px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="dark">Pending</SelectItem>
-              <SelectItem value="system">Successful</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending_verification">Pending</SelectItem>
+              <SelectItem value="verified">Verified</SelectItem>
             </SelectContent>
           </Select>
 
-          <Select>
-            <SelectTrigger className="border p-3 border-border-gray rounded-md ">
+          <Select value={dateRangeFilter} onValueChange={onDateRangeChange}>
+            <SelectTrigger className="border p-3 border-border-gray rounded-md min-w-[160px]">
               <SelectValue placeholder="Select Date Range" />
             </SelectTrigger>
-            <SelectContent></SelectContent>
+            <SelectContent>
+              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="yesterday">Yesterday</SelectItem>
+              <SelectItem value="last_7_days">Last 7 Days</SelectItem>
+              <SelectItem value="last_30_days">Last 30 Days</SelectItem>
+              <SelectItem value="last_90_days">Last 90 Days</SelectItem>
+              <SelectItem value="this_month">This Month</SelectItem>
+              <SelectItem value="last_month">Last Month</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>

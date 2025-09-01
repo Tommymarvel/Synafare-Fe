@@ -13,7 +13,7 @@ interface UseUserActionsReturn {
 
   // Action methods
   verifyUser: (userId: string) => Promise<APIUser | null>;
-  declineUser: (userId: string) => Promise<APIUser | null>;
+  declineUser: (userId: string, reason?: string) => Promise<APIUser | null>;
   blockUser: (userId: string) => Promise<APIUser | null>;
   updateUser: (
     userId: string,
@@ -66,11 +66,11 @@ export function useUserActions(): UseUserActionsReturn {
     }
   };
 
-  const declineUser = async (userId: string): Promise<APIUser | null> => {
+  const declineUser = async (userId: string, reason?: string): Promise<APIUser | null> => {
     setDeclining(true);
     try {
       return await executeAction(
-        () => UsersService.declineUser(userId),
+        () => UsersService.declineUser(userId, reason),
         'User declined successfully!',
         'Failed to decline user'
       );

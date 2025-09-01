@@ -12,7 +12,7 @@ import { ManageGuard } from '@/components/PermissionGuard';
 import { useState } from 'react';
 import ConfirmActionModal from './modals/confirm-action-modal';
 
-type booleanSetFunc = (x: boolean) => void;
+type declineModalFunc = () => void;
 const nullfunc = () => null;
 
 const UserActionButton = ({
@@ -25,7 +25,7 @@ const UserActionButton = ({
   id: string;
   firebaseUid?: string;
   status: UserStatus;
-  openDeclineModal?: booleanSetFunc;
+  openDeclineModal?: declineModalFunc;
   onUserUpdated?: () => void;
 }) => {
   const { verifyUser, blockUser, deleteUser, verifying, blocking, deleting } =
@@ -147,7 +147,7 @@ const UserActionButton = ({
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                onClick={() => openDeclineModal(true)}
+                onClick={() => openDeclineModal()}
                 className="border-b border-b-border-gray py-3 px-5 rounded-none"
               >
                 Decline

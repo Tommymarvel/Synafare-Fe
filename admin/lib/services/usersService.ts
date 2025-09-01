@@ -142,10 +142,12 @@ export class UsersService {
    * Decline a user (PATCH /user/:id/decline)
    * Sets account_status to "inactive"
    */
-  static async declineUser(userId: string): Promise<APIUser> {
+  static async declineUser(userId: string, reason?: string): Promise<APIUser> {
     try {
+      const payload = reason ? { reason } : {};
       const response = await axiosInstance.patch<APIUser>(
-        `${this.BASE_URL}/${userId}/decline`
+        `${this.BASE_URL}/${userId}/decline`,
+        payload
       );
       return response.data;
     } catch (error) {

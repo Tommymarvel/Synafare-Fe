@@ -12,10 +12,14 @@ const ConfirmDeclineUser = ({
   open,
   onOpenChange,
   userId,
+  reason,
+  onSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId?: string;
+  reason?: string;
+  onSuccess?: () => void;
 }) => {
   const { declineUser, declining } = useUserActions();
   const router = useRouter();
@@ -23,9 +27,13 @@ const ConfirmDeclineUser = ({
   const handleDecline = async () => {
     if (!userId) return;
     try {
-      await declineUser(userId);
+      await declineUser(userId, reason);
       onOpenChange(false);
-      router.refresh();
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.refresh();
+      }
     } catch {}
   };
   return (

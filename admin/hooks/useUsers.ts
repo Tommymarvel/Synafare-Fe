@@ -185,3 +185,138 @@ export function useUserSearch(
     mutate,
   };
 }
+
+// Hook for fetching total counts (without pagination)
+export function useUserCounts() {
+  const { data, error, isLoading, mutate } = useSWR(
+    ['users-counts'],
+    () => UsersService.getAllUsers({ limit: 1000 }), // Fetch large number to get all users
+    {
+      revalidateOnFocus: false,
+      refreshInterval: 300000, // Refresh every 5 minutes
+    }
+  );
+
+  const counts = useMemo(() => {
+    if (!data?.data) {
+      return {
+        totalUsers: 0,
+        verificationRequestsCount: 0,
+        verifiedUsersCount: 0,
+      };
+    }
+
+    const rawUsers = data.data;
+    return {
+      totalUsers: rawUsers.length,
+      verificationRequestsCount: getVerificationRequestsCount(rawUsers),
+      verifiedUsersCount: getVerifiedUsersCount(rawUsers),
+    };
+  }, [data]);
+
+  return {
+    ...counts,
+    loading: isLoading,
+    error,
+    refresh: () => mutate(),
+  };
+}
+
+// Hook for paginated users with search
+export function usePaginatedUsers(
+  page: number = 1,
+  limit: number = 20,
+  searchTerm: string = ''
+) {
+  const [currentPage, setCurrentPage] = useState(page);
+
+  const queryParams = useMemo(
+    () => ({
+      page: currentPage,
+      limit,
+      ...(searchTerm && { search: searchTerm }),
+    }),
+    [currentPage, limit, searchTerm]
+  );
+
+  const swrKey = useMemo(() => {
+    return ['users-paginated', queryParams];
+  }, [queryParams]);
+
+  const { data, error, isLoading, mutate } = useSWR(
+    swrKey,
+    () => UsersService.getAllUsers(queryParams),
+    {
+      revalidateOnFocus: false,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000,
+    }
+  );
+
+  // Transform and filter data
+  const processedData = useMemo(() => {
+    if (!data?.data) {
+      return {
+        users: [],
+        rawUsers: [],
+        verificationRequests: [],
+        verifiedUsers: [],
+        totalUsers: 0,
+        verificationRequestsCount: 0,
+        verifiedUsersCount: 0,
+      };
+    }
+
+    const rawUsers = data.data;
+    const users = transformUsersData(rawUsers);
+
+    // Filter users by verification status
+    const needsVerificationUsers = filterUsersByVerificationStatus(
+      rawUsers,
+      true
+    );
+    const verifiedUsersRaw = filterUsersByVerificationStatus(rawUsers, false);
+
+    const verificationRequests = transformUsersData(needsVerificationUsers);
+    const verifiedUsers = transformUsersData(verifiedUsersRaw);
+
+    return {
+      users,
+      rawUsers,
+      verificationRequests,
+      verifiedUsers,
+      totalUsers: data.meta?.total || rawUsers.length,
+      verificationRequestsCount: needsVerificationUsers.length,
+      verifiedUsersCount: verifiedUsersRaw.length,
+    };
+  }, [data]);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const nextPage = () => {
+    if (data?.meta && currentPage < data.meta.totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => Math.max(1, prev - 1));
+    }
+  };
+
+  return {
+    ...processedData,
+    meta: data?.meta,
+    currentPage,
+    loading: isLoading,
+    error,
+    refresh: () => mutate(),
+    goToPage,
+    nextPage,
+    prevPage,
+    mutate,
+  };
+}

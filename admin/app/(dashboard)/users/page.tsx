@@ -5,12 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AllUsers from './components/allusers';
 import VerificationRequests from './components/verification-requests';
 import UserTableWrapper from './components/user.table.wrapper';
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import ConfirmVerifyUserModal from './components/modals/confirm-verify-user';
 import ConfirmDeleteUser from './components/modals/confirm-delete-user';
 import VerifiedUsersTable from './components/verified-users';
-import { useUsers } from '@/hooks/useUsers';
+import { useUserCounts, usePaginatedUsers } from '@/hooks/useUsers';
 import { ViewGuard } from '@/components/PermissionGuard';
+import { STATUSCONST } from '@/lib/constants';
+import { useDebounce } from '@/hooks/useDebounce';
 const money = (
   <svg
     width="21"
@@ -49,27 +51,176 @@ const money = (
 const UsersPage = () => {
   const [showVerifyModal, setShowVerifyModal] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<string>('users');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dateRangeFilter, setDateRangeFilter] = useState<string>('all');
 
-  // Fetch users data
+  // Debounce search term to avoid too many API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  // Fetch total counts for cards and tabs (without pagination)
+  const {
+    totalUsers,
+    verificationRequestsCount,
+    verifiedUsersCount,
+    error: countsError,
+    refresh: refreshCounts,
+  } = useUserCounts();
+
+  // Fetch paginated data for tables
   const {
     users,
     verificationRequests,
     verifiedUsers,
-    totalUsers,
-    verificationRequestsCount,
-    verifiedUsersCount,
-    loading,
-    error,
-    refresh,
-  } = useUsers({
-    limit: 20, // Adjust as needed
-    revalidateOnFocus: false,
-  });
+    meta,
+    currentPage,
+    loading: dataLoading,
+    error: dataError,
+    refresh: refreshData,
+    goToPage,
+    nextPage,
+    prevPage,
+  } = usePaginatedUsers(1, 20, debouncedSearchTerm);
 
-  if (error) {
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
+
+  const handleStatusChange = useCallback((value: string) => {
+    setStatusFilter(value);
+  }, []);
+
+  const handleDateRangeChange = useCallback((value: string) => {
+    setDateRangeFilter(value);
+  }, []);
+
+  const handleUserUpdated = useCallback(() => {
+    refreshData();
+    refreshCounts();
+  }, [refreshData, refreshCounts]);
+
+  const handleTabChange = useCallback(
+    (value: string) => {
+      setActiveTab(value);
+      // Reset filters when changing tabs
+      setStatusFilter('all');
+      setDateRangeFilter('all');
+      // Reset to first page when changing tabs
+      goToPage(1);
+    },
+    [goToPage]
+  );
+
+  // Filter data based on active tab, status, and date range
+  const getFilteredData = useMemo(() => {
+    let data = [];
+
+    // Get base data for the active tab
+    switch (activeTab) {
+      case 'requests':
+        data = verificationRequests.filter(
+          (user) => user.status === STATUSCONST.PENDINGVERIFICATION
+        );
+        break;
+      case 'verified':
+        data = verifiedUsers.filter(
+          (user) => user.status === STATUSCONST.VERIFIED
+        );
+        break;
+      default:
+        data = users;
+    }
+
+    // Apply status filter
+    if (statusFilter && statusFilter !== 'all') {
+      data = data.filter((user) => {
+        switch (statusFilter) {
+          case 'pending_verification':
+            return user.status === STATUSCONST.PENDINGVERIFICATION;
+          case 'verified':
+            return user.status === STATUSCONST.VERIFIED;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Apply date range filter
+    if (dateRangeFilter && dateRangeFilter !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      data = data.filter((user) => {
+        // Handle different date formats that might be in dateAdded
+        let userDate: Date;
+        try {
+          userDate = new Date(user.dateAdded);
+          // If the date is invalid, try parsing it as a different format
+          if (isNaN(userDate.getTime())) {
+            return true; // Keep the user if we can't parse the date
+          }
+        } catch {
+          return true; // Keep the user if we can't parse the date
+        }
+
+        switch (dateRangeFilter) {
+          case 'today':
+            return userDate >= today;
+          case 'yesterday':
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            return userDate >= yesterday && userDate < today;
+          case 'last_7_days':
+            const last7Days = new Date(today);
+            last7Days.setDate(last7Days.getDate() - 7);
+            return userDate >= last7Days;
+          case 'last_30_days':
+            const last30Days = new Date(today);
+            last30Days.setDate(last30Days.getDate() - 30);
+            return userDate >= last30Days;
+          case 'last_90_days':
+            const last90Days = new Date(today);
+            last90Days.setDate(last90Days.getDate() - 90);
+            return userDate >= last90Days;
+          case 'this_month':
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            return userDate >= startOfMonth;
+          case 'last_month':
+            const startOfLastMonth = new Date(
+              now.getFullYear(),
+              now.getMonth() - 1,
+              1
+            );
+            const endOfLastMonth = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              0
+            );
+            endOfLastMonth.setHours(23, 59, 59, 999); // End of the last day of last month
+            return userDate >= startOfLastMonth && userDate <= endOfLastMonth;
+          default:
+            return true;
+        }
+      });
+    }
+
+    return data;
+  }, [
+    activeTab,
+    users,
+    verificationRequests,
+    verifiedUsers,
+    statusFilter,
+    dateRangeFilter,
+  ]);
+
+  if (countsError || dataError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-500">Error loading users: {error.message}</p>
+        <p className="text-red-500">
+          Error loading users: {(countsError || dataError)?.message}
+        </p>
         <button
           onClick={() => window.location.reload()}
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
@@ -120,7 +271,11 @@ const UsersPage = () => {
           </TopCards>
           <div className="flex-1" />
         </div>
-        <Tabs defaultValue="users" className="w-full space-y-5">
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full space-y-5"
+        >
           <TabsList className="border-b border-b-gray-200 w-full rounded-none">
             <TabsTrigger className="p-4 cursor-pointer" value="users">
               All Users ({totalUsers || 0})
@@ -133,33 +288,68 @@ const UsersPage = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="users">
-            <UserTableWrapper>
+            <UserTableWrapper
+              searchValue={searchTerm}
+              onSearchChange={handleSearchChange}
+              statusFilter={statusFilter}
+              onStatusChange={handleStatusChange}
+              dateRangeFilter={dateRangeFilter}
+              onDateRangeChange={handleDateRangeChange}
+            >
               <AllUsers
-                data={users}
-                loading={loading}
-                onUserUpdated={refresh}
+                data={getFilteredData}
+                loading={dataLoading}
+                onUserUpdated={handleUserUpdated}
+                currentPage={currentPage}
+                totalPages={meta?.totalPages || 1}
+                onPageChange={goToPage}
+                onPrevious={prevPage}
+                onNext={nextPage}
               />
             </UserTableWrapper>
           </TabsContent>
           <TabsContent value="requests">
             <UserTableWrapper
+              searchValue={searchTerm}
+              onSearchChange={handleSearchChange}
+              statusFilter={statusFilter}
+              onStatusChange={handleStatusChange}
+              dateRangeFilter={dateRangeFilter}
+              onDateRangeChange={handleDateRangeChange}
               verify={true}
               openVerifyModalfunc={setShowVerifyModal}
               openDeleteModalfunc={setShowDeleteModal}
             >
               <VerificationRequests
-                data={verificationRequests}
-                loading={loading}
-                onUserUpdated={refresh}
+                data={getFilteredData}
+                loading={dataLoading}
+                onUserUpdated={handleUserUpdated}
+                currentPage={currentPage}
+                totalPages={meta?.totalPages || 1}
+                onPageChange={goToPage}
+                onPrevious={prevPage}
+                onNext={nextPage}
               />
             </UserTableWrapper>
           </TabsContent>
           <TabsContent value="verified">
-            <UserTableWrapper>
+            <UserTableWrapper
+              searchValue={searchTerm}
+              onSearchChange={handleSearchChange}
+              statusFilter={statusFilter}
+              onStatusChange={handleStatusChange}
+              dateRangeFilter={dateRangeFilter}
+              onDateRangeChange={handleDateRangeChange}
+            >
               <VerifiedUsersTable
-                data={verifiedUsers}
-                loading={loading}
-                onUserUpdated={refresh}
+                data={getFilteredData}
+                loading={dataLoading}
+                onUserUpdated={handleUserUpdated}
+                currentPage={currentPage}
+                totalPages={meta?.totalPages || 1}
+                onPageChange={goToPage}
+                onPrevious={prevPage}
+                onNext={nextPage}
               />
             </UserTableWrapper>
           </TabsContent>
