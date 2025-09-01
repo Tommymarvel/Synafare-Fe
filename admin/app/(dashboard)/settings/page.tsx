@@ -4,9 +4,12 @@ import InfoDetail from '../loan-requests/[id]/components/detail';
 import EditProfileMdoal from './components/modals/edit-profile';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'react-toastify';
+import axiosInstance from '@/lib/axiosInstance';
 
 const ProfileSettings = () => {
   const [editProfileModal, setEditProfileModal] = useState(false);
+  const [password, setPassword] = useState('')
   const { user } = useAuth();
 
   const Fallback = '---';
@@ -17,6 +20,16 @@ const ProfileSettings = () => {
   const phone = user?.phn_no || Fallback;
   const displayName =
     [user?.first_name, user?.last_name].filter(Boolean).join(' ') || Fallback;
+
+  const handleChangePassword = async(pw : string)=>{
+    try {
+      await axiosInstance.patch('/update-pw',{'new-pw' : pw})
+      toast.success("Password changed successfully")
+    } catch (error) {
+      console.log(error)
+      toast.error("An error occurred while trying to change your password")
+    }
+  }
   return (
     <>
       <EditProfileMdoal
@@ -91,13 +104,13 @@ const ProfileSettings = () => {
             <div className="flex gap-x-[51px] items-center ">
               <input
                 type="text"
-                readOnly
+                onChange={(e) => setPassword(e.target.value)}
                 className="py-5 px-4 bg-gray-100 border border-gray-300 w-full grow rounded-md"
                 placeholder="******"
               />
-              <button className="border shrink-0 border-resin-black py-2 px-4 rounded-lg hover:bg-deep-green hover:text-gray-4">
+              <div className="border shrink-0 border-resin-black py-2 px-4 rounded-lg hover:bg-deep-green hover:text-gray-4" onClick={()=>handleChangePassword(password)}>
                 Change Password
-              </button>
+              </div>
             </div>
           </div>
         </div>
