@@ -1,9 +1,7 @@
 'use client';
 import PageIntro from '@/components/page-intro';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import LoanTableWrapper, {
-  DateRangePreset,
-} from '../loan-requests/components/loan-table-wrapper';
+import LoanTableWrapper from '../loan-requests/components/loan-table-wrapper';
 import AllLoansTable from './components/all-loans';
 import ActiveLoanTable from './components/active-loans';
 import RepaidLoanTable from './components/repaid-loans';
@@ -56,20 +54,20 @@ const AllLoans = () => {
   // Shared filter state
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<LoanStatusFilter>('ALL'); // used only on New Requests tab UI
-  const [range, setRange] = useState<DateRangePreset>('all');
+  const [dateRange, setDateRange] = useState('all');
 
   // filtered sets
   const allLoans = useMemo(
-    () => filterLoans(loans, { q, status, range }),
-    [loans, q, status, range]
+    () => filterLoans(loans, { q, status, dateRange }),
+    [loans, q, status, dateRange]
   );
   const activeLoans = useMemo(
     () =>
       filterLoans(
         loans.filter((l) => l.loanStatus === 'Active'),
-        { q, status, range }
+        { q, status, dateRange }
       ),
-    [loans, q, status, range]
+    [loans, q, status, dateRange]
   );
   const repaidLoans = useMemo(
     () =>
@@ -77,17 +75,17 @@ const AllLoans = () => {
         loans.filter(
           (l) => l.loanStatus === 'Paid' || l.loanStatus === 'Completed'
         ),
-        { q, status, range }
+        { q, status, dateRange }
       ),
-    [loans, q, status, range]
+    [loans, q, status, dateRange]
   );
   const overdueLoans = useMemo(
     () =>
       filterLoans(
         loans.filter((l) => l.loanStatus === 'Overdue'),
-        { q, status, range }
+        { q, status, dateRange }
       ),
-    [loans, q, status, range]
+    [loans, q, status, dateRange]
   );
 
   if (isLoading) return <div className="p-6">Loading…</div>;
@@ -107,7 +105,7 @@ const AllLoans = () => {
     0
   );
   const active = activeLoans.length;
-  const repaid = repaidLoans.length;  
+  const repaid = repaidLoans.length;
   const overdue = overdueLoans.length;
   return (
     <div className="space-y-5">
@@ -213,10 +211,10 @@ const AllLoans = () => {
           <LoanTableWrapper
             search={q}
             status={status}
-            dateRange={range}
+            dateRange={dateRange}
             onSearchChange={setQ}
             onStatusChange={setStatus}
-            onDateRangeChange={setRange}
+            onDateRangeChange={setDateRange}
             hideStatus={false}
           >
             <AllLoansTable data={allLoans} />
@@ -227,10 +225,10 @@ const AllLoans = () => {
           <LoanTableWrapper
             search={q}
             status={status}
-            dateRange={range}
+            dateRange={dateRange}
             onSearchChange={setQ}
             onStatusChange={setStatus}
-            onDateRangeChange={setRange}
+            onDateRangeChange={setDateRange}
             hideStatus={false}
           >
             <ActiveLoanTable data={activeLoans} />
@@ -241,10 +239,10 @@ const AllLoans = () => {
           <LoanTableWrapper
             search={q}
             status={status}
-            dateRange={range}
+            dateRange={dateRange}
             onSearchChange={setQ}
             onStatusChange={setStatus}
-            onDateRangeChange={setRange}
+            onDateRangeChange={setDateRange}
             hideStatus={false}
           >
             <RepaidLoanTable data={repaidLoans} />
@@ -255,10 +253,10 @@ const AllLoans = () => {
           <LoanTableWrapper
             search={q}
             status={status}
-            dateRange={range}
+            dateRange={dateRange}
             onSearchChange={setQ}
             onStatusChange={setStatus}
-            onDateRangeChange={setRange}
+            onDateRangeChange={setDateRange}
             hideStatus={false}
           >
             <OverdueTable data={overdueLoans} />

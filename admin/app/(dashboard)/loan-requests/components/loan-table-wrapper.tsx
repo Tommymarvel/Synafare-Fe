@@ -13,8 +13,6 @@ import {
 import SearchInput from '@/components/search.input';
 import { LoanStatusFilter } from '@/lib/status-types';
 
-export type DateRangePreset = 'all' | '1' | '2' | '7' | '30' | '90';
-
 function useDebounced<T>(value: T, delay = 300) {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -41,18 +39,18 @@ const LoanTableWrapper = ({
 
   search?: string;
   status?: LoanStatusFilter;
-  dateRange?: DateRangePreset;
+  dateRange?: string;
 
   onSearchChange?: React.Dispatch<React.SetStateAction<string>>;
   onStatusChange?: React.Dispatch<React.SetStateAction<LoanStatusFilter>>;
-  onDateRangeChange?: React.Dispatch<React.SetStateAction<DateRangePreset>>;
+  onDateRangeChange?: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   // uncontrolled fallbacks
   const [localSearch, setLocalSearch] = useState(search ?? '');
   const [localStatus, setLocalStatus] = useState<LoanStatusFilter>(
     status ?? 'ALL'
   );
-  const [localDateRange, setLocalDateRange] = useState<DateRangePreset>(
+  const [localDateRange, setLocalDateRange] = useState<string>(
     dateRange ?? 'all'
   );
 
@@ -121,7 +119,7 @@ const LoanTableWrapper = ({
           <Select
             value={localDateRange}
             onValueChange={(v) => {
-              const val = (v as DateRangePreset) || 'all';
+              const val = v || 'all';
               setLocalDateRange(val);
               onDateRangeChange?.(val);
             }}
@@ -130,12 +128,12 @@ const LoanTableWrapper = ({
               <SelectValue placeholder="Select Date Range" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All time</SelectItem>
-              <SelectItem value="1">Today</SelectItem>
-              <SelectItem value="2">Yesterday</SelectItem>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
+              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="yesterday">Yesterday</SelectItem>
+              <SelectItem value="last_7_days">Last 7 Days</SelectItem>
+              <SelectItem value="last_30_days">Last 30 Days</SelectItem>
+              <SelectItem value="last_90_days">Last 90 Days</SelectItem>
             </SelectContent>
           </Select>
         </div>

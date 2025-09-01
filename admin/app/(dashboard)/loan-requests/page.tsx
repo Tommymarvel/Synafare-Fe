@@ -48,47 +48,81 @@ const money = (
     />{' '}
   </svg>
 );
-type DateRangePreset = 'all' | '7' | '30' | '90';
 
-// ⭐ helper to compute “from” date
-function fromDate(range: DateRangePreset): Date | null {
-  if (range === '7') return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  if (range === '30') return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  if (range === '90') return new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-  return null; // all time
-}
-
-// ⭐ one filter function used by all tabs
+// ⭐ simple filter used by all tabs (search + optional status + date range)
 function filterLoans(
   loans: Loan[],
-  opts: { q: string; status?: LoanStatusFilter; range: DateRangePreset }
+  opts: { q: string; status?: LoanStatusFilter; dateRange?: string }
 ) {
   const q = opts.q.trim().toLowerCase();
-  const from = fromDate(opts.range);
+
+  // Get date range
+  const getDateRange = (range: string) => {
+    const now = new Date();
+    
+    switch (range) {
+      case 'today': {
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setHours(23, 59, 59, 999);
+        return { from: startOfDay, to: endOfDay };
+      }
+      case 'yesterday': {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const startOfDay = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setHours(23, 59, 59, 999);
+        return { from: startOfDay, to: endOfDay };
+      }
+      case 'last_7_days': {
+        const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        return { from, to: null };
+      }
+      case 'last_30_days': {
+        const from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        return { from, to: null };
+      }
+      case 'last_90_days': {
+        const from = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+        return { from, to: null };
+      }
+      default:
+        return { from: null, to: null };
+    }
+  };
+
+  const { from, to } = opts.dateRange ? getDateRange(opts.dateRange) : { from: null, to: null };
 
   return loans.filter((loan) => {
-    // Convert to lowercase for comparison
     const loanStatus = (loan.loanStatus || '').toLowerCase();
     const searchable = `${loan.id ?? ''} ${loan.userFirstName ?? ''} ${
       loan.userLastName ?? ''
     } ${loan.loanAmount ?? ''}`.toLowerCase();
 
-    const created = loan.dateRequested;
+    // Use dateRequested for date filtering
+    const created = loan.dateRequested ? new Date(loan.dateRequested) : null;
 
     const matchesSearch = q ? searchable.includes(q) : true;
     const matchesStatus =
       !opts.status || opts.status === 'ALL'
         ? true
         : loanStatus === opts.status.toLowerCase();
-    const matchesDate =
-      from instanceof Date && !isNaN(from.getTime())
-        ? new Date(created) >= from
-        : true;
+
+    let matchesDate = true;
+    if (from && created instanceof Date && !isNaN(created.getTime())) {
+      if (to) {
+        // Exact day range (today or yesterday)
+        matchesDate = created >= from && created <= to;
+      } else {
+        // Last X days range
+        matchesDate = created >= from;
+      }
+    }
 
     return matchesSearch && matchesStatus && matchesDate;
   });
 }
-
 
 const LoanRequest = () => {
   const { loans, isLoading, error } = useLoans();
@@ -96,7 +130,7 @@ const LoanRequest = () => {
   // 🔎 shared filters across all tabs
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<LoanStatusFilter>('ALL'); // used only on New Requests tab UI
-  const [range, setRange] = useState<DateRangePreset>('all');
+  const [dateRange, setDateRange] = useState('all');
 
   // Base splits by primary status
   const baseNewRequests = loans.filter(
@@ -111,18 +145,18 @@ const LoanRequest = () => {
 
   // Apply filters
   const newRequests = useMemo(
-    () => filterLoans(baseNewRequests, { q, status, range }),
-    [baseNewRequests, q, status, range]
+    () => filterLoans(baseNewRequests, { q, status, dateRange }),
+    [baseNewRequests, q, status, dateRange]
   );
 
   const loanOffers = useMemo(
-    () => filterLoans(baseLoanOffers, { q, range }), // no extra status filter here
-    [baseLoanOffers, q, range]
+    () => filterLoans(baseLoanOffers, { q, dateRange }), // no extra status filter here
+    [baseLoanOffers, q, dateRange]
   );
 
   const declinedRequests = useMemo(
-    () => filterLoans(baseDeclined, { q, range }), // no extra status filter here
-    [baseDeclined, q, range]
+    () => filterLoans(baseDeclined, { q, dateRange }), // no extra status filter here
+    [baseDeclined, q, dateRange]
   );
 
   if (isLoading) return <div>Loading…</div>;
@@ -181,10 +215,10 @@ const LoanRequest = () => {
           <LoanTableWrapper
             search={q}
             status={status}
-            dateRange={range}
+            dateRange={dateRange}
             onSearchChange={setQ}
             onStatusChange={(s) => setStatus(s)}
-            onDateRangeChange={setRange}
+            onDateRangeChange={setDateRange}
             hideStatus={false}
           >
             <NewRequests data={newRequests} />
@@ -193,11 +227,11 @@ const LoanRequest = () => {
 
         {/* Offers: hide Status filter (already implied) */}
         <TabsContent value="offers">
-          <LoanTableWrapper
-            search={q}
-            dateRange={range}
-            onSearchChange={setQ}
-            onDateRangeChange={setRange}
+          <LoanTableWrapper 
+            search={q} 
+            dateRange={dateRange}
+            onSearchChange={setQ} 
+            onDateRangeChange={setDateRange}
             hideStatus
           >
             <LoanOffers data={loanOffers} />
@@ -206,11 +240,11 @@ const LoanRequest = () => {
 
         {/* Declined: hide Status filter (already implied) */}
         <TabsContent value="declined">
-          <LoanTableWrapper
-            search={q}
-            dateRange={range}
-            onSearchChange={setQ}
-            onDateRangeChange={setRange}
+          <LoanTableWrapper 
+            search={q} 
+            dateRange={dateRange}
+            onSearchChange={setQ} 
+            onDateRangeChange={setDateRange}
             hideStatus
           >
             <DeclinedRequests data={declinedRequests} />
