@@ -39,7 +39,7 @@ export default function EmptyState({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center h-[70dvh] space-y-6 border rounded-lg ${className}`}
+      className={`flex flex-col items-center justify-center h-[70dvh] space-y-6  rounded-lg ${className}`}
     >
       {illustration && (
         <Image

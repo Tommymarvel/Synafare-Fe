@@ -460,6 +460,7 @@ export default function LoansTable({
                               toast.success(
                                 'Loan agreement signed successfully'
                               );
+                              refresh(); // Add refresh call
                               if (loan.loan_type === 'inventory_financing') {
                                 window.location.href = `/dashboard/loans/offers/${loan.id}/pay`;
                               }

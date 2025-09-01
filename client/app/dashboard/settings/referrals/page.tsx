@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 type Props = {
   referralLink: string;
@@ -107,10 +108,12 @@ export default function ReferralsCard(props: any) {
 
         {/* Right-side art (you'll replace src with your icon) */}
         <div className="hidden shrink-0 md:block">
-          {/* Plain <img> tag as requested so you can drop in any asset */}
-          <img
+          {/* Next.js optimized Image component */}
+          <Image
             src={artSrc}
             alt={artAlt}
+            width={135}
+            height={135}
             className="size-[135px] -mr-2 select-none object-contain opacity-95"
           />
         </div>

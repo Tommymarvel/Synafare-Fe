@@ -17,10 +17,12 @@ export default function WithdrawModal({
   open,
   onClose,
   balance,
+  onSuccess,
 }: {
   open: boolean;
   onClose: () => void;
   balance: number;
+  onSuccess?: () => void;
 }) {
   const { user, loading } = useAuth();
 
@@ -71,6 +73,7 @@ export default function WithdrawModal({
                 acc_no: user.bank_details.acc_no,
               });
               toast.success('Withdrawal initiated successfully');
+              if (onSuccess) onSuccess(); // Call refresh callback
               onClose();
             } catch (error) {
               const axiosError = error as AxiosError<{
@@ -99,7 +102,6 @@ export default function WithdrawModal({
                 placeholder=" 50,000"
                 className="text-raisin"
               />
-             
 
               {/* Bank details display or prompt */}
               <div className="mt-6">

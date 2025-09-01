@@ -1,20 +1,28 @@
 // app/dashboard/components/RecentTransactions.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import CoinStack from '@/app/assets/coins-stack.svg';
-import { useTransactions } from '../../wallet/hooks/useTransactions';
+import { Transaction, useTransactions } from '../../wallet/hooks/useTransactions';
 import { fmtDate, fmtNaira } from '@/lib/format';
+import TransactionDetailsModal from '../../wallet/components/TransactionDetailsModal';
+import { downloadTransactionReceipt } from '@/lib/transactionUtils';
 
 export default function RecentTransactions() {
+  const [showTxn, setShowTxn] = useState(false);
+    const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  
+
   const { transactions, isLoading, error } = useTransactions({
     page: 1,
     limit: 5, // Show only 5 recent transactions on dashboard
   });
 
   const hasTx = transactions.length > 0;
+
+  
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-6">
@@ -78,13 +86,14 @@ export default function RecentTransactions() {
                       {tx.status}
                     </span>
                   </td>
-                  <td className="py-3 px-6">
-                    <Link
-                      href="/dashboard/wallet"
-                      className="text-mikado font-medium hover:underline"
-                    >
-                      View
-                    </Link>
+                  <td
+                    className="py-3 px-6"
+                    onClick={() => {
+                      setShowTxn(true);
+                      setSelectedTx(tx);
+                    }}
+                  >
+                    View
                   </td>
                 </tr>
               ))}
@@ -120,6 +129,21 @@ export default function RecentTransactions() {
           border-radius: 3px;
         }
       `}</style>
+
+      <TransactionDetailsModal
+        open={showTxn}
+        onClose={() => {
+          setShowTxn(false);
+          setSelectedTx(null);
+        }}
+        amountIsKobo={true}
+        data={selectedTx}
+        onDownload={() => {
+          if (selectedTx) {
+            downloadTransactionReceipt(selectedTx);
+          }
+        }}
+      />
     </div>
   );
 }
