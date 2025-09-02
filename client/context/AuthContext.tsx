@@ -128,7 +128,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Redirect will be handled by the component calling logout
     } catch (error) {
       console.error('Logout error:', error);
-      // Clear local state even if API call fails
       localStorage.removeItem('authToken');
       await refreshUser(); // Clear SWR cache
     }
