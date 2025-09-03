@@ -1,9 +1,24 @@
+'use client'
+
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { ProductListingType } from '@/types/marketplace.types';
 
-const  ProductList = ({ product }: { product: ProductListingType }) => {
+const ProductList = ({ product }: { product: ProductListingType }) => {
+  const router = useRouter();
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') router.push(product.url);
+  };
+
   return (
-    <div className="border-[1.17px] border-gray rounded-md">
+    <div
+      className="border-[1.17px] border-gray rounded-md cursor-pointer"
+      role="link"
+      tabIndex={0}
+      onClick={() => router.push(product.url)}
+      onKeyDown={handleKeyDown}
+    >
       <div className="relative w-full aspect-video">
         <Image src={product.src} alt={product.title} fill className="object-cover" />
       </div>
@@ -15,6 +30,7 @@ const  ProductList = ({ product }: { product: ProductListingType }) => {
         <a
           href={'/dashboard/marketplace/store/' + product.supplier_id}
           className="flex gap-x-[6px] hover:underline items-cent"
+          onClick={(e) => e.stopPropagation()} // prevent card click when clicking supplier
         >
           <div className="relative w-5 h-5 rounded-full overflow-hidden">
             <Image

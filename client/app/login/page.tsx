@@ -17,7 +17,6 @@ import {
 import axiosInstance from '@/lib/axiosInstance';
 import Google from '@/app/assets/google-icon.png';
 import Image from 'next/image';
-// import { useAuth } from '@/context/AuthContext';
 import { useLoginFlow } from '@/hooks/useAuthFlows';
 import { FirebaseError } from 'firebase/app';
 
@@ -40,7 +39,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const router = useRouter();
-  // const { refreshUser } = useAuth();
   const { login } = useLoginFlow();
 
   const handleGoogleLogin = async () => {
@@ -62,10 +60,10 @@ export default function LoginPage() {
         localStorage.setItem('authToken', token);
       }
 
-      console.log(res)
+      console.log(res);
 
       if (res.data.status === 304) {
-        console.log('redirecting...')
+        console.log('redirecting...');
         toast.info('Please verify your email.');
 
         router.push('/signup/verify-otp');
@@ -103,9 +101,7 @@ export default function LoginPage() {
             msg = error.message;
         }
         toast.error(msg);
-        
       }
-
 
       const axiosError = error as AxiosError<{ message?: string }>;
       if (
@@ -141,7 +137,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative">
+    <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] mx-5 lg:mx-[64px] mb-[32px]">
       {/* Loading Overlay */}
       {isLogin && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -152,7 +148,7 @@ export default function LoginPage() {
         </div>
       )}
 
-      <div className="w-full space-y-4 lg:space-y-8 max-w-[500px] lg:mx-[64px] mb-[32px]">
+      <div>
         <div>
           <h1 className="text-2xl lg:text-[34px] font-medium text-raisin text-center">
             Welcome Back
@@ -170,17 +166,19 @@ export default function LoginPage() {
             <Form className="space-y-4 ">
               {/* Email */}
               <div>
-                <Field name="email">
-                  {({ field }: FieldProps) => (
-                    <Input
-                      {...field}
-                      label="Email Address"
-                      variant="outline"
-                      type="email"
-                      placeholder="you@email.com"
-                    />
-                  )}
-                </Field>
+                <span className="relative w-full">
+                  <Field name="email">
+                    {({ field }: FieldProps) => (
+                      <Input
+                        {...field}
+                        label="Email Address"
+                        variant="outline"
+                        type="email"
+                        placeholder="you@email.com"
+                      />
+                    )}
+                  </Field>
+                </span>
                 <ErrorMessage
                   name="email"
                   component="div"
@@ -243,7 +241,7 @@ export default function LoginPage() {
             </Form>
           )}
         </Formik>
-        <div className="flex items-center">
+        <div className="flex items-center my-6">
           <hr className="flex-grow border-gray-300" />
           <span className="px-3 text-gray-500">OR</span>
           <hr className="flex-grow border-gray-300" />

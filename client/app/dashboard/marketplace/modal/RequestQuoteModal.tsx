@@ -36,7 +36,7 @@ export default function RequestQuoteModalSimple({
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-semibold mb-2">Request Quote</h2>
+        <h2 className="text-lg font-semibold mb-2 text-raisin">Request Quote</h2>
         {supplierName && (
           <p className="text-sm text-gray-600 mb-4">From: {supplierName}</p>
         )}

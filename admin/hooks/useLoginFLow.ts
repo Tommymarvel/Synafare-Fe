@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { isAxiosError } from 'axios';
 import { toast } from 'react-toastify';
-import {  AuthErrorCodes } from 'firebase/auth';
+import { AuthErrorCodes } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import axiosInstance from '@/lib/axiosInstance';
-import { useAuth } from '@/context/AuthContext';
 import { auth } from '@/lib/firebase';
 
 export type LoginValues = { email: string; password: string };
@@ -32,7 +31,6 @@ function isOtpBody(x: unknown): x is OtpPendingResponse {
 
 export function useLoginFlow() {
   const router = useRouter();
-  const { refreshUser } = useAuth();
   const [submitting, setSubmitting] = useState(false);
 
   async function login(values: LoginValues) {
@@ -67,9 +65,8 @@ export function useLoginFlow() {
       if (!data?.token) throw new Error('Empty token from server');
 
       localStorage.setItem('authToken', data.token);
-      await refreshUser();
+      // Note: No refreshUser call since this hook is used on login page where AuthContext isn't available
 
-    
       router.replace('/');
     } catch (error) {
       // let OTP page know the email even if we failed

@@ -363,107 +363,131 @@ export default function WalletPage() {
             </div>
           </div>
 
-          {transactions.length > 0 ? (
-            <div>
-              <div className="-mx-1 md:mx-0">
-                <div
-                  className="scrollbar-mikado overflow-x-auto px-1 md:overflow-visible md:px-0"
-                  style={{ WebkitOverflowScrolling: 'touch' }}
-                >
-                  <table className="w-full min-w-[500px] table-auto rounded-lg border bg-white md:min-w-0">
-                    <thead className="bg-[#F0F2F5] text-xs font-medium leading-[18px]">
+          <div>
+            <div className="-mx-1 md:mx-0">
+              <div
+                className="scrollbar-mikado overflow-x-auto px-1 md:overflow-visible md:px-0"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
+                <table className="w-full min-w-[500px] table-auto rounded-lg border bg-white md:min-w-0">
+                  <thead className="bg-[#F0F2F5] text-xs font-medium leading-[18px]">
+                    <tr>
+                      <th className="px-3 py-3 text-left">ID</th>
+                      <th className="px-3 py-3 text-center">
+                        Transaction Type
+                      </th>
+                      <th className="px-3 py-3 text-center"> Amount</th>
+                      <th className="hidden px-3 py-3 text-center md:table-cell">
+                        Date
+                      </th>
+
+                      <th className=" px-3 py-3 text-center lg:table-cell">
+                        Status
+                      </th>
+                      <th className="px-3 py-3 text-center">Action</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {isLoading && (
                       <tr>
-                        <th className="px-3 py-3 text-left">ID</th>
-                        <th className="px-3 py-3 text-center">
-                          Transaction Type
-                        </th>
-                        <th className="px-3 py-3 text-center"> Amount</th>
-                        <th className="hidden px-3 py-3 text-center md:table-cell">
-                          Date
-                        </th>
-
-                        <th className=" px-3 py-3 text-center lg:table-cell">
-                          Status
-                        </th>
-                        <th className="px-3 py-3 text-center">Action</th>
+                        <td
+                          colSpan={6}
+                          className="px-6 py-10 text-center text-sm text-[#797979]"
+                        >
+                          Loading transactions…
+                        </td>
                       </tr>
-                    </thead>
+                    )}
 
-                    <tbody>
-                      {isLoading && (
-                        <tr>
-                          <td
-                            colSpan={6}
-                            className="px-6 py-10 text-center text-sm text-[#797979]"
-                          >
-                            Loading transactions…
-                          </td>
-                        </tr>
-                      )}
+                    {!isLoading && !!error && (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="px-6 py-10 text-center text-sm text-red-500"
+                        >
+                          Failed to load transactions
+                        </td>
+                      </tr>
+                    )}
 
-                      {!isLoading && !!error && (
-                        <tr>
-                          <td
-                            colSpan={6}
-                            className="px-6 py-10 text-center text-sm text-red-500"
-                          >
-                            Failed to load transactions
-                          </td>
-                        </tr>
-                      )}
-
-                      {!isLoading && !error && transactions.length === 0 && (
-                        <tr>
-                          <td
-                            colSpan={6}
-                            className="px-6 py-10 text-center text-sm text-[#797979]"
-                          >
-                            {selectedDateRange
-                              ? `No transactions found for the selected date range (${selectedDateRange.label}). Try adjusting your filter or clear it to see all transactions.`
-                              : 'No transactions found.'}
-                          </td>
-                        </tr>
-                      )}
-                      {transactions.map((t) => (
-                        <tr key={t.id} className="border-b hover:bg-neutral-50">
-                          <td className="px-6 py-3">
-                            <div className="whitespace-nowrap text-sm font-medium text-raisin md:whitespace-normal">
-                              {t.refId.slice(0, 6)}...
+                    {!isLoading && !error && transactions.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="p-0 h-[413px]">
+                          <div className="h-64 flex items-center justify-center">
+                            <div className="text-center">
+                              <EmptyState
+                                title={
+                                  selectedDateRange
+                                    ? 'No Transactions in Date Range'
+                                    : 'No Recent Transactions'
+                                }
+                                description={
+                                  selectedDateRange
+                                    ? `No transactions found for ${selectedDateRange.label}. Try adjusting your date range or clear the filter to see all transactions.`
+                                    : "You haven't made any transactions yet. Add money to your wallet or make a purchase to see transactions here."
+                                }
+                                illustration={CoinStack}
+                                illustrationWidth={120}
+                                illustrationHeight={120}
+                                className="h-64"
+                              />
+                              {selectedDateRange && (
+                                <div className="text-center mt-4">
+                                  <button
+                                    onClick={clearDateFilter}
+                                    className="px-4 py-2 bg-mikado text-raisin rounded-lg hover:bg-yellow-600"
+                                  >
+                                    Clear Filter
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          </td>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    {transactions.map((t) => (
+                      <tr key={t.id} className="border-b hover:bg-neutral-50">
+                        <td className="px-6 py-3">
+                          <div className="whitespace-nowrap text-sm font-medium text-raisin md:whitespace-normal">
+                            {t.refId.slice(0, 6)}...
+                          </div>
+                        </td>
 
-                          <td className="whitespace-nowrap px-6 py-3 text-center text-sm capitalize">
-                            {t.type.replace(/_/g, ' ')}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-3 text-center text-sm">
-                            {fmtNaira(t.amount)}
-                          </td>
+                        <td className="whitespace-nowrap px-6 py-3 text-center text-sm capitalize">
+                          {t.type.replace(/_/g, ' ')}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-3 text-center text-sm">
+                          {fmtNaira(t.amount)}
+                        </td>
 
-                          <td className="hidden whitespace-nowrap px-6 py-3 text-center text-sm md:table-cell">
-                            {fmtDate(t.date)}
-                          </td>
+                        <td className="hidden whitespace-nowrap px-6 py-3 text-center text-sm md:table-cell">
+                          {fmtDate(t.date)}
+                        </td>
 
-                          <td className="whitespace-nowrap px-6 py-3 text-center text-sm lg:table-cell">
-                            <span className="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-600 capitalize">
-                              {t.status}
-                            </span>
-                          </td>
+                        <td className="whitespace-nowrap px-6 py-3 text-center text-sm lg:table-cell">
+                          <span className="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-600 capitalize">
+                            {t.status}
+                          </span>
+                        </td>
 
-                          <td
-                            className="whitespace-nowrap px-6 py-3 text-center text-neutral-400 cursor-pointer hover:text-neutral-600"
-                            onClick={() => {
-                              setShowTxn(true);
-                              setSelectedTx(t);
-                            }}
-                          >
-                            View
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                        <td
+                          className="whitespace-nowrap px-6 py-3 text-center text-neutral-400 cursor-pointer hover:text-neutral-600"
+                          onClick={() => {
+                            setShowTxn(true);
+                            setSelectedTx(t);
+                          }}
+                        >
+                          View
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+            </div>
+            {transactions.length > 0 && (
               <div className="py-4 px-6">
                 <Pagination
                   currentPage={page}
@@ -471,37 +495,8 @@ export default function WalletPage() {
                   onPageChange={setPage}
                 />
               </div>
-            </div>
-          ) : (
-            <div className="h-64">
-              <EmptyState
-                title={
-                  selectedDateRange
-                    ? 'No Transactions in Date Range'
-                    : 'No Recent Transactions'
-                }
-                description={
-                  selectedDateRange
-                    ? `No transactions found for ${selectedDateRange.label}. Try adjusting your date range or clear the filter to see all transactions.`
-                    : "You haven't made any transactions yet. Add money to your wallet or make a purchase to see transactions here."
-                }
-                illustration={CoinStack}
-                illustrationWidth={120}
-                illustrationHeight={120}
-                className="h-64"
-              />
-              {selectedDateRange && (
-                <div className="text-center mt-4">
-                  <button
-                    onClick={clearDateFilter}
-                    className="px-4 py-2 bg-mikado text-raisin rounded-lg hover:bg-yellow-600"
-                  >
-                    Clear Filter
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </section>
       {/* Modal */}

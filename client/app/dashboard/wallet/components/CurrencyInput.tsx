@@ -46,7 +46,7 @@ export default function CurrencyInput({
           }}
           onBlur={() => helpers.setTouched(true)}
           className={clsx(
-            'w-full rounded-xl border border-neutral-200 bg-white px-9 py-3 outline-none',
+            'w-full rounded-xl border border-neutral-200 text-raisin bg-white px-9 py-3 outline-none',
             'placeholder:text-neutral-400 focus:border-neutral-400',
             disabled && 'opacity-60',
             className

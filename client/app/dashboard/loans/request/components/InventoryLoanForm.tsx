@@ -299,13 +299,14 @@ export default function InventoryLoanForm({
                   Bank Details
                 </h2>
                 <p className="text-sm mt-2 leading-[145%] text-[#645D5D]">
-                  Provide your bank information for inventory disbursement
+                  Provide your supplier banking information for inventory
+                  disbursement
                 </p>
 
                 {/* Bank */}
                 <div className="mt-4">
                   <label className="mb-1 block text-sm font-medium">
-                    Bank Name <span className="text-red-500">*</span>
+                  Supplier Bank Name <span className="text-red-500">*</span>
                   </label>
 
                   <div className="relative flex items-center gap-2">
@@ -356,7 +357,7 @@ export default function InventoryLoanForm({
                 {/* Account Number */}
                 <div className="mt-4">
                   <label className="mb-1 block text-sm font-medium">
-                    Account Number <span className="text-red-500">*</span>
+                   Supplier Account Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     inputMode="numeric"

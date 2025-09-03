@@ -8,7 +8,6 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import axiosInstance from '@/lib/axiosInstance';
-import { useAuth } from '@/context/AuthContext';
 import { toast } from 'react-toastify';
 import { AxiosError, isAxiosError } from 'axios';
 import { FirebaseError } from 'firebase/app';
@@ -75,7 +74,6 @@ function isOtpBody(body: unknown): body is OtpPendingResponse {
 
 export function useLoginFlow() {
   const router = useRouter();
-  const { refreshUser } = useAuth();
   const [submitting, setSubmitting] = useState(false);
 
   async function login(values: LoginValues) {
@@ -113,7 +111,7 @@ export function useLoginFlow() {
       }
 
       localStorage.setItem('authToken', data.token);
-      await refreshUser();
+      // Note: No refreshUser call since this hook is used on login page where AuthContext isn't available
 
       // 5) Route by user state (only read when present)
       const u = data.user;

@@ -1,10 +1,12 @@
 // app/layout.tsx
+'use client';
 import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
 import { Be_Vietnam_Pro } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { usePathname } from 'next/navigation';
 
 // Load the font and expose it as a CSS variable
 const beVietnam = Be_Vietnam_Pro({
@@ -12,6 +14,20 @@ const beVietnam = Be_Vietnam_Pro({
   weight: ['400', '500', '700'], // pick the weights you need
   variable: '--font-be-vietnam-pro',
 });
+
+function ConditionalAuthProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+
+  // Don't use AuthProvider for public auth pages
+  const publicPaths = ['/login', '/signup', '/forgot-password'];
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
+
+  if (isPublicPath) {
+    return <>{children}</>;
+  }
+
+  return <AuthProvider>{children}</AuthProvider>;
+}
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -39,9 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <meta name="theme-color" content="#F5C842" />
         </head>
         <body className="font-sans">
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <ConditionalAuthProvider>{children}</ConditionalAuthProvider>
         </body>
       </html>
     </>

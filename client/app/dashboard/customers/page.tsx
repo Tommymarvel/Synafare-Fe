@@ -2,9 +2,9 @@
 
 import { UsersRound } from 'lucide-react';
 import { useCustomersList } from './hooks/useCustomers';
-import CustomersEmptyState from './components/CustomersEmptyState';
 import CustomersTable from './components/CustomersTable';
 import AddCustomerModal from './components/AddCustomerModal';
+import EmptyState from '@/app/components/EmptyState';
 import { useState } from 'react';
 
 export default function CustomersPage() {
@@ -77,8 +77,14 @@ export default function CustomersPage() {
           Failed to load.
         </div>
       ) : customers.length === 0 ? (
-        <CustomersEmptyState
-          onAdd={() => window.location.assign('/dashboard/customers/new')}
+        <EmptyState
+          title="No Customers Yet"
+          description="You haven't added any customers yet. Start by adding your first customer to track their information and transactions."
+          actionLabel="Add Customer"
+          onAction={() => setShowAdd(true)}
+          illustration="/empty.svg"
+          illustrationWidth={120}
+          illustrationHeight={120}
         />
       ) : (
         <CustomersTable

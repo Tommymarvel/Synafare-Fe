@@ -15,7 +15,6 @@ const ProductsListings = ({
   totalPages = 1,
   onPageChange,
 }: ProductsListingsProps) => {
-  console.log('ProductsListings received products:', products); // Debug log
 
   return (
     <>

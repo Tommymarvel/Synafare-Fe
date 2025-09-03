@@ -102,7 +102,7 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50"
+      className=" inset-0 z-50"
       role="dialog"
       aria-modal="true"
       aria-labelledby="add-customer-title"

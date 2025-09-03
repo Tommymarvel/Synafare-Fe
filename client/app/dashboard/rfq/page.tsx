@@ -8,10 +8,10 @@ import Image from 'next/image';
 import { ChevronDown, ChevronUp, Minus, Plus, Trash2 } from 'lucide-react';
 import RequestQuoteModalSimple from '../marketplace/modal/RequestQuoteModal';
 import EmptyState from '@/app/components/EmptyState';
-import EmptyIllustration from '@/app/assets/empty-customers.svg'
+import EmptyIllustration from '@/app/assets/empty-customers.svg';
 
 export default function RFQPage() {
-  const { rfqItems, removeFromRFQ, clearRFQ, updateQuantity } = useRFQ();
+  const { rfqItems, removeFromRFQ, clearRFQ, updateQuantity, refreshRFQ } = useRFQ();
 
   const [productDetails, setProductDetails] = useState<
     Record<string, ProductListingType>
@@ -90,15 +90,6 @@ export default function RFQPage() {
     await removeFromRFQ(productId);
   };
 
-  // Remove a whole supplier group locally after successful modal submit
-  const pruneSupplierGroup = async (supplierId: string) => {
-    const group = groups.find((g) => g.supplierId === supplierId);
-    if (!group) return;
-
-    // Remove all items for this supplier
-    await Promise.all(group.items.map((item) => removeFromRFQ(item.productId)));
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
@@ -119,7 +110,8 @@ export default function RFQPage() {
           title="No items in RFQ"
           description="Add products to request quotes from suppliers."
           actionLabel="Browse Marketplace"
-        illustration={EmptyIllustration}
+          actionUrl="/dashboard/marketplace"
+          illustration={EmptyIllustration}
         />
       </div>
     );
@@ -272,7 +264,7 @@ export default function RFQPage() {
                             name: group.supplierName,
                           })
                         }
-                        className="rounded-xl bg-mikado px-5 py-2.5 text-sm font-semibold text-white hover:brightness-95"
+                        className="rounded-xl bg-mikado px-5 py-2.5 text-sm font-semibold text-raisin hover:brightness-95"
                       >
                         Request Quote
                       </button>
@@ -292,9 +284,9 @@ export default function RFQPage() {
             supplierId={activeSupplier.id}
             supplierName={activeSupplier.name}
             onClose={() => setActiveSupplier(null)}
-            onSuccess={async (sid) => {
-              // API clears server cart; reflect it in UI by pruning the group
-              await pruneSupplierGroup(sid);
+            onSuccess={async () => {
+              // Server has already cleared the cart for this supplier, so just refresh the UI
+              await refreshRFQ();
               setActiveSupplier(null);
             }}
           />

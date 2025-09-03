@@ -68,7 +68,8 @@ export default function RequestQuoteWithQuantityModal({
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-semibold mb-2">Request Quote</h2>
+        <h2 className="text-lg font-semibold mb-2 text-raisin
+        ">Request Quote</h2>
         {productTitle && (
           <p className="text-sm text-gray-600 mb-4">For: {productTitle}</p>
         )}
