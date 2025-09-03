@@ -11,7 +11,8 @@ import EmptyState from '@/app/components/EmptyState';
 import EmptyIllustration from '@/app/assets/empty-customers.svg';
 
 export default function RFQPage() {
-  const { rfqItems, removeFromRFQ, clearRFQ, updateQuantity, refreshRFQ } = useRFQ();
+  const { rfqItems, removeFromRFQ, clearRFQ, updateQuantity, refreshRFQ } =
+    useRFQ();
 
   const [productDetails, setProductDetails] = useState<
     Record<string, ProductListingType>
