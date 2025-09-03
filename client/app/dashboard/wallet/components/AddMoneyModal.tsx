@@ -41,141 +41,152 @@ export default function AddMoneyModal({
   });
 
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h3 className="text-lg font-semibold text-raisin">Add Money</h3>
-          <button
-            onClick={onClose}
-            className="p-1 text-neutral-500 hover:text-neutral-700"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <Formik
-          validateOnBlur
-          initialValues={{
-            amount: '' as number | '',
-            method: '' as '' | Method,
-          }}
-          validationSchema={Schema}
-          onSubmit={(vals, { setSubmitting }) => {
-            setSubmitting(true);
-            if (vals.method === 'nomba') {
-              onProceedNomba?.({
-                amount: Number(vals.amount),
-                method: 'nomba',
-              });
-            } else if (vals.method === 'bank' && bankMeta) {
-              onConfirmBank?.({ amount: Number(vals.amount), bankMeta });
-            }
-            setSubmitting(false);
-          }}
+    <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm">
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div
+          className="w-full max-w-lg max-h-[90vh] rounded-lg bg-white shadow-xl flex flex-col"
+          onClick={(e) => e.stopPropagation()}
         >
-          {({
-            values,
-            errors,
-            touched,
-            isSubmitting,
-            setFieldValue,
-            setFieldTouched,
-          }) => (
-            <Form className="px-6 py-5">
-              {/* Amount */}
-              <label className="mb-1 block text-sm font-medium text-raisin">
-                Amount <span className="text-red-500">*</span>
-              </label>
-              <CurrencyInput name="amount" />
+          <div className="flex items-center justify-between border-b px-6 py-4 flex-shrink-0">
+            <h3 className="text-lg font-semibold text-raisin">Add Money</h3>
+            <button
+              onClick={onClose}
+              className="p-1 text-neutral-500 hover:text-neutral-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-              {/* Method */}
-              <div className="mt-4">
-                <label className="mb-1 block text-sm font-medium text-raisin">
-                  Payment Method <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    className={clsx(
-                      'w-full appearance-none rounded-xl border border-neutral-200 bg-white text-raisin px-4 py-3 pr-10 text-left outline-none',
-                      'focus:border-neutral-400'
-                    )}
-                    value={values.method}
-                    onChange={(e) => {
-                      const m = e.target.value as Method;
-                      setFieldValue('method', m);
-                      setFieldTouched('method', true, false);
-                    }}
-                  >
-                    <option value="" disabled>
-                      Select payment method
-                    </option>
-                    <option value="bank">Bank Transfer</option>
-                    <option value="nomba">Nomba Checkout</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
-                </div>
-                {touched.method && errors.method ? (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.method as string}
-                  </p>
-                ) : null}
-              </div>
+          <div className="overflow-y-auto flex-1 min-h-0">
+            <Formik
+              validateOnBlur
+              initialValues={{
+                amount: '' as number | '',
+                method: '' as '' | Method,
+              }}
+              validationSchema={Schema}
+              onSubmit={(vals, { setSubmitting }) => {
+                setSubmitting(true);
+                if (vals.method === 'nomba') {
+                  onProceedNomba?.({
+                    amount: Number(vals.amount),
+                    method: 'nomba',
+                  });
+                } else if (vals.method === 'bank' && bankMeta) {
+                  onConfirmBank?.({ amount: Number(vals.amount), bankMeta });
+                }
+                setSubmitting(false);
+              }}
+            >
+              {({
+                values,
+                errors,
+                touched,
+                isSubmitting,
+                setFieldValue,
+                setFieldTouched,
+              }) => (
+                <Form className="flex flex-col h-full">
+                  <div className="px-6 py-5 flex-1">
+                    {/* Amount */}
+                    <label className="mb-1 block text-sm font-medium text-raisin">
+                      Amount <span className="text-red-500">*</span>
+                    </label>
+                    <CurrencyInput name="amount" />
 
-              {/* Bank Transfer panel */}
-              {values.method === 'bank' && bankMeta ? (
-                <Panel>
-                  <p className="mb-2 font-semibold">Pay to:</p>
-                  <div className="grid gap-2">
-                    <Row
-                      label="Account Number"
-                      value={bankMeta.bankAccountNumber}
-                    />
-                    <Row
-                      label="Account Name"
-                      value={bankMeta.bankAccountName}
-                    />
-                    <Row label="Bank Name" value={bankMeta.bankName} />
+                    {/* Method */}
+                    <div className="mt-4">
+                      <label className="mb-1 block text-sm font-medium text-raisin">
+                        Payment Method <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          className={clsx(
+                            'w-full appearance-none rounded-xl border border-neutral-200 bg-white text-raisin px-4 py-3 pr-10 text-left outline-none',
+                            'focus:border-neutral-400'
+                          )}
+                          value={values.method}
+                          onChange={(e) => {
+                            const m = e.target.value as Method;
+                            setFieldValue('method', m);
+                            setFieldTouched('method', true, false);
+                          }}
+                        >
+                          <option value="" disabled>
+                            Select payment method
+                          </option>
+                          <option value="bank">Bank Transfer</option>
+                          <option value="nomba">Nomba Checkout</option>
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
+                      </div>
+                      {touched.method && errors.method ? (
+                        <p className="mt-1 text-sm text-red-500">
+                          {errors.method as string}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    {/* Bank Transfer panel */}
+                    {values.method === 'bank' && bankMeta ? (
+                      <Panel>
+                        <p className="mb-2 font-semibold">Pay to:</p>
+                        <div className="grid gap-2">
+                          <Row
+                            label="Account Number"
+                            value={bankMeta.bankAccountNumber}
+                          />
+                          <Row
+                            label="Account Name"
+                            value={bankMeta.bankAccountName}
+                          />
+                          <Row label="Bank Name" value={bankMeta.bankName} />
+                        </div>
+                      </Panel>
+                    ) : null}
                   </div>
-                </Panel>
-              ) : null}
 
-              {/* Footer */}
-              <div className="mt-6 flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="h-11 flex-1 rounded-lg border border-neutral-300 bg-white font-medium text-neutral-700 hover:bg-neutral-50"
-                >
-                  Cancel
-                </button>
+                  {/* Footer with buttons */}
+                  <div className="flex gap-3 px-6 py-4 border-t flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="h-11 flex-1 rounded-lg border border-neutral-300 bg-white font-medium text-neutral-700 hover:bg-neutral-50"
+                    >
+                      Cancel
+                    </button>
 
-                {values.method === 'bank' ? (
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !values.amount || !bankMeta}
-                    className={clsx(
-                      'h-11 flex-1 rounded-lg bg-amber-400 font-semibold text-black',
-                      'disabled:cursor-not-allowed disabled:opacity-50 hover:bg-amber-300'
+                    {values.method === 'bank' ? (
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || !values.amount || !bankMeta}
+                        className={clsx(
+                          'h-11 flex-1 rounded-lg bg-amber-400 font-semibold text-black',
+                          'disabled:cursor-not-allowed disabled:opacity-50 hover:bg-amber-300'
+                        )}
+                      >
+                        Confirm Payment
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={
+                          isSubmitting || !values.amount || !values.method
+                        }
+                        className={clsx(
+                          'h-11 flex-1 rounded-xl bg-amber-400 font-semibold text-black',
+                          'disabled:cursor-not-allowed disabled:opacity-50 hover:bg-amber-300'
+                        )}
+                      >
+                        Proceed
+                      </button>
                     )}
-                  >
-                    Confirm Payment
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !values.amount || !values.method}
-                    className={clsx(
-                      'h-11 flex-1 rounded-xl bg-amber-400 font-semibold text-black',
-                      'disabled:cursor-not-allowed disabled:opacity-50 hover:bg-amber-300'
-                    )}
-                  >
-                    Proceed
-                  </button>
-                )}
-              </div>
-            </Form>
-          )}
-        </Formik>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </div>
+        </div>
       </div>
     </div>
   );

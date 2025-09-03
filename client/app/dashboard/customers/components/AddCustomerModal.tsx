@@ -115,14 +115,14 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
       />
 
       {/* panel */}
-      <div className="absolute inset-0 flex items-start justify-center p-4 sm:p-6">
+      <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
         <div
           ref={panelRef}
           tabIndex={-1}
-          className="mt-12 w-full max-w-[560px] rounded-lg bg-white shadow-2xl outline-none"
+          className="w-full max-w-[560px] max-h-[90vh] rounded-lg bg-white shadow-2xl outline-none flex flex-col"
         >
           {/* header */}
-          <div className="relative px-5 py-4 sm:px-6">
+          <div className="relative px-5 py-4 sm:px-6 flex-shrink-0">
             <h2
               id="add-customer-title"
               className="text-xl font-semibold text-raisin"
@@ -181,8 +181,8 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
             }}
           >
             {({ isSubmitting }) => (
-              <Form>
-                <div className="px-5 sm:px-6 pb-2 space-y-4">
+              <Form className="flex flex-col flex-1 min-h-0">
+                <div className="px-5 sm:px-6 pb-2 space-y-4 overflow-y-auto flex-1">
                   {/* Full name */}
                   <Field name="customer_name">
                     {({ field, meta }: FieldProps<string>) => (
@@ -304,7 +304,7 @@ export default function AddCustomerModal({ open, onClose, onCreated }: Props) {
                 </div>
 
                 {/* footer */}
-                <div className="px-5 sm:px-6 py-7 sm:py-6 flex items-center justify-end gap-3">
+                <div className="px-5 sm:px-6 py-7 sm:py-6 flex items-center justify-end gap-3 flex-shrink-0 border-t">
                   <button
                     type="button"
                     onClick={onClose}
