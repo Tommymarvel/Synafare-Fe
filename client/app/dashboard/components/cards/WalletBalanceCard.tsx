@@ -117,21 +117,23 @@ export default function WalletBalanceCard() {
           </div>
         )}
         {/* Middle: Action buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
           <button
             onClick={() => setOpen(true)}
-            className="flex items-center text-sm lg:text-base rounded-lg bg-mikado px-4 py-2 text-raisin transition hover:bg-yellow-600"
+            aria-label="Add money"
+            className="flex items-center justify-center sm:justify-start flex-1 min-w-0 w-full sm:w-1/2 text-sm lg:text-base rounded-lg bg-mikado px-4 py-2 text-raisin transition hover:bg-yellow-600"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add money
+            <span className="truncate">Add money</span>
           </button>
 
           <button
-            className="flex items-center rounded-lg border text-sm lg:text-base border-mikado px-4 py-2 text-mikado transition hover:bg-mikado hover:text-white"
             onClick={() => setWithdrawOpen(true)}
+            aria-label="Withdraw"
+            className="flex items-center justify-center sm:justify-start flex-1 min-w-0 w-full sm:w-1/2 rounded-lg border text-sm lg:text-base border-mikado px-4 py-2 text-mikado transition hover:bg-mikado hover:text-white"
           >
             <Minus className="mr-2 h-4 w-4" />
-            Withdraw
+            <span className="truncate">Withdraw</span>
           </button>
         </div>
         {/* Top-right: Icon badge */}
