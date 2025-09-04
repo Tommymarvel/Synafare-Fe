@@ -52,6 +52,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         user?.nature_of_solar_business || ''
       );
     }
+
+    // Hide Inventory for installer users
+    if (item.href === '/dashboard/inventory') {
+      return user?.nature_of_solar_business !== 'installer';
+    }
+
     // Show all other items for verified users
     return true;
   });

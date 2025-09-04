@@ -26,6 +26,12 @@ export default function Page() {
   const [editingCatalogueItem, setEditingCatalogueItem] =
     useState<CatelogueType | null>(null);
 
+  // Get inventory statistics for the dashboard cards
+  const { meta } = useInventory({ limit: 1 }); // Just fetch one item to get the meta data
+
+  // Get catalogue data
+  const { data: catalogueData, mutate: mutateCatalogue } = useCatalogue();
+
   // Handle edit catalogue item
   const handleEditCatalogue = (item: CatelogueType) => {
     setEditingCatalogueItem(item);
@@ -36,12 +42,6 @@ export default function Page() {
   const handleRefreshCatalogue = () => {
     mutateCatalogue();
   };
-
-  // Get inventory statistics for the dashboard cards
-  const { meta } = useInventory({ limit: 1 }); // Just fetch one item to get the meta data
-
-  // Get catalogue data
-  const { data: catalogueData, mutate: mutateCatalogue } = useCatalogue();
 
   const stats = [
     {
