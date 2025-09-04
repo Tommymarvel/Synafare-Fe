@@ -3,6 +3,8 @@ export interface CustomerAPI {
   customer_name: string;
   customer_email: string;
   customer_phn: string;
+  customer_bvn?: string;
+  customer_dob?: string;
   date_joined?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -18,6 +20,8 @@ export interface Customer {
   name: string;
   email: string;
   phone: string;
+  bvn?: string;
+  dob?: string;
   createdAt: string;
 }
 
@@ -27,6 +31,8 @@ export function toCustomer(api: CustomerAPI): Customer {
     name: api.customer_name,
     email: api.customer_email,
     phone: api.customer_phn,
+    bvn: api.customer_bvn,
+    dob: api.customer_dob,
     createdAt: api.date_joined ?? api.createdAt ?? new Date().toISOString(),
   };
 }

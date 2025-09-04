@@ -7,12 +7,39 @@ import Image from 'next/image';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
 
 const ProfileSettings = () => {
   const [editProfileModal, setEditProfileModal] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [password, setPassword] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user, loading, refreshUser } = useAuth(); // Get user data from context
+  const { user, loading, refreshUser, logout } = useAuth(); // Get user data from context
+  const router = useRouter();
+
+  const handleChangePassword = async (pw: string) => {
+    if (!pw.trim()) {
+      toast.error('Please enter a password');
+      return;
+    }
+
+    try {
+      await axiosInstance.patch('/auth/update-pw', { 'new-pw': pw });
+      toast.success('Password changed successfully. You will be logged out.');
+      setPassword(''); // Clear the password field
+
+      // Logout user after successful password change
+      setTimeout(async () => {
+        await logout();
+        router.push(
+          '/login?message=Password changed successfully. Please login with your new password.'
+        );
+      }, 2000); // Give user time to see the success message
+    } catch (error) {
+      console.log(error);
+      toast.error('An error occurred while trying to change your password');
+    }
+  };
 
   const handlePhotoUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -197,12 +224,21 @@ const ProfileSettings = () => {
             <p className="font-medium">Password</p>
             <div className="flex gap-x-[51px] items-center ">
               <input
-                type="text"
-                readOnly
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="py-5 px-4 bg-gray-100 border border-gray-300 w-full grow rounded-md"
-                placeholder="******"
+                placeholder="Enter new password (min 8 characters)"
               />
-              <button className="border shrink-0 border-resin-black py-2 px-4 rounded-lg hover:bg-deep-green hover:text-gray-4">
+              <button
+                onClick={() => handleChangePassword(password)}
+                disabled={password.length < 8}
+                className={`shrink-0 py-2 px-4 rounded-lg font-medium transition-colors ${
+                  password.length >= 8
+                    ? 'bg-mikado text-raisin hover:bg-yellow-600 cursor-pointer'
+                    : 'bg-gray-400 text-white cursor-not-allowed opacity-50'
+                }`}
+              >
                 Change Password
               </button>
             </div>

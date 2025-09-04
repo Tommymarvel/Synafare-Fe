@@ -104,8 +104,8 @@ export default function EditCustomerModal({
     customer_email: customer?.email || '',
     countryCode: '+234',
     customer_phn: customer?.phone || '',
-    customer_bvn: '',
-    customer_dob: '',
+    customer_bvn: customer?.bvn || '',
+    customer_dob: customer?.dob || '',
   };
 
   return (

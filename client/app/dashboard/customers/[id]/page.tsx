@@ -16,6 +16,8 @@ interface CustomerAPI {
   customer_name: string;
   customer_email: string;
   customer_phn: string;
+  customer_bvn?: string;
+  customer_dob?: string;
   date_joined?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -26,6 +28,8 @@ interface Customer {
   name: string;
   email: string;
   phone: string;
+  bvn?: string;
+  dob?: string;
   createdAt: string; // ISO
 }
 
@@ -35,13 +39,13 @@ function toCustomer(api: CustomerAPI): Customer {
     name: api.customer_name,
     email: api.customer_email,
     phone: api.customer_phn,
+    bvn: api.customer_bvn,
+    dob: api.customer_dob,
     createdAt: api.date_joined ?? api.createdAt ?? new Date().toISOString(),
   };
 }
 
 type InvoiceStatus = 'PENDING' | 'PAID';
-
-
 
 /* ----------------------------- SWR (customer) ----------------------------- */
 
@@ -71,9 +75,9 @@ const fetchInvoices: (k: InvoicesKey) => Promise<{ data: Invoice[] }> = async ([
 
 /* ------------------------------ Mock invoices -------------------------------- */
 
- type InvoiceStatusTest = 'PENDING' | 'PAID';
+type InvoiceStatusTest = 'PENDING' | 'PAID';
 
- interface InvoiceTest {
+interface InvoiceTest {
   id: string;
   customerId: string;
   customerName: string;
@@ -84,7 +88,7 @@ const fetchInvoices: (k: InvoicesKey) => Promise<{ data: Invoice[] }> = async ([
   status: InvoiceStatusTest;
 }
 
- const mockInvoices: InvoiceTest[] = [
+const mockInvoices: InvoiceTest[] = [
   {
     id: '#00001',
     customerId: '6896493a332e17793756c73a',

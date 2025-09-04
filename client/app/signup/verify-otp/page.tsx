@@ -101,10 +101,14 @@ export default function VerifyOtpPage() {
   // Verify handler
   const handleVerify = async () => {
     isSubmitting(true);
-    if (!email) return;
+    if (!email) {
+      isSubmitting(false);
+      return;
+    }
     const otp = verificationCode.join('');
     if (otp.length < OTP_LENGTH) {
       shake();
+      isSubmitting(false);
       return;
     }
 
@@ -113,7 +117,6 @@ export default function VerifyOtpPage() {
       sessionStorage.removeItem('verifyEmail');
       toast.success('Email verified! Redirecting…');
       router.push('/login');
-      isSubmitting(false);
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message?: string }>;
       toast.error(
@@ -124,6 +127,8 @@ export default function VerifyOtpPage() {
       );
 
       shake();
+    } finally {
+      isSubmitting(false);
     }
   };
 

@@ -156,32 +156,47 @@ export default function Page() {
           )}
         </button>
       </div>
-
       <div className="grid grid-cols-2 mt-10 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((item, i) => (
-          <div
-            key={i}
-            className="rounded-md border border-gray-300 bg-white py-6 px-4 flex items-center justify-between"
-          >
-            <div className="space-y-1">
-              <h3 className="text-[13px] font-medium text-gray-600">
-                {item.title}
-              </h3>
-              <p className="text-[18px] font-semibold">{item.value}</p>
-            </div>
-            <div className="">
-              <Image
-                src={item.icon}
-                alt={item.title}
-                width={40}
-                height={40}
-                className="w-10 h-10"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+        {stats.map((item, i) => {
+          // Calculate text size based on value length for better scaling
+          const valueStr = item.value.toString();
+          const getTextSize = () => {
+            if (valueStr.length > 25) return 'text-[10px]'; // Extra long values
+            if (valueStr.length > 20) return 'text-xs'; // Very long values
+            if (valueStr.length > 15) return 'text-sm'; // Long values
+            if (valueStr.length > 12) return 'text-base'; // Medium values
+            if (valueStr.length > 8) return 'text-lg'; // Slightly smaller than original
+            return 'text-[18px]'; // Short values (original size)
+          };
 
+          return (
+            <div
+              key={i}
+              className="rounded-md border border-gray-300 bg-white py-6 px-4 flex items-center justify-between"
+            >
+              <div className="space-y-1 flex-1 min-w-0">
+                <h3 className="text-[13px] font-medium text-gray-600">
+                  {item.title}
+                </h3>
+                <p
+                  className={`${getTextSize()} font-semibold whitespace-nowrap overflow-hidden text-ellipsis`}
+                >
+                  {item.value}
+                </p>
+              </div>
+              <div className="flex-shrink-0 ml-2">
+                <Image
+                  src={item.icon}
+                  alt={item.title}
+                  width={40}
+                  height={40}
+                  className="w-10 h-10"
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>{' '}
       {/* Tabs */}
       <nav className="flex gap-6 border-b mt-5">
         {TABS.map((tab) => {
@@ -202,9 +217,7 @@ export default function Page() {
           );
         })}
       </nav>
-
       <div className="mt-5">{renderTabContent()}</div>
-
       {/* Add/Edit Catalogue Modal */}
       {showAddCatalogueModal && (
         <AddCatalogueModal
