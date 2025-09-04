@@ -8,6 +8,7 @@ import axiosInstance from '@/lib/axiosInstance';
 import { format } from 'date-fns';
 import { Pencil, Trash2, ChevronDown, ArrowLeft } from 'lucide-react';
 import DeleteCustomerModal from '../components/DeleteCustomerModal';
+import StatusChip from '@/app/components/statusChip';
 
 /* ---------------------------- Types (no any) ---------------------------- */
 
@@ -45,8 +46,6 @@ function toCustomer(api: CustomerAPI): Customer {
   };
 }
 
-type InvoiceStatus = 'PENDING' | 'PAID';
-
 /* ----------------------------- SWR (customer) ----------------------------- */
 
 const CUSTOMER_URL = '/customer/getcustomers' as const;
@@ -61,69 +60,82 @@ const fetchCustomer: (
   return data;
 };
 
-/* ----------------------- FUTURE: invoices API (commented) -----------------------
-   When your invoices endpoint is ready, uncomment this block and the usage below.
+/* ---------------------------- Loans API -------------------------------- */
 
-const INVOICES_BY_CUSTOMER_URL = '/invoice/by-customer' as const;
-type InvoicesKey = readonly [typeof INVOICES_BY_CUSTOMER_URL, Readonly<{ customerId: string }>];
-
-const fetchInvoices: (k: InvoicesKey) => Promise<{ data: Invoice[] }> = async ([url, params]) => {
-  const { data } = await axiosInstance.get<{ data: Invoice[] }>(url, { params });
-  return data;
-};
----------------------------------------------------------------------------------- */
-
-/* ------------------------------ Mock invoices -------------------------------- */
-
-type InvoiceStatusTest = 'PENDING' | 'PAID';
-
-interface InvoiceTest {
-  id: string;
-  customerId: string;
-  customerName: string;
-  customerEmail: string;
-  issueDate: string;
-  dueDate: string;
-  amount: number;
-  status: InvoiceStatusTest;
-}
-
-const mockInvoices: InvoiceTest[] = [
-  {
-    id: '#00001',
-    customerId: '6896493a332e17793756c73a',
-    customerName: 'Mary Thomas',
-    customerEmail: 'mayree12@gmail.com',
-    issueDate: '2025-01-06T00:00:00.000Z',
-    dueDate: '2025-01-06T00:00:00.000Z',
-    amount: 827_172,
-    status: 'PENDING',
-  },
-  {
-    id: '#00002',
-    customerId: '6896493a332e17793756c73a',
-    customerName: 'Mary Thomas',
-    customerEmail: 'mayree12@gmail.com',
-    issueDate: '2025-01-06T00:00:00.000Z',
-    dueDate: '2025-01-06T00:00:00.000Z',
-    amount: 827_172,
-    status: 'PAID',
-  },
-  {
-    id: '#00003',
-    customerId: '6896493a332e17793756c73a',
-    customerName: 'Mary Thomas',
-    customerEmail: 'mayree12@gmail.com',
-    issueDate: '2025-01-06T00:00:00.000Z',
-    dueDate: '2025-01-06T00:00:00.000Z',
-    amount: 827_172,
-    status: 'PAID',
-  },
+const LOANS_BY_CUSTOMER_URL = '/loan/customer' as const;
+type LoansKey = readonly [
+  typeof LOANS_BY_CUSTOMER_URL,
+  Readonly<{ cus_id: string }>
 ];
 
-function getInvoicesForCustomer(customerId: string): InvoiceTest[] {
-  return mockInvoices.filter((i) => i.customerId === customerId);
+interface LoanAPI {
+  _id: string;
+  interest: number;
+  loan_agreement: string;
+  customer: {
+    _id: string;
+    customer_name: string;
+    customer_email: string;
+    customer_phn: string;
+  };
+  transaction_cost: number;
+  loan_duration_in_months: number;
+  downpayment_in_percent: number;
+  downpayment_in_naira: number;
+  loan_status: string;
+  createdAt: string;
+  updatedAt: string;
 }
+
+const fetchLoans: (
+  k: LoansKey
+) => Promise<{ customer_loans: LoanAPI[] }> = async ([url, params]) => {
+  const { data } = await axiosInstance.get<{ customer_loans: LoanAPI[] }>(
+    `${url}/${params.cus_id}`
+  );
+  return data;
+};
+
+/* ---------------------------- Invoices API -------------------------------- */
+
+const INVOICES_URL = '/invoice' as const;
+type InvoicesKey = readonly [typeof INVOICES_URL, Readonly<{ cus_id: string }>];
+
+interface InvoiceAPI {
+  _id: string;
+  receipient: {
+    _id: string;
+    customer_name: string;
+    customer_email: string;
+    customer_phn: string;
+  };
+  issue_date: string;
+  invoice_number: number;
+  due_date: string;
+  items: Array<{
+    product: string;
+    quantity: number;
+    unit_price: number;
+    amount: number;
+    _id: string;
+  }>;
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const fetchInvoices: (
+  k: InvoicesKey
+) => Promise<{ data: InvoiceAPI[] }> = async ([url, params]) => {
+  const { data } = await axiosInstance.get<{ data: InvoiceAPI[] }>(url, {
+    params: { cus_id: params.cus_id },
+  });
+  return data;
+};
 
 /* -------------------------------- Component -------------------------------- */
 
@@ -149,16 +161,33 @@ export default function CustomerDetailsPage() {
   const raw = Array.isArray(cRes?.data) ? cRes?.data[0] : cRes?.data;
   const customer = raw ? toCustomer(raw) : undefined;
 
-  /* ----------------------- FUTURE: invoices fetch (commented) --------------------
-  const invKey = [INVOICES_BY_CUSTOMER_URL, { customerId: params.id }] as const satisfies InvoicesKey;
-  const { data: iRes, isLoading: invoicesLoading, error: invoicesError } = useSWR(invKey, fetchInvoices, {
+  // Loans
+  const loansKey = [
+    LOANS_BY_CUSTOMER_URL,
+    { cus_id: params.id },
+  ] as const satisfies LoansKey;
+  const {
+    data: loansRes,
+    isLoading: loansLoading,
+    error: loansError,
+  } = useSWR(loansKey, fetchLoans, {
     revalidateOnFocus: true,
   });
-  const invoices: Invoice[] = iRes?.data ?? [];
-  ------------------------------------------------------------------------------- */
+  const loans: LoanAPI[] = loansRes?.customer_loans ?? [];
 
-  // ✅ Mock for now
-  const invoices: InvoiceTest[] = getInvoicesForCustomer(params.id);
+  // Invoices
+  const invoicesKey = [
+    INVOICES_URL,
+    { cus_id: params.id },
+  ] as const satisfies InvoicesKey;
+  const {
+    data: invoicesRes,
+    isLoading: invoicesLoading,
+    error: invoicesError,
+  } = useSWR(invoicesKey, fetchInvoices, {
+    revalidateOnFocus: true,
+  });
+  const invoices: InvoiceAPI[] = invoicesRes?.data ?? [];
 
   if (customerLoading) return <div className="p-6">Loading…</div>;
   if (customerError || !customer)
@@ -234,7 +263,7 @@ export default function CustomerDetailsPage() {
         </div>
       </div>
 
-      {/* Loans (collapsible) */}
+      {/* Loans Table */}
       <div className="rounded-xl border bg-white">
         <button
           onClick={() => setLoansOpen((v) => !v)}
@@ -249,8 +278,87 @@ export default function CustomerDetailsPage() {
           />
         </button>
         {loansOpen && (
-          <div className="px-4 lg:px-6 py-10 text-center text-sm text-raisin/60">
-            No recent loan activity
+          <div className="border-t">
+            {loansLoading ? (
+              <div className="py-10 text-center text-sm text-raisin/60">
+                Loading loans...
+              </div>
+            ) : loansError ? (
+              <div className="py-10 text-center text-sm text-red-600">
+                Error loading loans
+              </div>
+            ) : loans.length === 0 ? (
+              <div className="py-10 text-center text-sm text-raisin/60">
+                No recent loan activity
+              </div>
+            ) : (
+              <div className="-mx-1">
+                <div
+                  className="overflow-x-auto touch-pan-x scrollbar-mikado"
+                  style={{ WebkitOverflowScrolling: 'touch' }}
+                >
+                  <table className="min-w-[700px] w-full text-sm table-auto whitespace-nowrap md:whitespace-normal">
+                    <thead>
+                      <tr className="bg-[#F0F2F5]">
+                        <Th className="w-[120px]">Loan ID</Th>
+                        <Th className="w-[160px]">Customer</Th>
+                        <Th className="w-[140px]">Transaction Cost</Th>
+                        <Th className="hidden md:table-cell w-[120px]">
+                          Duration
+                        </Th>
+                        <Th className="hidden lg:table-cell w-[140px]">
+                          Downpayment
+                        </Th>
+                        <Th className="w-[120px]">Status</Th>
+                        <Th className="w-[80px]">Action</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loans.map((loan) => (
+                        <tr
+                          key={loan._id}
+                          className="border-t hover:bg-neutral-50"
+                        >
+                          <Td className="whitespace-nowrap">
+                            #{loan._id.slice(-6)}
+                          </Td>
+                          <Td className="whitespace-nowrap md:whitespace-normal">
+                            <div className="font-medium text-raisin">
+                              {loan.customer.customer_name}
+                            </div>
+                            <div className="text-xs text-raisin/60">
+                              {loan.customer.customer_email}
+                            </div>
+                          </Td>
+                          <Td className="whitespace-nowrap">
+                            ₦{loan.transaction_cost.toLocaleString()}
+                          </Td>
+                          <Td className="hidden md:table-cell whitespace-nowrap">
+                            {loan.loan_duration_in_months} months
+                          </Td>
+                          <Td className="hidden lg:table-cell whitespace-nowrap">
+                            ₦{loan.downpayment_in_naira.toLocaleString()}
+                          </Td>
+                          <Td className="whitespace-nowrap">
+                            <StatusChip status={loan.loan_status} />
+                          </Td>
+                          <Td className="whitespace-nowrap">
+                            <Link
+                              href={`/dashboard/loans/${encodeURIComponent(
+                                loan._id
+                              )}`}
+                              className="text-mikado hover:underline"
+                            >
+                              View
+                            </Link>
+                          </Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -281,7 +389,25 @@ export default function CustomerDetailsPage() {
                 </tr>
               </thead>
               <tbody>
-                {invoices.length === 0 ? (
+                {invoicesLoading ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-6 py-10 text-center text-raisin/60"
+                    >
+                      Loading invoices...
+                    </td>
+                  </tr>
+                ) : invoicesError ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-6 py-10 text-center text-red-600"
+                    >
+                      Error loading invoices
+                    </td>
+                  </tr>
+                ) : invoices.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
@@ -292,32 +418,34 @@ export default function CustomerDetailsPage() {
                   </tr>
                 ) : (
                   invoices.map((inv) => (
-                    <tr key={inv.id} className="border-t hover:bg-neutral-50">
-                      <Td className="whitespace-nowrap">{inv.id}</Td>
+                    <tr key={inv._id} className="border-t hover:bg-neutral-50">
+                      <Td className="whitespace-nowrap">
+                        #{inv.invoice_number}
+                      </Td>
                       <Td className="whitespace-nowrap md:whitespace-normal">
                         <div className="font-medium text-raisin">
-                          {inv.customerName}
+                          {inv.receipient.customer_name || 'N/A'}
                         </div>
                         <div className="text-xs text-raisin/60">
-                          {inv.customerEmail}
+                          {inv.receipient.customer_email || 'N/A'}
                         </div>
                       </Td>
                       <Td className="hidden md:table-cell whitespace-nowrap">
-                        {format(new Date(inv.issueDate), 'MMM d, yyyy')}
+                        {format(new Date(inv.issue_date), 'MMM d, yyyy')}
                       </Td>
                       <Td className="hidden lg:table-cell whitespace-nowrap">
-                        {format(new Date(inv.dueDate), 'MMM d, yyyy')}
+                        {format(new Date(inv.due_date), 'MMM d, yyyy')}
                       </Td>
                       <Td className="whitespace-nowrap">
-                        ₦{inv.amount.toLocaleString()}
+                        ₦{inv.total.toLocaleString()}
                       </Td>
                       <Td className="whitespace-nowrap">
-                        <StatusChip status={inv.status as 'PENDING' | 'PAID'} />
+                        <StatusChip status={inv.status} />
                       </Td>
                       <Td className="whitespace-nowrap">
                         <Link
                           href={`/dashboard/invoices/${encodeURIComponent(
-                            inv.id
+                            inv._id
                           )}`}
                           className="text-mikado hover:underline"
                         >
@@ -368,20 +496,4 @@ function Td({
   className?: string;
 }) {
   return <td className={`px-4 lg:px-6 py-3 ${className}`}>{children}</td>;
-}
-
-function StatusChip({ status }: { status: InvoiceStatus }) {
-  const map: Record<InvoiceStatus, readonly [label: string, classes: string]> =
-    {
-      PENDING: ['Pending', 'bg-yellow-50 text-yellow-600'],
-      PAID: ['Paid', 'bg-green-50 text-green-600'],
-    };
-  const [label, cls] = map[status];
-  return (
-    <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${cls}`}
-    >
-      {label}
-    </span>
-  );
 }
