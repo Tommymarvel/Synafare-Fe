@@ -24,7 +24,7 @@ type FormValuesBase = {
   invoice: File | null;
 };
 
-export function BankDropzone() {
+export function BankDropzone({type}:{type?: 'inventory' | 'customer'}) {
   const { values, setFieldValue, setFieldError } =
     useFormikContext<FormValuesBase>();
 
@@ -52,7 +52,7 @@ export function BankDropzone() {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700">
-        Upload your Business Bank Statement (last 6 months){' '}
+        Upload your { type == "customer" ? "Customer's" :"Business"} Bank Statement (last 6 months){' '}
         <span className="text-red-500">*</span>
       </label>
 

@@ -324,7 +324,7 @@ export default function CustomerLoanForm({
 
                 {/* Uploads */}
                 <div className="mt-6 space-y-5">
-                  <BankDropzone />
+                  <BankDropzone type='customer' />
                   <TransactionDropzone />
                 </div>
 
